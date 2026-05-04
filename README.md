@@ -1,5 +1,2 @@
-<<<<<<< HEAD
 # web-suffer-back
-=======
-# Трекер настроения
->>>>>>> refactor/migrate-from-layer-based-to-feature-based
+Создание бэка для веб-разработки
