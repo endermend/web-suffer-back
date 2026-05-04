@@ -1,0 +1,99 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Backend for mood tracker"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "argon2-cffi>=25.1.0",
+    "dishka>=1.8.0",
+    "fastapi>=0.135.1",
+    "psycopg[binary]>=3.3.3",
+    "pydantic-settings>=2.13.1",
+    "pydantic[email]>=2.12.5",
+    "pyjwt>=2.11.0",
+    "redis>=7.2.1",
+    "sqlalchemy[asyncio]>=2.0.48",
+    "structlog>=25.5.0",
+    "uvicorn[standard]>=0.41.0",
+]
+
+[dependency-groups]
+dev = [
+    "complexipy>=5.2.0",
+    "cosmic-ray>=8.4.4",
+    "hypothesis>=6.151.9",
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.1.0",
+    "pytest-randomly>=4.0.1",
+    "ruff>=0.15.4",
+    "ty>=0.0.26",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.mypy]
+strict = true
+strict_bytes = true
+local_partial_types = true
+warn_unreachable = true
+explicit_package_bases = true
+mypy_path = ["src"]
+plugins = ['pydantic.mypy']
+python_version = "3.13"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+preview = true
+select = ["ALL"]
+ignore = [
+    "TD002",  # автор в todo
+    "TD003",  # ссылка на issue в todo
+    "CPY001", # лицензия в начале файла
+    "D100",   # docstring для модуля
+    "D104",   # docstring для пакета
+    "D203",   # пустая строки перед docstring класса, конфликт с D211
+    "D212",   # summary на первой строке, конфликт с D213
+    "FIX002", # наличие TODO
+    "COM812", # конфликт с formatter
+
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/tests/**" = [
+    "S101", # запрет на assert
+    "D103", # docstring для модуля
+]
+
+[tool.ty.environment]
+root = ["./src"]
+
+[tool.ty.rules]
+all = "error"
+
+[tool.complexipy]
+paths = ["src"]
+max-complexity-allowed = 15
+quiet = false
+ignore-complexity = false
+failed = false
+color = "auto"
+sort = "desc"
+output-csv = true
+output-json = false
