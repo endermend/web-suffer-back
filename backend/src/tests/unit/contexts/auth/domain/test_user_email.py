@@ -1,7 +1,7 @@
 import pytest
 
-from mood_tracker.contexts.auth.domain.exceptions import InvalidEmailError
-from mood_tracker.contexts.auth.domain.value_objects import UserEmail
+from web_suffer.contexts.auth.domain.exceptions import InvalidEmailError
+from web_suffer.contexts.auth.domain.value_objects import UserEmail
 
 
 @pytest.mark.parametrize(

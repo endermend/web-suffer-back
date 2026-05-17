@@ -34,4 +34,4 @@ USER nonroot
 
 WORKDIR /app
 
-CMD ["python", "-m", "mood_tracker.main"]
+CMD ["python", "-m", "web_suffer.main"]

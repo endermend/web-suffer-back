@@ -1,7 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Backend for mood tracker"
+description = "Backend for web suffer"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -71,7 +71,6 @@ ignore = [
     "D203",   # пустая строки перед docstring класса, конфликт с D211
     "D212",   # summary на первой строке, конфликт с D213
     "FIX002", # наличие TODO
-    "COM812", # конфликт с formatter
 
 ]
 
