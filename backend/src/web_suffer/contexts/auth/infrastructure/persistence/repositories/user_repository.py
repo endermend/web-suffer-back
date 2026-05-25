@@ -4,23 +4,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from web_suffer.contexts.auth.domain.entities import User
 from web_suffer.contexts.auth.domain.repositories import IUserRepository
 from web_suffer.contexts.auth.domain.value_objects import (
-    PasswordHash,
     UserEmail,
 )
-from web_suffer.contexts.auth.infrastructure.persistence.models import UserORM
+from web_suffer.contexts.auth.infrastructure.mappers.user_orm_mapper import (
+    UserORMMapper,
+)
+from web_suffer.contexts.auth.infrastructure.persistence.models.user_model import (
+    UserORMModel,
+)
 from web_suffer.shared.domain.value_objects import UserID
 
 
 class UserRepository(IUserRepository):
     """Реализация IUserRepository на SQLAlchemy."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, mapper: UserORMMapper) -> None:
         """Инициализация UserRepository."""
         self._session = session
+        self._mapper = mapper
 
     async def save(self, user: User) -> None:
         """Сохранение User."""
-        user_orm = self._domain_to_orm(user_domain=user)
+        user_orm = UserORMModel()
+        self._mapper.update_from_domain(orm=user_orm, user=user)
         self._session.add(user_orm)
         await self._session.commit()
 
@@ -32,7 +38,7 @@ class UserRepository(IUserRepository):
             bool: True если существует, False иначе
 
         """
-        stmt = select(UserORM).where(UserORM.email == email.value)
+        stmt = select(UserORMModel).where(UserORMModel.email == email.value)
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None
 
@@ -44,12 +50,12 @@ class UserRepository(IUserRepository):
             User | None: None если пользователь не найден.
 
         """
-        stmt = select(UserORM).where(UserORM.email == email.value)
+        stmt = select(UserORMModel).where(UserORMModel.email == email.value)
         result = await self._session.execute(stmt)
         user_orm = result.scalar()
         if user_orm is None:
             return None
-        return self._orm_to_domain(user_orm=user_orm)
+        return self._mapper.to_domain(orm=user_orm)
 
     async def get_user_by_id(self, user_id: UserID) -> User | None:
         """
@@ -59,25 +65,9 @@ class UserRepository(IUserRepository):
             Пользователь, если пользователь с таким ID существует, иначе None.
 
         """  # noqa: RUF002
-        stmt = select(UserORM).where(UserORM.id == user_id.value)
+        stmt = select(UserORMModel).where(UserORMModel.id == user_id.value)
         result = await self._session.execute(stmt)
         user_orm = result.scalar()
         if user_orm is None:
             return None
-        return self._orm_to_domain(user_orm=user_orm)
-
-    @staticmethod
-    def _domain_to_orm(user_domain: User) -> UserORM:
-        user_orm = UserORM()
-        user_orm.id = user_domain.id.value
-        user_orm.email = user_domain.email.value
-        user_orm.password_hash = user_domain.password_hash.value
-        return user_orm
-
-    @staticmethod
-    def _orm_to_domain(user_orm: UserORM) -> User:
-        return User(
-            id=UserID(user_orm.id),
-            email=UserEmail(user_orm.email),
-            password_hash=PasswordHash(user_orm.password_hash),
-        )
+        return self._mapper.to_domain(orm=user_orm)

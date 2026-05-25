@@ -1,12 +1,14 @@
 import structlog
 
-from web_suffer.contexts.auth.application.dto.login_user import (
-    LoginUserInputDTO,
-    LoginUserOutputDTO,
-)
+from web_suffer.contexts.auth.application.dtos.token_dto import TokensDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
 from web_suffer.contexts.auth.application.exceptions import InvalidCredentialsError
+from web_suffer.contexts.auth.application.interfaces import (
+    IPasswordHasher,
+    ITokenService,
+)
+from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import IAuthDTOMapper
 from web_suffer.contexts.auth.domain.repositories import IUserRepository
-from web_suffer.contexts.auth.domain.security import IPasswordHasher, ITokenService
 from web_suffer.contexts.auth.domain.value_objects import UserEmail
 
 logger = structlog.stdlib.get_logger()
@@ -20,13 +22,15 @@ class LoginUserUseCase:
         user_repo: IUserRepository,
         password_hasher: IPasswordHasher,
         token_service: ITokenService,
+        mapper: IAuthDTOMapper,
     ) -> None:
         """Инициализирует use case входа пользователя в аккаунт."""
         self._user_repo = user_repo
         self._password_hasher = password_hasher
         self._token_service = token_service
+        self._mapper = mapper
 
-    async def execute(self, input_dto: LoginUserInputDTO) -> LoginUserOutputDTO:
+    async def execute(self, input_dto: CredentialsDTO) -> TokensDTO:
         """
         Проверяет данные пользователя и возвращает пару токенов.
 
@@ -45,7 +49,7 @@ class LoginUserUseCase:
 
         if not self._password_hasher.verify_password(
             password=input_dto.password,
-            password_hash=user.password_hash.value,
+            password_hash=user.password_hash,
         ):
             logger.warning(
                 "auth.login.failed",
@@ -58,7 +62,7 @@ class LoginUserUseCase:
 
         logger.info("auth.login.success", user_id=str(user.id.value))
 
-        return LoginUserOutputDTO(
-            access_token=token_pair.access_token,
-            refresh_token=token_pair.refresh_token,
+        return TokensDTO(
+            access_token=token_pair.access_token.value,
+            refresh_token=token_pair.refresh_token.value,
         )

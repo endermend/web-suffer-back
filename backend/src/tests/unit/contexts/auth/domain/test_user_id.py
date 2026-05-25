@@ -36,7 +36,7 @@ def test_eq_same_value() -> None:
 def test_immutable() -> None:
     uid = UserID.new()
     with pytest.raises(AttributeError):
-        uid.value = uuid.uuid4()  # type: ignore  # noqa: PGH003
+        uid.value = uuid.uuid4()
 
 
 def test_from_str_roundtrip() -> None:

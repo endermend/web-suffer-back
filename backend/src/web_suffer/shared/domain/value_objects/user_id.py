@@ -1,16 +1,15 @@
-from dataclasses import dataclass
-from typing import Self
 from uuid import UUID, uuid4
 
+from web_suffer.shared.domain.value_objects.single_value_object import SingleValueObject
 
-@dataclass(slots=True, frozen=True)
-class UserID:
+
+class UserID(SingleValueObject):
     """Value object ID пользователя."""
 
     value: UUID
 
     @classmethod
-    def new(cls) -> Self:
+    def new(cls) -> "UserID":
         """
         Генерация нового UserID.
 
@@ -21,7 +20,7 @@ class UserID:
         return cls(uuid4())
 
     @classmethod
-    def from_str(cls, uuid_str: str) -> Self:
+    def from_str(cls, uuid_str: str) -> "UserID":
         """
         Получение UserID из строки str.
 

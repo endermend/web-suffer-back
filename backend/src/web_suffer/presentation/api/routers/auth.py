@@ -1,0 +1,145 @@
+from typing import Annotated
+
+from dishka.integrations.fastapi import FromDishka, inject
+from fastapi import APIRouter, Cookie, HTTPException, Response, status
+
+from web_suffer.contexts.auth.application.dtos.token_dto import AccessTokenDTO, RefreshTokenDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
+from web_suffer.contexts.auth.application.use_cases import GetLoginByAccessTokenUseCase, LoginUserUseCase, RefreshUserUseCase, RegisterUserUseCase
+from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
+from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
+from web_suffer.presentation.api.adapters.fastapi_responce_adapter import FastAPIResponseAdapter
+from web_suffer.presentation.api.schemas.email import GetEmailResponse
+from web_suffer.presentation.api.schemas.login import (
+    UserLoginRequest,
+    UserLoginResponse,
+)
+from web_suffer.presentation.api.schemas.refresh import (
+    UserRefreshResponse,
+)
+from web_suffer.presentation.api.schemas.register import (
+    UserRegisterRequest,
+    UserRegisterResponse,
+)
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+@router.get(
+    "/email",
+    status_code=status.HTTP_200_OK,
+    summary="Получение почты",
+)
+@inject
+async def email(
+    access_token: str,
+    use_case: FromDishka[GetLoginByAccessTokenUseCase],
+) -> GetEmailResponse:
+    """
+    Эндпоинт получения почты.
+
+    Returns:
+        GetEmailResponse
+
+    """
+    output_dto = await use_case.execute(
+        input_dto=AccessTokenDTO(access_token=access_token),
+    )
+    return GetEmailResponse(email=output_dto.email)
+
+
+@router.post(
+    "/login",
+    status_code=status.HTTP_200_OK,
+    summary="Вход в аккаунт",
+)
+@inject
+async def login(
+    response: Response,
+    data: UserLoginRequest,
+    use_case: FromDishka[LoginUserUseCase],
+    cookie_service: FromDishka[CookieService],
+) -> UserLoginResponse:
+    """
+    Эндпоинт входа в аккаунт.
+
+    Returns:
+        UserLoginResponse
+
+    """
+    output_dto = await use_case.execute(
+        input_dto=CredentialsDTO(email=data.email, password=data.password),
+    )
+    wrapper = FastAPIResponseAdapter(response)
+    cookie_service.set_refresh_token(response=wrapper, token=output_dto.refresh_token)
+    return UserLoginResponse(access_token=output_dto.access_token)
+
+
+@router.post(
+    "/refresh",
+    status_code=status.HTTP_200_OK,
+    summary="Получение новой пары токенов",
+)
+@inject
+async def refresh(
+    response: Response,
+    use_case: FromDishka[RefreshUserUseCase],
+    cookie_service: FromDishka[CookieService],
+    refresh_token: Annotated[
+        str | None,
+        Cookie(alias=REFRESH_TOKEN_COOKIE_NAME),
+    ] = None,
+) -> UserRefreshResponse:
+    """
+    Эндпоинт обновления токенов.
+
+    Returns:
+        UserRefreshResponse
+
+    Raises:
+        HTTPException: refresh token отсутствует в куки
+
+    """
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token missing",
+        )
+
+    output_dto = await use_case.execute(
+        input_dto=RefreshTokenDTO(refresh_token=refresh_token),
+    )
+
+    wrapper = FastAPIResponseAdapter(response)
+    cookie_service.set_refresh_token(response=wrapper, token=output_dto.refresh_token)
+
+    return UserRefreshResponse(access_token=output_dto.access_token)
+
+
+@router.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    summary="Регистрация пользователя",
+)
+@inject
+async def register(
+    response: Response,
+    data: UserRegisterRequest,
+    use_case: FromDishka[RegisterUserUseCase],
+    cookie_service: FromDishka[CookieService],
+) -> UserRegisterResponse:
+    """
+    Эндпоинт регистрации.
+
+    Returns:
+        UserRegisterResponse
+
+    """
+    output_dto = await use_case.execute(
+        input_dto=CredentialsDTO(email=data.email, password=data.password),
+    )
+
+    wrapper = FastAPIResponseAdapter(response)
+    cookie_service.set_refresh_token(response=wrapper, token=output_dto.refresh_token)
+
+    return UserRegisterResponse(access_token=output_dto.access_token)

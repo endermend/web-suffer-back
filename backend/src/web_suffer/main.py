@@ -1,16 +1,16 @@
 import uvicorn
 
-from web_suffer.config import Config
-from web_suffer.log_config import setup_logging
+from web_suffer.infrastructure.config import Config
+from web_suffer.infrastructure.log_config import setup_logging
 
 
 def main() -> None:
     """Запуск FastAPI приложения в помощью uvicorn."""
-    config = Config()  # pyright: ignore[reportCallIssue] # ty:ignore[missing-argument]
+    config = Config()
     setup_logging(env=config.APP.ENV)
 
     uvicorn.run(
-        "web_suffer.app_factory:create_app",
+        "web_suffer.presentation.api.app_factory:create_app",
         factory=True,
         host="0.0.0.0",  # noqa: S104
         port=config.APP.PORT,
