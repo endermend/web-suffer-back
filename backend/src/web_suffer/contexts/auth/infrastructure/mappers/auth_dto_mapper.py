@@ -1,5 +1,4 @@
 from web_suffer.contexts.auth.application.dtos.token_dto import (
-    AccessTokenDTO,
     RefreshTokenDTO,
     TokensDTO,
 )
@@ -18,6 +17,9 @@ from web_suffer.contexts.auth.domain.value_objects import (
     UserStatus,
 )
 from web_suffer.contexts.auth.domain.value_objects.token_pair import TokenPair
+from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
+from web_suffer.shared.application.dtos.user_id_dto import UserIDDTO
+from web_suffer.shared.domain.value_objects.user_id import UserID
 
 
 class AuthDTOMapper(IAuthDTOMapper):
@@ -128,3 +130,16 @@ class AuthDTOMapper(IAuthDTOMapper):
             access_token=token_pair.access_token.value,
             refresh_token=token_pair.refresh_token.value,
         )
+
+    @staticmethod
+    def to_userid_dto(
+        user_id: UserID,
+    ) -> UserIDDTO:
+        """
+        Domain Entity -> DTO.
+
+        Returns:
+            Immutable UserID DTO.
+
+        """
+        return UserIDDTO(user_id=user_id.value)

@@ -1,7 +1,6 @@
 from typing import Protocol
 
 from web_suffer.contexts.auth.application.dtos.token_dto import (
-    AccessTokenDTO,
     RefreshTokenDTO,
     TokensDTO,
 )
@@ -13,6 +12,9 @@ from web_suffer.contexts.auth.application.dtos.user_dto import (
 )
 from web_suffer.contexts.auth.domain.entities.user import User
 from web_suffer.contexts.auth.domain.value_objects.token_pair import TokenPair
+from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
+from web_suffer.shared.application.dtos.user_id_dto import UserIDDTO
+from web_suffer.shared.domain.value_objects.user_id import UserID
 
 
 class IAuthDTOMapper(Protocol):
@@ -90,5 +92,17 @@ class IAuthDTOMapper(Protocol):
 
         Returns:
             Immutable Token DTO.
+
+        """
+
+    @staticmethod
+    def to_userid_dto(
+        user_id: UserID,
+    ) -> UserIDDTO:
+        """
+        Domain Entity -> DTO.
+
+        Returns:
+            Immutable UserID DTO.
 
         """

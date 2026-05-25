@@ -3,7 +3,7 @@ from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
-from web_suffer.contexts.auth.application.dtos.token_dto import AccessTokenDTO, RefreshTokenDTO
+from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
 from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
 from web_suffer.contexts.auth.application.use_cases import GetLoginByAccessTokenUseCase, LoginUserUseCase, RefreshUserUseCase, RegisterUserUseCase
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
@@ -21,6 +21,7 @@ from web_suffer.presentation.api.schemas.register import (
     UserRegisterRequest,
     UserRegisterResponse,
 )
+from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
