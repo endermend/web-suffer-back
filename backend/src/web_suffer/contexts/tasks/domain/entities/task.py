@@ -54,7 +54,7 @@ class Task(BaseEntity):
         description: str,
         deadline: datetime,
         id: TaskID | None = None,  # noqa: A002
-    ) -> "TaskID":
+    ) -> "Task":
         """
         Фабричный метод создания нового задания.
 
@@ -76,7 +76,7 @@ class Task(BaseEntity):
         title: str,
         description: str,
         deadline: datetime,
-    ) -> "TaskID":
+    ) -> "Task":
         """
         Фабричный метод для восстановления задания из БД.
 

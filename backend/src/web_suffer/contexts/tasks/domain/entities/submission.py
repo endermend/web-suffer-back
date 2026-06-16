@@ -6,7 +6,7 @@ from web_suffer.shared.domain.value_objects.user_id import UserID
 from web_suffer.shared.entities.base_entity import BaseEntity
 
 
-class Task(BaseEntity):
+class Submission(BaseEntity):
     """Доменная сущность задания (Entity DDD)."""
 
     _id: SubmissionID
@@ -77,7 +77,7 @@ class Task(BaseEntity):
         status: SubmissionStatus | None = None,
         comment: str = "",
         id: SubmissionID | None = None,  # noqa: A002
-    ) -> "TaskID":
+    ) -> "Submission":
         """
         Фабричный метод создания новой посылки.
 
@@ -105,7 +105,7 @@ class Task(BaseEntity):
         file: SubmissionFile,
         status: SubmissionStatus,
         comment: str,
-    ) -> "TaskID":
+    ) -> "Submission":
         """
         Фабричный метод для восстановления задания из БД.
 

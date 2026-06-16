@@ -1,19 +1,15 @@
-from abc import abstractmethod
-from typing import Protocol
-
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
+from web_suffer.contexts.tasks.domain.repository.submission_repository import ISubmissionRepository
 from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
 from web_suffer.contexts.tasks.domain.value_objects.submission_status import SubmissionStatus
 
 
-class ISubmissionRepository(Protocol):
-    """Протокол Submission репозитория."""
+class SubmissionRepository(ISubmissionRepository):
+    """Реализация Submission репозитория."""
 
-    @abstractmethod
     async def save(self, submission: Submission) -> None:
         """Сохранение Submission."""
 
-    @abstractmethod
     async def get_submission_by_id(self, task_id: SubmissionID) -> Submission | None:
         """
         Получение Submission по SubmissionID.
@@ -21,7 +17,6 @@ class ISubmissionRepository(Protocol):
         None, если submission не найден.
         """
 
-    @abstractmethod
     async def get_tasks_list(self, submission_status: SubmissionStatus | None = None) -> list[Submission]:
         """
         Получение Submission.
