@@ -10,7 +10,7 @@ from web_suffer.shared.infrastructure.models.base_model import Base
 class SubmissionORMModel(Base):
     """ORM Модель задания."""
 
-    __tablename__ = "tasks"
+    __tablename__ = "submissions"
 
     task_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
