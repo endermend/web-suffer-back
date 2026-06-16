@@ -5,7 +5,13 @@ from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
 from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
 from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
-from web_suffer.contexts.auth.application.use_cases import GetLoginByAccessTokenUseCase, LoginUserUseCase, RefreshUserUseCase, RegisterUserUseCase
+from web_suffer.contexts.auth.application.use_cases import (
+    GetLoginByAccessTokenUseCase,
+    GetUsersUseCase,
+    LoginUserUseCase,
+    RefreshUserUseCase,
+    RegisterUserUseCase,
+)
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
 from web_suffer.presentation.api.adapters.fastapi_response_adapter import FastAPIResponseAdapter
@@ -21,6 +27,7 @@ from web_suffer.presentation.api.schemas.register import (
     UserRegisterRequest,
     UserRegisterResponse,
 )
+from web_suffer.presentation.api.schemas.users import GetUsersResponse
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -144,3 +151,26 @@ async def register(
     cookie_service.set_refresh_token(response=wrapper, token=output_dto.refresh_token)
 
     return UserRegisterResponse(access_token=output_dto.access_token)
+
+
+@router.get(
+    "/users",
+    status_code=status.HTTP_200_OK,
+    summary="Получение списка пользователей",
+)
+@inject
+async def users(
+    access_token: str,
+    use_case: FromDishka[GetUsersUseCase],
+) -> list[GetUsersResponse]:
+    """
+    Эндпоинт получения списка пользователей.
+
+    Returns:
+        GetEmailResponse
+
+    """
+    output_dto = await use_case.execute(
+        input_dto=AccessTokenDTO(access_token=access_token),
+    )
+    return [GetUsersResponse(email=user.email) for user in output_dto]

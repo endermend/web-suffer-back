@@ -34,3 +34,13 @@ class IUserRepository(Protocol):
             Пользователь, если пользователь с таким ID существует, иначе None.
 
         """  # noqa: RUF002
+
+    @abstractmethod
+    async def get_users(self) -> list[User]:
+        """
+        Получение списка User с ролью user.
+
+        Returns:
+            Список пользователей или пустой список.
+
+        """  # noqa: RUF002

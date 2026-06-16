@@ -6,6 +6,7 @@ from web_suffer.contexts.auth.domain.repositories import IUserRepository
 from web_suffer.contexts.auth.domain.value_objects import (
     UserEmail,
 )
+from web_suffer.contexts.auth.domain.value_objects.user_role import UserRole
 from web_suffer.contexts.auth.infrastructure.mappers.user_orm_mapper import (
     UserORMMapper,
 )
@@ -71,3 +72,16 @@ class UserRepository(IUserRepository):
         if user_orm is None:
             return None
         return self._mapper.to_domain(orm=user_orm)
+
+    async def get_users(self) -> list[User]:
+        """
+        Получение списка User с ролью user.
+
+        Returns:
+            Список пользователей или пустой список.
+
+        """  # noqa: RUF002
+        stmt = select(UserORMModel).where(UserORMModel.role == UserRole.USER.value)
+        result = await self._session.execute(stmt)
+        users_orm = result.scalars()
+        return [self._mapper.to_domain(orm=user_orm) for user_orm in users_orm]
