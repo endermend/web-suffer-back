@@ -39,6 +39,13 @@ class APP(BaseModel):
     ENV: Literal["dev", "prod"]
 
 
+class SUPERADMIN(BaseModel):
+    """Конфиг первого админа."""
+
+    EMAIL: str
+    PASSWORD: str
+
+
 class Config(BaseSettings):
     """Конфиг всех конфигов."""
 
@@ -46,6 +53,7 @@ class Config(BaseSettings):
     REDIS: REDIS
     JWT: JWT
     APP: APP
+    SUPERADMIN: SUPERADMIN
 
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
