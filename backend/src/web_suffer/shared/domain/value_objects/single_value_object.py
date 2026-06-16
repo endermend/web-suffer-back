@@ -11,4 +11,4 @@ class SingleValueObject(BaseValueObject):
     value: Any
 
     def _get_equality_components(self) -> tuple[Any, ...]:
-        return (self.value, )
+        return (self.value,)

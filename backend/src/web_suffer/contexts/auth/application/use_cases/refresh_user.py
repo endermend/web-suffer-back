@@ -16,10 +16,10 @@ class RefreshUserUseCase:
     """Use case обновления токенов пользователя."""
 
     def __init__(
-            self,
-            token_service: ITokenService,
-            mapper: IAuthDTOMapper,
-        ) -> None:
+        self,
+        token_service: ITokenService,
+        mapper: IAuthDTOMapper,
+    ) -> None:
         """Инициализирует use case обновления токенов пользователя."""
         self._token_service = token_service
         self._mapper = mapper

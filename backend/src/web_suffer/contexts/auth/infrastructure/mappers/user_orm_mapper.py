@@ -38,8 +38,7 @@ class UserORMMapper:
         )
 
     @staticmethod
-    def to_orm_partial(user: User) -> dict[
-        str, str | datetime | ColumnElement[int]]:
+    def to_orm_partial(user: User) -> dict[str, str | datetime | ColumnElement[int]]:
         """
         Domain Entity -> Частичный ORM update.
 

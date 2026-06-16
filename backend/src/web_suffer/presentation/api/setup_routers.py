@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, FastAPI
 
 from web_suffer.presentation.api.routers import auth

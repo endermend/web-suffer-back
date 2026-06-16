@@ -59,9 +59,7 @@ def setup_logging(env: Literal["dev", "prod"]) -> None:
         foreign_pre_chain=shared_processors,
         processors=[
             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            structlog.dev.ConsoleRenderer()
-            if env == "dev"
-            else structlog.processors.JSONRenderer(),
+            structlog.dev.ConsoleRenderer() if env == "dev" else structlog.processors.JSONRenderer(),
         ],
     )
 
