@@ -54,7 +54,7 @@ class Submission(BaseEntity):
 
     @property
     def admin_comment(self) -> str:
-        """Коментарий проверяющего."""
+        """Комментарий проверяющего."""
         return self._admin_comment
 
     @BaseEntity.update
