@@ -62,7 +62,7 @@ ignore = [
     "D203",   # пустая строки перед docstring класса, конфликт с D211
     "D212",   # summary на первой строке, конфликт с D213
     "FIX002", # наличие TODO
-
+    "RUFF001", # Русский алфавит
 ]
 
 [tool.ruff.lint.per-file-ignores]

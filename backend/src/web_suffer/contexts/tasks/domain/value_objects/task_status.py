@@ -4,7 +4,7 @@ from web_suffer.shared.domain.value_objects.single_value_object import SingleVal
 
 
 class TaskStatus(SingleValueObject):
-    """Value object статуса пользователя."""
+    """Value object статуса задания."""
 
     value: int
 

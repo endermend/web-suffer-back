@@ -46,3 +46,47 @@ class Task(BaseEntity):
     def set_deadline(self, deadline: datetime) -> None:
         """Обновление дедлайна."""
         self._deadline = deadline
+
+    @classmethod
+    def create(
+        cls,
+        title: str,
+        description: str,
+        deadline: datetime,
+        id: TaskID | None = None,  # noqa: A002
+    ) -> "TaskID":
+        """
+        Фабричный метод создания нового задания.
+
+        Returns:
+            Новое задание.
+
+        """
+        return cls(
+            _id=id or TaskID.new(),
+            _title=title,
+            _description=description,
+            _deadline=deadline,
+        )
+
+    @classmethod
+    def hydrate(
+        cls,
+        id: TaskID,  # noqa: A002
+        title: str,
+        description: str,
+        deadline: datetime,
+    ) -> "TaskID":
+        """
+        Фабричный метод для восстановления задания из БД.
+
+        Returns:
+            Восстановленное из БД задание.
+
+        """
+        return cls(
+            _id=id,
+            _title=title,
+            _description=description,
+            _deadline=deadline,
+        )
