@@ -16,7 +16,7 @@ class SubmissionFile(SingleValueObject):
         Есть ли файл к посылке.
 
         Returns:
-            bool есть ли файл к послыке.
+            bool есть ли файл к посылке.
 
         """
         return self.value is not None
