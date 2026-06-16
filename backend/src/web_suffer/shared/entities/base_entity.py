@@ -8,7 +8,7 @@ R = TypeVar("R")
 
 @dataclass(slots=True)
 class BaseEntity:
-    """Базовый класс доменной сущености."""
+    """Базовый класс доменной сущности."""
 
     _created_at: datetime
     _updated_at: datetime
@@ -26,11 +26,13 @@ class BaseEntity:
     @staticmethod
     def update(
         func: Callable[..., R],
-        ) -> Callable[..., R]:
+    ) -> Callable[..., R]:
         """Декоратор для обновления временной метки обновления пользователя."""  # noqa: DOC201
+
         def wrapper(self: BaseEntity, *args: None, **kwargs: None) -> R:
             result = func(self, *args, **kwargs)
 
             self._updated_at = datetime.now(UTC)
             return result
+
         return wrapper

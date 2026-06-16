@@ -32,7 +32,7 @@ class GetLoginByAccessTokenUseCase:
 
     async def execute(self, input_dto: AccessTokenDTO) -> LoginDTO:
         """
-        Возвращает логин пользователя по access_tocken.
+        Возвращает логин пользователя по access_token.
 
         Returns:
             DTO с логином пользователя.

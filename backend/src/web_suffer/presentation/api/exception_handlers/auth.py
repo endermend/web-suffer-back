@@ -37,7 +37,7 @@ def invalid_credentials_handler(
     exc: Exception,  # noqa: ARG001
 ) -> JSONResponse:
     """
-    Хэндлер ошибки с неверным логоном или паролем.
+    Хэндлер ошибки с неверным логином или паролем.
 
     Returns:
         JSONResponse

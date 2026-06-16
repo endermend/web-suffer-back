@@ -1,4 +1,3 @@
-# contexts/auth/application/ports/response_wrapper.py
 from typing import Literal, Protocol
 
 

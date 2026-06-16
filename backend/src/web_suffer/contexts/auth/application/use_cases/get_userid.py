@@ -32,7 +32,7 @@ class GetUserIDByAccessTokenUseCase:
 
     async def execute(self, input_dto: AccessTokenDTO) -> UserIDDTO:
         """
-        Возвращает user id пользователя по access_tocken.
+        Возвращает user id пользователя по access_token.
 
         Returns:
             DTO UserID пользователя.

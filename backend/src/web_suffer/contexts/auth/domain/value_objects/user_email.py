@@ -13,7 +13,7 @@ class UserEmail(SingleValueObject):
 
     def __post_init__(self) -> None:
         """
-        Нормалиция и проверка формата.
+        Нормализация и проверка формата.
 
         Raises:
             InvalidEmailError: строка не проходит проверку на формат почты

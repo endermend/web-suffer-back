@@ -19,7 +19,7 @@ def create_app() -> FastAPI:
         FastAPI
 
     """
-    config = Config()
+    config = Config()  # ty:ignore[missing-argument]
 
     app = FastAPI()
 

@@ -8,7 +8,7 @@ from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
 from web_suffer.contexts.auth.application.use_cases import GetLoginByAccessTokenUseCase, LoginUserUseCase, RefreshUserUseCase, RegisterUserUseCase
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
-from web_suffer.presentation.api.adapters.fastapi_responce_adapter import FastAPIResponseAdapter
+from web_suffer.presentation.api.adapters.fastapi_response_adapter import FastAPIResponseAdapter
 from web_suffer.presentation.api.schemas.email import GetEmailResponse
 from web_suffer.presentation.api.schemas.login import (
     UserLoginRequest,

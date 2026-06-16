@@ -74,7 +74,7 @@ class TokenService(ITokenService):
 
     def get_user_id_by_access_token(self, access_token: Token) -> UserID | None:
         """
-        Получение UserID по значению access_tocken.
+        Получение UserID по значению access_token.
 
         Returns:
             UserID | None:  None если токен не найден

@@ -65,7 +65,7 @@ class DBProvider(Provider):
         mapper: UserORMMapper,
     ) -> AsyncIterable[IUserRepository]:
         """
-        Провайдер реозитория пользователя.
+        Провайдер репозитория пользователя.
 
         Yields:
             Iterator[AsyncIterable[IUserRepository]]
