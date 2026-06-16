@@ -20,7 +20,7 @@ class UserStatus(SingleValueObject):
             True, если пользователь активен.
 
         """
-        return self.value == 0
+        return self.value == UserStatus.ACTIVE.value
 
 
 UserStatus.ACTIVE = UserStatus(0)

@@ -66,28 +66,6 @@ class User(BaseEntity):
         """Обновление статуса пользователя."""
         self._status = status
 
-    def __eq__(self, value: object) -> bool:
-        """
-        Сущности сравниваются по идентичности (DDD).
-
-        Returns:
-            Результат сравнения по self.id
-
-        """
-        if not isinstance(value, User):
-            return NotImplemented
-        return self.id == value.id
-
-    def __hash__(self) -> int:
-        """
-        Сущности хэшируются по идентичности (DDD).
-
-        Returns:
-            Хеш по self.id
-
-        """
-        return hash(self.id)
-
     @classmethod
     def register(
         cls,

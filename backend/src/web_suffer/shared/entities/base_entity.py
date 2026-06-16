@@ -1,7 +1,9 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeVar
+from typing import Self, TypeVar
+
+from web_suffer.shared.domain.value_objects.base_id import BaseID
 
 R = TypeVar("R")
 
@@ -10,6 +12,7 @@ R = TypeVar("R")
 class BaseEntity:
     """Базовый класс доменной сущности."""
 
+    _id: BaseID
     _created_at: datetime
     _updated_at: datetime
 
@@ -36,3 +39,25 @@ class BaseEntity:
             return result
 
         return wrapper
+
+    def __eq__(self, value: object) -> bool:
+        """
+        Сущности сравниваются по идентичности (DDD).
+
+        Returns:
+            Результат сравнения по self.id
+
+        """
+        if not isinstance(value, Self):
+            return NotImplemented
+        return self._id == value._id
+
+    def __hash__(self) -> int:
+        """
+        Сущности хэшируются по идентичности (DDD).
+
+        Returns:
+            Хеш по self.id
+
+        """
+        return hash(self._id)
