@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Self, TypeVar
+from typing import TypeVar
 
 from web_suffer.shared.domain.value_objects.base_id import BaseID
 
@@ -48,7 +48,7 @@ class BaseEntity:
             Результат сравнения по self.id
 
         """
-        if not isinstance(value, Self):
+        if type(value) is not type(self):
             return NotImplemented
         return self._id == value._id
 
