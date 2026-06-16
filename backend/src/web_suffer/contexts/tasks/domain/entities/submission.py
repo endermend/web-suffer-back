@@ -26,32 +26,32 @@ class Task(BaseEntity):
     def user_id(self) -> UserID:
         """Пользователь."""
         return self._user_id
-    
+
     @property
     def task_id(self) -> TaskID:
         """Задание."""
         return self._task_id
-    
+
     @property
     def content(self) -> str:
         """Содержимое посылки."""
         return self._content
-    
+
     @property
     def file(self) -> SubmissionFile:
         """Файл посылки."""
         return self._file
-    
+
     @property
     def have_file(self) -> bool:
         """Содержится ли файл."""
         return self._file.does_have_file()
-    
+
     @property
     def status(self) -> SubmissionStatus:
         """Статус отправления."""
         return self._status
-    
+
     @property
     def admin_comment(self) -> str:
         """Коментарий проверяющего."""
@@ -68,7 +68,7 @@ class Task(BaseEntity):
         self._admin_comment = admin_comment
 
     @classmethod
-    def create(
+    def create(  # noqa: PLR0913, PLR0917
         cls,
         task_id: TaskID,
         user_id: UserID,
@@ -96,9 +96,9 @@ class Task(BaseEntity):
         )
 
     @classmethod
-    def hydrate(
+    def hydrate(  # noqa: PLR0913, PLR0917
         cls,
-        id: SubmissionID, #noqa: A002,
+        id: SubmissionID,  # noqa: A002,
         task_id: TaskID,
         user_id: UserID,
         content: str,
