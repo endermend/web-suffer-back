@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from datetime import UTC, datetime
+
 from web_suffer.contexts.tasks.domain.value_objects.submission_file import SubmissionFile
 from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
 from web_suffer.contexts.tasks.domain.value_objects.submission_status import SubmissionStatus
@@ -6,6 +9,7 @@ from web_suffer.shared.domain.value_objects.user_id import UserID
 from web_suffer.shared.entities.base_entity import BaseEntity
 
 
+@dataclass(slots=True)
 class Submission(BaseEntity):
     """Доменная сущность задания (Entity DDD)."""
 
@@ -18,7 +22,7 @@ class Submission(BaseEntity):
     _admin_comment: str
 
     @property
-    def id(self) -> TaskID:
+    def id(self) -> SubmissionID:
         """ID задания."""
         return self._id
 
@@ -68,7 +72,7 @@ class Submission(BaseEntity):
         self._admin_comment = admin_comment
 
     @classmethod
-    def create(  # noqa: PLR0913, PLR0917
+    def create(
         cls,
         task_id: TaskID,
         user_id: UserID,
@@ -85,8 +89,11 @@ class Submission(BaseEntity):
             Новая посылка.
 
         """
+        now = datetime.now(UTC)
         return cls(
             _id=id or SubmissionID.new(),
+            _created_at=now,
+            _updated_at=now,
             _task_id=task_id,
             _user_id=user_id,
             _content=content,
@@ -96,9 +103,11 @@ class Submission(BaseEntity):
         )
 
     @classmethod
-    def hydrate(  # noqa: PLR0913, PLR0917
+    def hydrate(
         cls,
         id: SubmissionID,  # noqa: A002,
+        created_at: datetime,
+        updated_at: datetime,
         task_id: TaskID,
         user_id: UserID,
         content: str,
@@ -115,6 +124,8 @@ class Submission(BaseEntity):
         """
         return cls(
             _id=id,
+            _created_at=created_at,
+            _updated_at=updated_at,
             _task_id=task_id,
             _user_id=user_id,
             _content=content,

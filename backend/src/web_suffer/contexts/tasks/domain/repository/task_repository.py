@@ -1,9 +1,9 @@
 from abc import abstractmethod
+from datetime import datetime
 from typing import Protocol
 
 from web_suffer.contexts.tasks.domain.entities.task import Task
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
-from web_suffer.contexts.tasks.domain.value_objects.task_status import TaskStatus
 
 
 class ITaskRepository(Protocol):
@@ -14,7 +14,7 @@ class ITaskRepository(Protocol):
         """Сохранение Task."""
 
     @abstractmethod
-    async def get_task_by_id(self, task_id: TaskID) -> Task | None:
+    async def get_by_id(self, task_id: TaskID) -> Task | None:
         """
         Получение Task по TaskID.
 
@@ -22,9 +22,9 @@ class ITaskRepository(Protocol):
         """
 
     @abstractmethod
-    async def get_tasks_list(self, task_status: TaskStatus | None = None) -> list[Task]:
+    async def get_list(self, before: datetime | None = None) -> list[Task]:
         """
         Получение Tasks.
 
-        Если task_status не None, фильтрует по статусу
+        Если before не None, фильтрует по дедлайнду задания до before
         """

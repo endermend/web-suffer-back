@@ -63,6 +63,8 @@ ignore = [
     "D212",   # summary на первой строке, конфликт с D213
     "FIX002", # наличие TODO
     "RUF001", # Русский алфавит
+    "PLR0913",
+    "PLR0917",
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -32,7 +32,7 @@ class BaseEntity:
     ) -> Callable[..., R]:
         """Декоратор для обновления временной метки обновления пользователя."""  # noqa: DOC201
 
-        def wrapper(self: BaseEntity, *args: None, **kwargs: None) -> R:
+        def wrapper(self: BaseEntity, *args: object | None, **kwargs: object | None) -> R:
             result = func(self, *args, **kwargs)
 
             self._updated_at = datetime.now(UTC)
@@ -48,7 +48,7 @@ class BaseEntity:
             Результат сравнения по self.id
 
         """
-        if type(value) is not type(self):
+        if not isinstance(value, BaseEntity):
             return NotImplemented
         return self._id == value._id
 

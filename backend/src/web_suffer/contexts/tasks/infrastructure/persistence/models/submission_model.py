@@ -8,14 +8,14 @@ from web_suffer.shared.infrastructure.models.base_model import Base
 
 
 class SubmissionORMModel(Base):
-    """ORM Модель задания."""
+    """ORM Модель посылки."""
 
     __tablename__ = "submissions"
 
     task_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     content: Mapped[str] = mapped_column(String(255), nullable=False)
-    file: Mapped[str] = mapped_column(String(255), nullable=False)
+    file: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(255), nullable=False)
     admin_comment: Mapped[str] = mapped_column(String(255), nullable=False)
 

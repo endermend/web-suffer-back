@@ -1,7 +1,11 @@
+from dataclasses import dataclass
+from datetime import UTC, datetime
+
 from web_suffer.shared.domain.value_objects.user_id import UserID
 from web_suffer.shared.entities.base_entity import BaseEntity
 
 
+@dataclass(slots=True)
 class UserT(BaseEntity):
     """Доменная сущность пользователя в заданиях (Entity DDD)."""
 
@@ -12,7 +16,7 @@ class UserT(BaseEntity):
     @property
     def id(self) -> UserID:
         """ID пользователя."""
-        return self.__id
+        return self._id
 
     @property
     def exp(self) -> int:
@@ -58,8 +62,11 @@ class UserT(BaseEntity):
             Новый пользователь.
 
         """
+        now = datetime.now(UTC)
         return cls(
             _id=id,
+            _created_at=now,
+            _updated_at=now,
             _money=money,
             _exp=exp,
         )
@@ -68,6 +75,8 @@ class UserT(BaseEntity):
     def hydrate(
         cls,
         id: UserID,  # noqa: A002
+        created_at: datetime,
+        updated_at: datetime,
         money: int = 0,
         exp: int = 0,
     ) -> "UserT":
@@ -80,6 +89,8 @@ class UserT(BaseEntity):
         """
         return cls(
             _id=id,
+            _created_at=created_at,
+            _updated_at=updated_at,
             _money=money,
             _exp=exp,
         )

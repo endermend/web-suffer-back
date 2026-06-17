@@ -14,7 +14,7 @@ class ISubmissionRepository(Protocol):
         """Сохранение Submission."""
 
     @abstractmethod
-    async def get_submission_by_id(self, task_id: SubmissionID) -> Submission | None:
+    async def get_by_id(self, submission_id: SubmissionID) -> Submission | None:
         """
         Получение Submission по SubmissionID.
 
@@ -22,7 +22,7 @@ class ISubmissionRepository(Protocol):
         """
 
     @abstractmethod
-    async def get_tasks_list(self, submission_status: SubmissionStatus | None = None) -> list[Submission]:
+    async def get_list(self, status: SubmissionStatus | None = None) -> list[Submission]:
         """
         Получение Submission.
 

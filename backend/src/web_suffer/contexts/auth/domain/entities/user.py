@@ -93,7 +93,7 @@ class User(BaseEntity):
         )
 
     @classmethod
-    def hydrate(  # noqa: PLR0913, PLR0917
+    def hydrate(
         cls,
         id: UserID,  # noqa: A002
         email: UserEmail,

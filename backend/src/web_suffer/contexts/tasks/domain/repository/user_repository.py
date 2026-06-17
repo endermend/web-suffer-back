@@ -13,13 +13,9 @@ class IUserTRepository(Protocol):
         """Сохранение UserT."""
 
     @abstractmethod
-    async def get_user_by_id(self, task_id: UserID) -> UserT | None:
+    async def get_by_id(self, user_id: UserID) -> UserT | None:
         """
         Получение UserT по UserID.
 
         None, если user не найден.
         """
-
-    @abstractmethod
-    async def change_user(self, user: UserT) -> None:
-        """Обновление параметров UserT."""

@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from dishka import AsyncContainer
@@ -27,7 +28,7 @@ def create_app() -> FastAPI:
     container = make_container_di(config=config)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI):  # noqa: ANN202
+    async def lifespan(_app: FastAPI) -> AsyncGenerator[None, ]:
         await _run_seeders(container)
         yield
         await container.close()

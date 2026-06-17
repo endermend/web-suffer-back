@@ -12,7 +12,7 @@ class FastAPIResponseAdapter(ResponseWrapper):
         """Настройка адаптера."""
         self._response = response
 
-    def set_cookie(  # noqa: PLR0913, PLR0917
+    def set_cookie(
         self,
         key: str,
         value: str,
