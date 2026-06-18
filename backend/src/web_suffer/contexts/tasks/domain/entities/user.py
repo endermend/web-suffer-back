@@ -30,7 +30,7 @@ class UserT(BaseEntity):
 
     @BaseEntity.update
     def set_money(self, money: int) -> None:
-        """Обновленние денег пользователя."""
+        """Обновление денег пользователя."""
         self._money = money
 
     @BaseEntity.update
@@ -40,7 +40,7 @@ class UserT(BaseEntity):
 
     @BaseEntity.update
     def set_exp(self, exp: int) -> None:
-        """Обновленние опыта пользователя."""
+        """Обновление опыта пользователя."""
         self._money = exp
 
     @BaseEntity.update
