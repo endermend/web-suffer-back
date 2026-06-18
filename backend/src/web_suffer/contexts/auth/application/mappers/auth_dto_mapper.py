@@ -64,7 +64,7 @@ class IAuthDTOMapper(Protocol):
         token_pair: TokenPair,
     ) -> AccessTokenDTO:
         """
-        Domain Entity -> DTO.
+        Domain value object -> DTO.
 
         Returns:
             Immutable Access DTO.
@@ -76,7 +76,7 @@ class IAuthDTOMapper(Protocol):
         token_pair: TokenPair,
     ) -> RefreshTokenDTO:
         """
-        Domain Entity -> DTO.
+        Domain value object -> DTO.
 
         Returns:
             Immutable Refresh DTO.
@@ -88,10 +88,22 @@ class IAuthDTOMapper(Protocol):
         token_pair: TokenPair,
     ) -> TokensDTO:
         """
-        Domain Entity -> DTO.
+        Domain value object -> DTO.
 
         Returns:
             Immutable Token DTO.
+
+        """
+
+    @staticmethod
+    def from_userid_dto(
+        user_id: UserIDDTO,
+    ) -> UserID:
+        """
+        DTO -> Domain value object, based on DTO.
+
+        Returns:
+            Domain UserID value object.
 
         """
 
@@ -100,7 +112,7 @@ class IAuthDTOMapper(Protocol):
         user_id: UserID,
     ) -> UserIDDTO:
         """
-        Domain Entity -> DTO.
+        Domain value object -> DTO.
 
         Returns:
             Immutable UserID DTO.
