@@ -28,7 +28,7 @@ class UserRepository(IUserRepository):
         """Сохранение User."""
         user_orm = UserORMModel()
         self._mapper.update_from_domain(orm=user_orm, user=user)
-        self._session.add(user_orm)
+        await self._session.merge(user_orm)
         await self._session.commit()
 
     async def user_exists_by_email(self, email: UserEmail) -> bool:

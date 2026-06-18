@@ -66,6 +66,11 @@ class User(BaseEntity):
         """Обновление статуса пользователя."""
         self._status = status
 
+    @BaseEntity.update
+    def set_password_hash(self, password_hash: PasswordHash) -> None:
+        """Обновление хеш пароля пользователя."""
+        self._password_hash = password_hash
+
     @classmethod
     def register(
         cls,
