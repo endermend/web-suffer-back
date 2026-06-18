@@ -9,10 +9,10 @@ class AuthServiceAdapter(IAuthService):
     """Адаптер для сервиса аутентификации."""
 
     def __init__(
-            self,
-            get_user_id_use_case: GetUserIDByAccessTokenUseCase,
-            mapper: IAuthDTOMapper,
-        ) -> None:
+        self,
+        get_user_id_use_case: GetUserIDByAccessTokenUseCase,
+        mapper: IAuthDTOMapper,
+    ) -> None:
         """Инициализация адаптера."""
         self._get_user_id_use_case = get_user_id_use_case
         self._mapper = mapper

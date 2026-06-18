@@ -1,5 +1,3 @@
-
-
 from web_suffer.contexts.tasks.domain.entities.task import Task
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.contexts.tasks.infrastructure.persistence.models.task_model import TaskORMModel
