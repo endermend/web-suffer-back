@@ -10,9 +10,8 @@ FROM base AS build
 COPY package.json package-lock.json* ./
 RUN --mount=type=cache,target=/root/.npm \
     npm install --legacy-peer-deps
-
 COPY . .
-RUN npm run build-only   # предполагается, что создаётся папка ./dist
+RUN npm run build-only   
 
 FROM nginx:alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
