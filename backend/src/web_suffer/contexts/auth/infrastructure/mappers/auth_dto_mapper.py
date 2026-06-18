@@ -132,6 +132,19 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    def from_userid_dto(
+        user_id: UserIDDTO,
+    ) -> UserID:
+        """
+        DTO -> Domain Entity.
+
+        Returns:
+            Immutable UserID DTO.
+
+        """
+        return UserID(value=user_id.user_id)
+
+    @staticmethod
     def to_userid_dto(
         user_id: UserID,
     ) -> UserIDDTO:

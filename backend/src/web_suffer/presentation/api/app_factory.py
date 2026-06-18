@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from dishka import AsyncContainer
@@ -7,7 +8,7 @@ from fastapi import FastAPI
 from web_suffer.infrastructure.config import Config
 from web_suffer.infrastructure.di.container import make_container_di
 from web_suffer.infrastructure.seeders.superadmin_seeder import SuperAdminSeeder
-from web_suffer.presentation.api.exception_handlers import auth
+from web_suffer.presentation.api.setup_exception_handlers import setup_exception_handlers
 from web_suffer.presentation.api.setup_middleware import setup_middleware
 from web_suffer.presentation.api.setup_routers import setup_routers
 
@@ -27,7 +28,7 @@ def create_app() -> FastAPI:
     container = make_container_di(config=config)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI):  # noqa: ANN202
+    async def lifespan(_app: FastAPI) -> AsyncGenerator[None, ]:
         await _run_seeders(container)
         yield
         await container.close()
@@ -41,7 +42,7 @@ def create_app() -> FastAPI:
     setup_routers(app=app)
 
     # Exception handlers
-    auth.setup_exception_handlers(app=app)
+    setup_exception_handlers(app=app)
 
     # Dishka
     setup_dishka(container=container, app=app)

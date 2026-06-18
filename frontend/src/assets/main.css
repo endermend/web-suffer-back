@@ -1,0 +1,13 @@
+body {
+  margin: 0px
+}
+
+@font-face {
+  font-family: 'Nagel';
+  font-style: normal;
+  font-weight: normal;
+  src: url('/fonts/Nagel_Regular.otf') format('opentype');
+  font-display: swap;
+}
+
+@import "tailwindcss";

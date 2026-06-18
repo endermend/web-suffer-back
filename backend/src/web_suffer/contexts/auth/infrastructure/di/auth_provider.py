@@ -1,7 +1,8 @@
 from dishka import Provider
 
+from web_suffer.contexts.auth.infrastructure.di.adapter_provider import AdapterProvider
 from web_suffer.contexts.auth.infrastructure.di.cookie_provider import CookieServiceProvider
-from web_suffer.contexts.auth.infrastructure.di.db_provider import DBProvider
+from web_suffer.contexts.auth.infrastructure.di.db_provider import AuthDBProvider
 from web_suffer.contexts.auth.infrastructure.di.password_hasher_provider import PasswordHasherProvider
 from web_suffer.contexts.auth.infrastructure.di.token_provider import TokenProvider
 from web_suffer.contexts.auth.infrastructure.di.use_case_provider import AuthUseCasesProvider
@@ -10,9 +11,10 @@ from web_suffer.contexts.auth.infrastructure.di.use_case_provider import AuthUse
 class AuthProvider(
     AuthUseCasesProvider,
     CookieServiceProvider,
-    DBProvider,
+    AuthDBProvider,
     PasswordHasherProvider,
     TokenProvider,
+    AdapterProvider,
     Provider,
 ):
     """Провайдер, объединяющий провайдеры аутентификации."""

@@ -4,7 +4,7 @@ from typing import Literal, Protocol
 class ResponseWrapper(Protocol):
     """Абстракция над HTTP-ответом. Чистая, без FastAPI."""
 
-    def set_cookie(  # noqa: PLR0913, PLR0917
+    def set_cookie(
         self,
         key: str,
         value: str,

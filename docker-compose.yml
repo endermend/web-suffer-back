@@ -31,6 +31,33 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    
+    develop:
+      watch:
+        # Sync source code (exclude Python cache and type checking artifacts)
+        - action: sync
+          path: ./backend/src
+          target: /src/web_suffer
+          ignore:
+            - node_modules/
+            - __pycache__/
+            - .pytest_cache/
+            - .coverage
+            - coverage.xml
+            - htmlcov/
+            - .mypy_cache/
+            - .ruff_cache/
+        
+        - action: sync+restart
+          path: ./backend/pyproject.toml
+          target: /src/pyproject.toml
+        
+        - action: sync+restart
+          path: ./backend/uv.lock
+          target: /src/uv.lock
+        
+        - action: rebuild
+          path: ./backend/Dockerfile
 
   database:
     image: postgres:18-alpine
