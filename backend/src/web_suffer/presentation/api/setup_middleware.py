@@ -9,7 +9,7 @@ def setup_middleware(app: FastAPI) -> None:
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=["http://localhost"],
         allow_credentials=True,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["*"],
