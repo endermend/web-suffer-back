@@ -26,5 +26,5 @@ class ITaskRepository(Protocol):
         """
         Получение Tasks.
 
-        Если before не None, фильтрует по дедлайнду задания до before
+        Если before не None, фильтрует по дедлайну задания до before
         """

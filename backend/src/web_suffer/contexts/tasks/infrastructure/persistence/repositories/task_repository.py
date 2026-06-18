@@ -48,7 +48,7 @@ class TaskRepository(ITaskRepository):
         """
         Получение Tasks.
 
-        Если before не None, фильтрует по дедлайнду задания до before
+        Если before не None, фильтрует по дедлайну задания до before
 
         Returns:
             Список заданий.
