@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, override
 
 from fastapi import Response
 
@@ -12,13 +12,14 @@ class FastAPIResponseAdapter(ResponseWrapper):
         """Настройка адаптера."""
         self._response = response
 
+    @override
     def set_cookie(
         self,
         key: str,
         value: str,
         max_age: int | None = None,
-        secure: bool = False,  # noqa: FBT001, FBT002
-        httponly: bool = False,  # noqa: FBT001, FBT002
+        secure: bool = False,
+        httponly: bool = False,
         samesite: Literal["lax", "strict", "none"] | None = None,
         path: str = "/",
     ) -> None:
@@ -33,12 +34,13 @@ class FastAPIResponseAdapter(ResponseWrapper):
             path=path,
         )
 
+    @override
     def delete_cookie(
         self,
         key: str,
         path: str = "/",
-        secure: bool = False,  # noqa: FBT001, FBT002
-        httponly: bool = False,  # noqa: FBT001, FBT002
+        secure: bool = False,
+        httponly: bool = False,
         samesite: Literal["lax", "strict", "none"] | None = None,
     ) -> None:
         """Удаление куки."""

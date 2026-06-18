@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 from secrets import token_urlsafe
-from typing import Any
+from typing import Any, override
 
 import jwt
 import structlog
@@ -27,6 +27,7 @@ class TokenService(ITokenService):
         self._access_exp = jwt_config.ACCESS_EXPIRE_SECONDS
         self._refresh_exp = jwt_config.REFRESH_EXPIRE_SECONDS
 
+    @override
     async def create_token_pair(self, user_id: UserID) -> TokenPair:
         """
         Создание пары токенов.
@@ -60,6 +61,7 @@ class TokenService(ITokenService):
             refresh_token=Token(refresh_token),
         )
 
+    @override
     async def get_user_id_by_refresh_token(self, refresh_token: Token) -> UserID | None:
         """
         Получение UserID по значению refresh_token.
@@ -72,6 +74,7 @@ class TokenService(ITokenService):
             refresh_token=refresh_token,
         )
 
+    @override
     def get_user_id_by_access_token(self, access_token: Token) -> UserID | None:
         """
         Получение UserID по значению access_token.
@@ -90,6 +93,7 @@ class TokenService(ITokenService):
             return None
         return UserID.from_str(payload["sub"])
 
+    @override
     async def revoke_refresh_token(self, refresh_token: Token) -> None:
         """Отзыв refresh token."""
         await self._token_repository.delete_refresh_token(refresh_token=refresh_token)

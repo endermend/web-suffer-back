@@ -9,7 +9,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class UserT(BaseEntity):
     """Доменная сущность пользователя в заданиях (Entity DDD)."""
 
-    _id: UserID
+    _id: UserID  # pyrefly: ignore [bad-override-mutable-attribute]
     _exp: int
     _money: int
 

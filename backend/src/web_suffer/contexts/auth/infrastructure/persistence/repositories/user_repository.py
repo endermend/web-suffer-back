@@ -1,3 +1,5 @@
+from typing import override
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +26,7 @@ class UserRepository(IUserRepository):
         self._session = session
         self._mapper = mapper
 
+    @override
     async def save(self, user: User) -> None:
         """Сохранение User."""
         user_orm = UserORMModel()
@@ -31,6 +34,7 @@ class UserRepository(IUserRepository):
         await self._session.merge(user_orm)
         await self._session.commit()
 
+    @override
     async def user_exists_by_email(self, email: UserEmail) -> bool:
         """
         Проверка существования User по UserEmail.
@@ -43,6 +47,7 @@ class UserRepository(IUserRepository):
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None
 
+    @override
     async def get_user_by_email(self, email: UserEmail) -> User | None:
         """
         Получение User по UserEmail.
@@ -58,6 +63,7 @@ class UserRepository(IUserRepository):
             return None
         return self._mapper.to_domain(orm=user_orm)
 
+    @override
     async def get_user_by_id(self, user_id: UserID) -> User | None:
         """
         Получение User по UserId.
@@ -73,6 +79,7 @@ class UserRepository(IUserRepository):
             return None
         return self._mapper.to_domain(orm=user_orm)
 
+    @override
     async def get_users(self) -> list[User]:
         """
         Получение списка User с ролью user.

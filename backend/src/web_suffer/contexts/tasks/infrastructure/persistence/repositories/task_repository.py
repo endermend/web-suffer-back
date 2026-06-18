@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import override
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +19,7 @@ class TaskRepository(ITaskRepository):
         self._session = session
         self._mapper = mapper
 
+    @override
     async def save(self, task: Task) -> None:
         """Сохранение Task."""
         async with self._session.begin():
@@ -29,6 +31,7 @@ class TaskRepository(ITaskRepository):
             self._mapper.update_from_domain(orm=task_orm, entity=task)
             self._session.add(task_orm)
 
+    @override
     async def get_by_id(self, task_id: TaskID) -> Task | None:
         """
         Получение Task по TaskID.
@@ -44,6 +47,7 @@ class TaskRepository(ITaskRepository):
             return None
         return self._mapper.to_domain(orm=task_orm)
 
+    @override
     async def get_list(self, before: datetime | None = None) -> list[Task]:
         """
         Получение Tasks.

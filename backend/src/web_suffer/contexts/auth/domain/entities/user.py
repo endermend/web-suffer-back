@@ -15,7 +15,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class User(BaseEntity):
     """Доменная сущность пользователя (Entity DDD)."""
 
-    _id: UserID
+    _id: UserID  # pyrefly: ignore [bad-override-mutable-attribute]
     _email: UserEmail
     _password_hash: PasswordHash
     _role: UserRole

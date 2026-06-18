@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, override
 
 from web_suffer.shared.domain.value_objects.base_value_object import BaseValueObject
 
@@ -10,5 +10,6 @@ class SingleValueObject(BaseValueObject):
 
     value: Any
 
+    @override
     def _get_equality_components(self) -> tuple[Any, ...]:
         return (self.value,)

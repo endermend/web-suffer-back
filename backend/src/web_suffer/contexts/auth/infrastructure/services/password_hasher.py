@@ -1,3 +1,5 @@
+from typing import override
+
 from argon2 import PasswordHasher as Argon2PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
@@ -14,6 +16,7 @@ class ArgonPasswordHasher(IPasswordHasher):
         """Инициализация PasswordHasher."""
         self._ph = Argon2PasswordHasher()
 
+    @override
     def hash_password(self, password: str) -> str:
         """
         Хэширование пароля.
@@ -24,6 +27,7 @@ class ArgonPasswordHasher(IPasswordHasher):
         """
         return self._ph.hash(password=password)
 
+    @override
     def verify_password(self, password: str, password_hash: PasswordHash) -> bool:
         """
         Верификация пароля.

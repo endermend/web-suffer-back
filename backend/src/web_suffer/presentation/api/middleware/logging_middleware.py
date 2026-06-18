@@ -1,5 +1,6 @@
 import time
 import uuid
+from typing import override
 
 import structlog
 from starlette.middleware.base import (
@@ -15,7 +16,8 @@ logger = structlog.stdlib.get_logger()
 class LoggingMiddleware(BaseHTTPMiddleware):
     """Middleware для логов."""
 
-    async def dispatch(  # noqa: PLR6301
+    @override
+    async def dispatch(
         self,
         request: Request,
         call_next: RequestResponseEndpoint,

@@ -1,3 +1,5 @@
+from typing import override
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.user import UserT
@@ -15,6 +17,7 @@ class UserTRepository(IUserTRepository):
         self._session = session
         self._mapper = mapper
 
+    @override
     async def save(self, user: UserT) -> None:
         """Сохранение UserT."""
         async with self._session.begin():
@@ -26,6 +29,7 @@ class UserTRepository(IUserTRepository):
             self._mapper.update_from_domain(orm=user_orm, user=user)
             self._session.add(user_orm)
 
+    @override
     async def get_by_id(self, user_id: UserID) -> UserT | None:
         """
         Получение UserT по UserID.
