@@ -14,4 +14,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    host: true,
+    // Docker bind mounts on Windows don't propagate native filesystem events,
+    // so chokidar never sees the change — polling is the only reliable option.
+    watch: {
+      usePolling: true,
+    },
+  },
 })

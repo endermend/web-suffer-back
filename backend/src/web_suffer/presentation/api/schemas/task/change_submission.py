@@ -6,7 +6,12 @@ from web_suffer.contexts.tasks.domain.types import SubmissionStatus
 
 
 class ChangeSubmissionRequest(BaseModel):
-    """DTO изменения отправления."""
+    """
+    Входные данные изменения задания.
+
+    status: "pending", "accepted" или "rejected".
+
+    """
 
     submission_id: UUID
     status: SubmissionStatus

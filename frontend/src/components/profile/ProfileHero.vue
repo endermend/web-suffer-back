@@ -3,7 +3,11 @@
     <div class="avatar">{{ avatarLetter }}</div>
     <div class="profile_info">
       <span class="profile_email">{{ userEmail }}</span>
-      <span class="profile_role" @click="toggleRole">{{ roleLabel }}</span>
+      <select class="profile_role" :value="authStore.role" @change="handleRoleChange">
+        <option value="member">Участник</option>
+        <option value="moderator">Модератор</option>
+        <option value="admin">Администратор</option>
+      </select>
     </div>
 
     <div
@@ -37,6 +41,7 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth_store.ts'
 import router from '@/router/router'
+import type { UserRole } from '@/types/auth.ts'
 import GearIcon from '@/assets/icons/gear.svg'
 import PenIcon from '@/assets/icons/pen.svg'
 import LockIcon from '@/assets/icons/lock.svg'
@@ -47,15 +52,10 @@ const authStore = useAuthStore()
 
 const isSettingsMenuOpen = ref(false)
 
-const roleLabel = computed(function () {
-  if (authStore.role === 'admin') return 'Администратор'
-  if (authStore.role === 'moderator') return 'Модератор'
-  return 'Участник'
-})
-
-function toggleRole(): void {
-  authStore.toggleRole()
-  if (authStore.role === 'admin' || authStore.role === 'moderator') {
+function handleRoleChange(e: Event): void {
+  const role = (e.target as HTMLSelectElement).value as UserRole
+  authStore.setRole(role)
+  if (role === 'admin' || role === 'moderator') {
     router.push('/admin/profile')
   } else {
     router.push('/profile')
@@ -115,6 +115,11 @@ const avatarLetter = computed(function () {
 }
 
 .profile_role {
+  appearance: none;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
   font-family: Nagel;
   font-size: 13px;
   color: rgb(150, 150, 150);

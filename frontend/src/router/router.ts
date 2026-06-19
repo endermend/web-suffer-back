@@ -44,12 +44,12 @@ const router = createRouter({
     {
       path: '/admin/tasks',
       component: ManageTasksPage,
-      meta: { layout: 'default', roles: ['admin', 'moderator'] },
+      meta: { layout: 'default', roles: ['moderator'], adminBypass: false },
     },
     {
       path: '/admin/submissions/:id/review',
       component: TaskReviewPage,
-      meta: { layout: 'default', roles: ['admin', 'moderator'] },
+      meta: { layout: 'default', roles: ['moderator'], adminBypass: false },
     },
     {
       path: '/admin/users',

@@ -66,4 +66,4 @@ class UserORMMapper:
         orm.password_hash = user.password_hash.value
         orm.role = user.role.value
         orm.updated_at = user.updated_at
-        orm.status = str(user.status.value)
+        orm.status = user.status.value
