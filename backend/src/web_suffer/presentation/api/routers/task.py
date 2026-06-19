@@ -27,7 +27,7 @@ router = APIRouter(prefix="/task", tags=["Task"])
 
 
 @router.post(
-    "/change_submission",
+    "/change-submission",
     status_code=status.HTTP_200_OK,
     summary="Проверка отправления",
 )
@@ -50,7 +50,7 @@ async def change_submission(
 
 
 @router.post(
-    "/create_submission",
+    "/create-submission",
     status_code=status.HTTP_200_OK,
     summary="Создание отправления",
 )
@@ -83,7 +83,7 @@ async def create_submission(
 
 
 @router.post(
-    "/update_task",
+    "/update-task",
     status_code=status.HTTP_200_OK,
     summary="Создание/изменение заданий",
 )
@@ -118,7 +118,7 @@ async def update_task(
 
 
 @router.post(
-    "/update_user",
+    "/update-user",
     status_code=status.HTTP_200_OK,
     summary="Изменение пользователя.",
 )
@@ -179,7 +179,7 @@ async def submission(
 @router.get(
     "/submissions",
     status_code=status.HTTP_200_OK,
-    summary="Получение отправления",
+    summary="Получение отправлений по фильтру",
 )
 @inject
 async def submissions(
