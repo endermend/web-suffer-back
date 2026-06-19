@@ -2,8 +2,10 @@ from typing import Protocol
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import SubmissionDTO, SubmissionIDDTO
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskDTO, TaskIDDTO, UsersTaskDTO
+from web_suffer.contexts.tasks.application.dtos.usert_dto import UserTDTO
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
 from web_suffer.contexts.tasks.domain.entities.task import Task
+from web_suffer.contexts.tasks.domain.entities.user import UserT
 from web_suffer.contexts.tasks.domain.types import TaskStatus
 from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
@@ -29,6 +31,16 @@ class ITaskDTOMapper(Protocol):
 
         Returns:
             Immutable Submission DTO.
+
+        """
+
+    @staticmethod
+    def to_user_dto(user: UserT) -> UserTDTO:
+        """
+        Domain Entity -> DTO.
+
+        Returns:
+            Immutable UserT DTO.
 
         """
 

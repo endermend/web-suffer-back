@@ -12,7 +12,7 @@ from web_suffer.contexts.tasks.domain.value_objects.submission_file import Submi
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
-from web_suffer.shared.domain.value_objects.user_right import UserRights
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 

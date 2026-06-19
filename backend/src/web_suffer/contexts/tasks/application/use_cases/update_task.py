@@ -1,12 +1,12 @@
 import structlog
 
-from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateeTaskDTO
+from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.entities.task import Task
 from web_suffer.contexts.tasks.domain.repository.task_repository import ITaskRepository
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
-from web_suffer.shared.domain.value_objects.user_right import UserRights
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 
@@ -25,7 +25,7 @@ class UpdateTaskUseCase:
         self._mapper = mapper
         self._auth_service = auth_service
 
-    async def execute(self, input_dto: UpdateeTaskDTO) -> TaskIDDTO:
+    async def execute(self, input_dto: UpdateTaskDTO) -> TaskIDDTO:
         """
         Добавляет новое задание.
 
@@ -39,7 +39,7 @@ class UpdateTaskUseCase:
 
         """
         user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
-        if not self._auth_service.check_user_right(user_id=user_id, right=UserRights.UPDATE_TASK):
+        if not await self._auth_service.check_user_right(user_id=user_id, right=UserRights.UPDATE_TASK):
             error = "Not enought permission."
             logger.warning("task.create.failed", reason="not_enought_permission")
             raise InsufficientPermissionsError(error)

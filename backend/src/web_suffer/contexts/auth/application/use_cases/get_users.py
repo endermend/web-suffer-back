@@ -13,7 +13,7 @@ from web_suffer.contexts.auth.domain.repositories import IUserRepository
 from web_suffer.contexts.auth.domain.value_objects.token import Token
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
-from web_suffer.shared.domain.value_objects.user_right import UserRights
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 

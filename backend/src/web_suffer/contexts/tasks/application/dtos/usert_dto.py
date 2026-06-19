@@ -17,5 +17,20 @@ class UpdateUserTDTO:
 
     access_token: str
     user_id: UUID
-    add_exp: int
-    add_money: int
+    exp_diff: int
+    money_diff: int
+
+
+@dataclass(slots=True, frozen=True)
+class UserTIDDTO:
+    """DTO ID пользователя."""
+
+    access_token: str
+    user_id: UUID | None
+
+
+@dataclass(slots=True, frozen=True)
+class UserTTOPDTO:
+    """DTO входных данных получения топа пользователей."""
+
+    amount: int

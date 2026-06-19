@@ -60,7 +60,7 @@ class TaskStatisticsDTO:
 
 
 @dataclass(slots=True, frozen=True)
-class UpdateeTaskDTO:
+class UpdateTaskDTO:
     """DTO создания/изменения задания."""
 
     access_token: str

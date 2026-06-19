@@ -1,7 +1,7 @@
 
 import structlog
 
-from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO, SubmissionIDDTO
+from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO
 from web_suffer.contexts.tasks.application.exceptions import InvalidSubmissionError, InvalidTaskError
 from web_suffer.contexts.tasks.application.interfaces.user_service import IUserService
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
@@ -11,7 +11,7 @@ from web_suffer.contexts.tasks.domain.value_objects.submission_id import Submiss
 from web_suffer.contexts.tasks.domain.value_objects.submission_status import SubmissionStatus
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
-from web_suffer.shared.domain.value_objects.user_right import UserRights
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 
@@ -34,12 +34,9 @@ class ChangeSubmissionUseCase:
         self._user_service = user_service
         self._auth_service = auth_service
 
-    async def execute(self, input_dto: ChangeSubmissionDTO) -> SubmissionIDDTO:
+    async def execute(self, input_dto: ChangeSubmissionDTO) -> None:
         """
         Добавляет новое задание.
-
-        Returns:
-            SubmissionIDDTO: id отправления.
 
         Raises:
             InsufficientPermissionsError: у пользователя недостаточно прав создавать отправление.
@@ -59,6 +56,12 @@ class ChangeSubmissionUseCase:
             logger.warning("task.subm.failed", reason="subm_not_found")
             raise InvalidSubmissionError
 
+        update_user_id = subm.user_id
+        if not await self._auth_service.check_user_right(user_id=update_user_id, right=UserRights.TO_EXISTS):
+            error = "Not enought permission."
+            logger.warning("task.create.failed", reason="not_enought_permission")
+            raise InsufficientPermissionsError(error)
+
         task = await self._task_repo.get_by_id(subm.task_id)
         if not task:
             logger.error("task.subm.failed", reason="task_not_found")
@@ -73,9 +76,7 @@ class ChangeSubmissionUseCase:
 
         if old_result != new_result:
             await self._user_service.update_user_by_id(
-                user_id=user_id,
+                user_id=update_user_id,
                 exp_diff=(new_result - old_result) * task.exp,
                 money_diff=(new_result - old_result) * task.money,
             )
-
-        return self._mapper.to_subm_id_dto(subm.id)

@@ -6,7 +6,7 @@ from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITask
 from web_suffer.contexts.tasks.domain.repository.submission_repository import ISubmissionRepository
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
-from web_suffer.shared.domain.value_objects.user_right import UserRights
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 
