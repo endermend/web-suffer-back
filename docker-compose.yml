@@ -162,8 +162,6 @@ services:
           target: /app/src/components
           ignore:
             - node_modules/
-            - *.spec.ts
-            - *.test.ts
         
         - action: sync
           path: ./frontend/src/views
