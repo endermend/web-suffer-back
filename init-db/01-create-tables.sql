@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "tasks" (
     "created_at" timestamp NOT NULL DEFAULT now(),
     "updated_at" timestamp NOT NULL DEFAULT now(),
     "version" bigint NOT NULL DEFAULT 0,
-    "title" varchar(255) NOT NULL UNIQUE,
+    "title" varchar(255) NOT NULL,
     "description" varchar(255) NOT NULL,
     "deadline" timestamp NOT NULL,
     "exp" INTEGER NOT NULL,

@@ -25,14 +25,14 @@ class SubmissionRepository(ISubmissionRepository):
     @override
     async def save(self, submission: Submission) -> None:
         """Сохранение Submission."""
-        async with self._session.begin():
-            submission_orm = await self._session.get(SubmissionORMModel, submission.id.value)
+        submission_orm = await self._session.get(SubmissionORMModel, submission.id.value)
 
-            if not submission_orm:
-                submission_orm = SubmissionORMModel()
+        if not submission_orm:
+            submission_orm = SubmissionORMModel()
 
-            self._mapper.update_from_domain(orm=submission_orm, entity=submission)
-            self._session.add(submission_orm)
+        self._mapper.update_from_domain(orm=submission_orm, entity=submission)
+        self._session.add(submission_orm)
+        await self._session.commit()
 
     @override
     async def get_by_id(self, submission_id: SubmissionID) -> Submission | None:

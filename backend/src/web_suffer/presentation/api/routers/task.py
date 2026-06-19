@@ -108,5 +108,5 @@ async def update_task(
         ),
     )
     return UpdateTaskResponse(
-        task_id=task_id,
+        task_id=task_id.task_id,
     )
