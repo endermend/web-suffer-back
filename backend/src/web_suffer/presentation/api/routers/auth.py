@@ -16,19 +16,19 @@ from web_suffer.contexts.auth.application.use_cases import (
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
 from web_suffer.presentation.api.adapters.fastapi_response_adapter import FastAPIResponseAdapter
-from web_suffer.presentation.api.schemas.email import GetEmailResponse
-from web_suffer.presentation.api.schemas.login import (
+from web_suffer.presentation.api.schemas.auth.email import GetEmailResponse
+from web_suffer.presentation.api.schemas.auth.login import (
     UserLoginRequest,
     UserLoginResponse,
 )
-from web_suffer.presentation.api.schemas.refresh import (
+from web_suffer.presentation.api.schemas.auth.refresh import (
     UserRefreshResponse,
 )
-from web_suffer.presentation.api.schemas.register import (
+from web_suffer.presentation.api.schemas.auth.register import (
     UserRegisterRequest,
     UserRegisterResponse,
 )
-from web_suffer.presentation.api.schemas.users import GetUsersResponse
+from web_suffer.presentation.api.schemas.auth.users import GetUsersResponse
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

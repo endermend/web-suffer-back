@@ -42,7 +42,7 @@ class ChangeSubmissionDTO:
 
     access_token: str
     submission_id: UUID
-    status: str
+    status: SubmissionStatus
     comment: str
 
 
