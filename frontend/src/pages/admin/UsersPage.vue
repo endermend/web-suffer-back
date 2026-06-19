@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <div class="page_hero">
         <h1 class="page_title">Пользователи</h1>
         <p class="page_subtitle">Поиск и управление пользователями</p>

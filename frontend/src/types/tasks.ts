@@ -69,3 +69,32 @@ export interface UpdateUserExpRequest {
   exp_diff: number
   money_diff: number
 }
+
+// GET /api/task/task
+export interface TaskApiResponse {
+  task_id: string
+  title: string
+  description: string
+  deadline: string
+  exp: number
+  money: number
+}
+
+// GET /api/task/submission, GET /api/task/submissions
+export interface SubmissionApiResponse {
+  submission_id: string
+  task_id: string
+  user_id: string
+  content: string
+  file: string | null
+  status: SubmissionStatus
+  comment: string
+}
+
+export type SubmissionOrderBy = 'status' | 'created_at' | 'task_title'
+
+// GET /api/task/tasks-statistics
+export interface TaskStatisticsResponse {
+  task_all: number
+  task_status: Partial<Record<UserTaskStatus, number>> | null
+}

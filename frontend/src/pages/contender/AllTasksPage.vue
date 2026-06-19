@@ -1,10 +1,12 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <!-- hero -->
       <div class="page_hero">
+        <button type="button" class="back_btn" @click="router.push('/tasks')">
+          <BackArrowIcon class="back_icon" />
+        </button>
         <div>
-          <button type="button" class="back_btn" @click="router.push('/tasks')">← Назад</button>
           <h1 class="page_title">Все доступные задания</h1>
           <p class="page_subtitle">Задания, которые можно взять прямо сейчас</p>
         </div>
@@ -45,6 +47,7 @@ import { useTasksStore } from '@/stores/tasks_store.ts'
 import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
 import type { UserTask } from '@/types/tasks.ts'
+import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
 defineOptions({ name: 'AllTasksPage' })
 
@@ -56,9 +59,6 @@ const availableTasks = computed(() =>
   tasksStore.userTasks(authStore.userEmail ?? '').filter((t) => t.status === 'available'),
 )
 
-// Pinterest-style masonry: split into independent column arrays (each its own flex
-// container) instead of one CSS grid row, so a tall card in one column doesn't force
-// every card in the same row to match its height.
 const breakpoints = useBreakpoints({ mobile: 0, tablet: 540, desktop: 1050 })
 const isDesktop = breakpoints.greater('desktop')
 const isTablet = breakpoints.between('tablet', 'desktop')
@@ -98,8 +98,8 @@ main {
 
 .page_hero {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 28px 32px;
   background-color: white;
   border-radius: 16px;
@@ -109,18 +109,25 @@ main {
 
 .back_btn {
   appearance: none;
+  flex-shrink: 0;
   border: none;
   background: none;
   padding: 0;
-  margin-bottom: 10px;
-  font-family: Nagel;
-  font-size: 14px;
-  color: rgb(160, 125, 180);
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  color: rgb(160, 125, 180);
+  transition: color 0.2s;
 }
 
 .back_btn:hover {
-  text-decoration: underline;
+  color: rgb(140, 105, 160);
+}
+
+.back_icon {
+  width: 24px;
+  height: 24px;
+  transform: rotate(180deg);
 }
 
 .page_title {
@@ -145,9 +152,6 @@ main {
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
 }
-
-/* masonry grid — each column is an independent flex container, so card heights
-   (driven by description length) don't get locked to the tallest item in a row */
 
 .masonry_grid {
   display: grid;
