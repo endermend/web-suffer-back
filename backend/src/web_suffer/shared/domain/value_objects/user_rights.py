@@ -26,6 +26,11 @@ class UserRights:
         roles={UserRole.MODERATOR, UserRole.ADMIN},
         statuses={UserStatus.ACTIVE},
     )
+
+    CHANGE_RESTRICTED_USER: Final = UserRight(
+        roles={UserRole.ADMIN},
+        statuses={UserStatus.ACTIVE},
+    )
     CHANGE_USER: Final = UserRight(
         roles={UserRole.ADMIN},
         statuses={UserStatus.ACTIVE},
