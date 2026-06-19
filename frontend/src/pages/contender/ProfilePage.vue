@@ -1,7 +1,7 @@
 <template>
   <main>
-    <div class="main_contents">
-      <ProfileHero />
+    <div class="main_contents page_enter">
+      <ProfileHero :key="$route.fullPath" />
 
       <!-- stats -->
       <div class="stats_row">
@@ -20,7 +20,7 @@
       </div>
 
       <!-- completed assignments -->
-      <div class="card">
+      <div class="card_assignments">
         <div class="card_header">
           <div>
             <span class="card_title">Выполненные задания</span>
@@ -28,12 +28,12 @@
           </div>
         </div>
         <div v-if="completedTasks.length" class="grades_list">
-          <div v-for="item in completedTasks" :key="item.id" class="grade_item">
+          <div v-for="item in completedTasks" :key="item.submission.id" class="grade_item">
             <div class="grade_main">
-              <div class="grade_title">{{ item.title }}</div>
-              <div class="grade_date">{{ formatDate(item.submitted_at!) }}</div>
+              <div class="grade_title">{{ item.task.title }}</div>
+              <div class="grade_date">{{ formatDate(item.submission.submitted_at) }}</div>
             </div>
-            <div class="points_badge">+{{ item.points }}</div>
+            <div class="points_badge">+{{ item.task.exp }}</div>
           </div>
         </div>
         <div v-else class="empty_state">Выполненных заданий пока нет</div>
@@ -43,23 +43,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import ProfileHero from '@/components/profile/ProfileHero.vue'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
 
 defineOptions({ name: 'ProfilePage' })
 
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
 
+// Already sorted newest-first by the store getter (joins accepted submissions with their task).
 const completedTasks = computed(function () {
-  return [...tasksStore.completedTasks].sort(function (a, b) {
-    return new Date(b.submitted_at!).getTime() - new Date(a.submitted_at!).getTime()
-  })
+  return tasksStore.acceptedSubmissionsWithTask(authStore.userEmail ?? '')
 })
 
 const totalPoints = computed(function () {
-  return completedTasks.value.reduce(function (sum, t) {
-    return sum + t.points
+  return completedTasks.value.reduce(function (sum, item) {
+    return sum + item.task.exp
   }, 0)
 })
 
@@ -102,8 +103,17 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
-  padding: 24px;
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  padding-block: 24px;
+  padding-inline: 24px;
+}
+
+.card_assignments {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  padding-block: 24px;
+  padding-inline: 24px;
 }
 
 /* stats */
@@ -117,7 +127,7 @@ main {
 .stat_card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
@@ -216,7 +226,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {
@@ -231,6 +241,10 @@ main {
 
   .stats_row {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .card {
+    padding-inline: 12px;
   }
 }
 </style>

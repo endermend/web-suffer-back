@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <!-- hero -->
       <div class="page_hero">
         <div>
@@ -34,7 +34,7 @@
                 <div class="assignment_side">
                   <div class="deadline_label">Дедлайн</div>
                   <div class="deadline_date">{{ formatDate(item.deadline) }}</div>
-                  <div class="points_label">{{ item.points }} баллов</div>
+                  <div class="points_label">{{ item.exp }} баллов</div>
                 </div>
               </div>
             </div>
@@ -53,12 +53,12 @@
               </div>
             </div>
             <div v-if="recentCompleted.length" class="grades_list">
-              <div v-for="item in recentCompleted" :key="item.id" class="grade_item">
+              <div v-for="item in recentCompleted" :key="item.submission.id" class="grade_item">
                 <div class="grade_main">
-                  <div class="grade_title">{{ item.title }}</div>
-                  <div class="grade_date">{{ formatDate(item.submitted_at!) }}</div>
+                  <div class="grade_title">{{ item.task.title }}</div>
+                  <div class="grade_date">{{ formatDate(item.submission.submitted_at) }}</div>
                 </div>
-                <div class="points_badge">+{{ item.points }}</div>
+                <div class="points_badge">+{{ item.task.exp }}</div>
               </div>
             </div>
             <div v-else class="empty_state">Оценок пока нет</div>
@@ -74,18 +74,20 @@
           <div class="card">
             <div class="card_header">
               <div>
-                <span class="card_title">Прогресс</span>
-                <p class="card_subtitle">Ваш общий прогресс</p>
+                <span class="card_title">Правильность</span>
+                <p class="card_subtitle">Ошибочные задания можно пересдать</p>
               </div>
             </div>
             <div class="progress_circle_wrap">
-              <div class="progress_circle" :style="{ '--progress': progress }">
-                <span class="progress_inner">{{ progress }}%</span>
+              <div class="progress_circle" :style="{ '--progress': animatedProgress }">
+                <span class="progress_inner">{{ animatedProgress }}%</span>
               </div>
             </div>
-            <p class="progress_info">Выполнено {{ completedCount }} из {{ totalCount }} заданий</p>
+            <p class="progress_info">
+              Правильно выполнено {{ completedCount }} из {{ totalCount }} заданий
+            </p>
             <div class="progress_bar">
-              <div class="progress_fill" :style="{ width: progress + '%' }"></div>
+              <div class="progress_fill" :style="{ width: animatedProgress + '%' }"></div>
             </div>
           </div>
 
@@ -150,8 +152,8 @@
             <select v-model="statusFilter" class="filter_input">
               <option value="">Все статусы</option>
               <option value="available">Доступно</option>
-              <option value="submitted">Сдано</option>
-              <option value="graded">Проверено</option>
+              <option value="pending">Сдано</option>
+              <option value="accepted">Проверено</option>
               <option value="rejected">Отклонено</option>
             </select>
           </div>
@@ -226,15 +228,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateShort as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
 
 defineOptions({ name: 'TasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
+
+// Task no longer carries a status by itself — it's derived per user from submissions,
+// so every list on this page is built from this one joined view (mirrors the backend's
+// per-user task list endpoint) instead of reading tasksStore.tasks directly.
+const userEmail = computed(() => authStore.userEmail ?? '')
+const myTasks = computed(() => tasksStore.userTasks(userEmail.value))
 
 const searchQuery = ref('')
 const deadlineBefore = ref('')
@@ -244,7 +254,7 @@ const currentPage = ref(1)
 const PAGE_SIZE = 10
 
 const filteredTasks = computed(() =>
-  tasksStore.tasks.filter((t) => {
+  myTasks.value.filter((t) => {
     if (searchQuery.value && !t.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
       return false
     if (statusFilter.value && t.status !== statusFilter.value) return false
@@ -261,21 +271,43 @@ const paginatedTasks = computed(() => {
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredTasks.value.length / PAGE_SIZE)))
 
-const activeTasks = computed(() => tasksStore.availableTasks.slice(0, 4))
-const pendingTasks = computed(() => tasksStore.pendingTasks)
-const rejectedTasks = computed(() => tasksStore.rejectedTasks)
+const activeTasks = computed(() =>
+  myTasks.value.filter((t) => t.status === 'available').slice(0, 3),
+)
+const pendingTasks = computed(() => myTasks.value.filter((t) => t.status === 'pending'))
+const rejectedTasks = computed(() => myTasks.value.filter((t) => t.status === 'rejected'))
 
+// Joined with the actual submission so we have a real submitted_at to sort/show by —
+// UserTask alone doesn't carry it (see the store getter's comment for why).
 const recentCompleted = computed(() =>
-  [...tasksStore.completedTasks]
-    .sort((a, b) => new Date(b.submitted_at!).getTime() - new Date(a.submitted_at!).getTime())
-    .slice(0, 3),
+  tasksStore.acceptedSubmissionsWithTask(userEmail.value).slice(0, 3),
 )
 
-const totalCount = computed(() => tasksStore.tasks.length)
-const completedCount = computed(() => tasksStore.completedTasks.length)
+const totalCount = computed(
+  () =>
+    myTasks.value.filter((t) => t.status === 'rejected').length +
+    myTasks.value.filter((t) => t.status === 'accepted').length,
+)
+const completedCount = computed(() => myTasks.value.filter((t) => t.status === 'accepted').length)
 const progress = computed(() =>
   totalCount.value ? Math.round((completedCount.value / totalCount.value) * 100) : 0,
 )
+
+const animatedProgress = ref(0)
+const PROGRESS_FILL_DURATION = 600
+
+onMounted(() => {
+  const target = progress.value
+  const start = performance.now()
+
+  function tick(now: number): void {
+    const t = Math.min((now - start) / PROGRESS_FILL_DURATION, 1)
+    animatedProgress.value = Math.round(target * t)
+    if (t < 1) requestAnimationFrame(tick)
+  }
+
+  requestAnimationFrame(tick)
+})
 
 function applyFilters(): void {
   currentPage.value = 1
@@ -325,7 +357,7 @@ main {
   background-color: white;
   border-radius: 16px;
   margin-top: 32px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
 }
 
 .page_title {
@@ -362,7 +394,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
 }
 
@@ -405,11 +437,14 @@ main {
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
   cursor: pointer;
-  transition: 0.2s background-color;
+  transition:
+    0.2s background-color,
+    0.2s transform;
 }
 
 .assignment_item:hover {
   background-color: rgb(235, 230, 245);
+  transform: translateX(6px);
 }
 
 .assignment_title {
@@ -817,7 +852,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

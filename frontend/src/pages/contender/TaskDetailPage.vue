@@ -12,20 +12,20 @@
         <div class="page_hero">
           <div>
             <h1 class="page_title">{{ task.title }}</h1>
-            <span class="status_chip" :class="statusChip(task.status)">
-              {{ statusLabel(task.status) }}
+            <span class="status_chip" :class="statusChip(status)">
+              {{ statusLabel(status) }}
             </span>
           </div>
-          <div class="points_pill">{{ task.points }} баллов</div>
+          <div class="points_pill">{{ task.exp }} баллов</div>
         </div>
 
-        <div v-if="task.status === 'rejected'" class="rejected_note">
+        <div v-if="status === 'rejected'" class="rejected_note">
           Задание отклонено администратором. Вы можете изменить ответ и отправить его повторно.
         </div>
 
-        <div v-if="task.admin_comment" class="card">
+        <div v-if="currentSubmission?.admin_comment" class="card">
           <span class="card_title">Комментарий проверяющего</span>
-          <p class="description_text">{{ task.admin_comment }}</p>
+          <p class="description_text">{{ currentSubmission.admin_comment }}</p>
         </div>
 
         <!-- deadline + description -->
@@ -51,28 +51,32 @@
           ></textarea>
         </div>
 
-        <!-- files -->
+        <!-- file (backend allows exactly one per submission) -->
         <div class="card">
-          <span class="card_title">Файлы ответа</span>
-          <div v-if="task.submission_files.length" class="file_list">
-            <div v-for="file in task.submission_files" :key="file.id" class="file_item">
-              <a :href="file.url" target="_blank" class="file_name">{{ file.name }}</a>
-              <button
-                v-if="isEditable"
-                type="button"
-                class="file_remove_btn"
-                @click="tasksStore.removeSubmissionFile(task.id, file.id)"
-              >
-                Удалить
+          <span class="card_title">Файл ответа</span>
+
+          <a
+            v-if="!isEditable && currentSubmission?.file"
+            :href="currentSubmission.file.url"
+            target="_blank"
+            class="file_name"
+          >
+            {{ currentSubmission.file.name }}
+          </a>
+          <p v-else-if="!isEditable" class="muted_text">Файла нет</p>
+
+          <template v-else>
+            <div v-if="selectedFile" class="file_item">
+              <span class="file_name">{{ selectedFile.name }}</span>
+              <button type="button" class="file_remove_btn" @click="selectedFile = null">
+                Убрать
               </button>
             </div>
-          </div>
-          <p v-else class="muted_text">Файлов пока нет</p>
-
-          <label v-if="isEditable" class="upload_btn">
-            <span>Загрузить файл</span>
-            <input type="file" hidden multiple @change="handleFileUpload" />
-          </label>
+            <label v-else class="upload_btn">
+              <span>Загрузить файл</span>
+              <input type="file" hidden @change="handleFileChange" />
+            </label>
+          </template>
         </div>
 
         <!-- submit -->
@@ -83,7 +87,7 @@
           :disabled="!answerInput.trim()"
           @click="handleSubmit"
         >
-          {{ task.status === 'rejected' ? 'Отправить повторно' : 'Отправить ответ' }}
+          {{ status === 'rejected' ? 'Отправить повторно' : 'Отправить ответ' }}
         </button>
       </template>
     </div>
@@ -105,29 +109,33 @@ const tasksStore = useTasksStore()
 const authStore = useAuthStore()
 
 const taskId = Number(route.params.id)
+const userEmail = computed(() => authStore.userEmail ?? '')
+
 const task = computed(() => tasksStore.tasks.find((t) => t.id === taskId))
+// The submission is a separate entity now — Task itself has no status. "Current" picks
+// the user's most relevant attempt for this task (see store getter for the priority rule).
+const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId, userEmail.value))
+const status = computed(() => currentSubmission.value?.status ?? 'available')
 const isEditable = computed(
-  () => task.value?.status === 'available' || task.value?.status === 'rejected',
+  () =>
+    authStore.role === 'member' &&
+    (status.value === 'available' || status.value === 'rejected'),
 )
 
-const answerInput = ref(task.value?.answer ?? '')
+// Pre-fill with the previous attempt's text when resubmitting after a rejection, so the
+// user isn't retyping from scratch. The previous file can't be carried over the same way
+// (no way to turn a stored URL back into a File object for re-upload), so that starts empty.
+const answerInput = ref(currentSubmission.value?.content ?? '')
+const selectedFile = ref<File | null>(null)
 
-function handleFileUpload(e: Event): void {
-  if (!task.value) return
+function handleFileChange(e: Event): void {
   const input = e.target as HTMLInputElement
-  const files = input.files
-  if (!files) return
-  for (const file of Array.from(files)) {
-    tasksStore.addSubmissionFile(task.value.id, file)
-  }
-  input.value = ''
+  selectedFile.value = input.files?.[0] ?? null
 }
 
 function handleSubmit(): void {
   if (!task.value) return
-  if (!confirm('Отправить ответ? После отправки изменить его будет нельзя.')) return
-  tasksStore.updateAnswer(task.value.id, answerInput.value)
-  tasksStore.submitTask(task.value.id, authStore.userEmail ?? '')
+  tasksStore.createSubmission(task.value.id, userEmail.value, answerInput.value, selectedFile.value)
 }
 </script>
 
@@ -176,7 +184,7 @@ main {
   padding: 28px 32px;
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.1);
 }
 
 .page_title {
@@ -201,7 +209,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.1);
   padding: 24px;
 }
 
@@ -254,13 +262,6 @@ main {
 }
 
 /* files */
-
-.file_list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
-}
 
 .file_item {
   display: flex;
@@ -399,7 +400,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

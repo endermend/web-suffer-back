@@ -10,26 +10,28 @@
         </div>
       </div>
 
-      <div class="card">
-        <div v-if="availableTasks.length" class="assignment_list">
+      <div v-if="availableTasks.length" class="masonry_grid" :style="{ '--columns': columnCount }">
+        <div v-for="(column, colIndex) in columns" :key="colIndex" class="masonry_column">
           <div
-            v-for="item in availableTasks"
+            v-for="item in column"
             :key="item.id"
             class="assignment_item"
             @click="router.push(`/tasks/${item.id}`)"
           >
-            <div class="assignment_main">
-              <div class="assignment_title">{{ item.title }}</div>
-              <div class="assignment_description">{{ item.description }}</div>
-            </div>
-            <div class="assignment_side">
-              <div class="deadline_label">Дедлайн</div>
-              <div class="deadline_date">{{ formatDate(item.deadline) }}</div>
-              <div class="points_label">{{ item.points }} баллов</div>
+            <div class="assignment_title">{{ item.title }}</div>
+            <div class="assignment_description">{{ item.description }}</div>
+            <div class="assignment_footer">
+              <div>
+                <div class="deadline_label">Дедлайн</div>
+                <div class="deadline_date">{{ formatDate(item.deadline) }}</div>
+              </div>
+              <div class="points_label">{{ item.exp }} баллов</div>
             </div>
           </div>
         </div>
-        <div v-else class="empty_state">Доступных заданий нет</div>
+      </div>
+      <div v-else class="card">
+        <div class="empty_state">Доступных заданий нет</div>
       </div>
     </div>
   </main>
@@ -38,15 +40,38 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useBreakpoints } from '@vueuse/core'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
+import type { UserTask } from '@/types/tasks.ts'
 
 defineOptions({ name: 'AllTasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
 
-const availableTasks = computed(() => tasksStore.availableTasks)
+const availableTasks = computed(() =>
+  tasksStore.userTasks(authStore.userEmail ?? '').filter((t) => t.status === 'available'),
+)
+
+// Pinterest-style masonry: split into independent column arrays (each its own flex
+// container) instead of one CSS grid row, so a tall card in one column doesn't force
+// every card in the same row to match its height.
+const breakpoints = useBreakpoints({ mobile: 0, tablet: 540, desktop: 1050 })
+const isDesktop = breakpoints.greater('desktop')
+const isTablet = breakpoints.between('tablet', 'desktop')
+const columnCount = computed(() => (isDesktop.value ? 3 : isTablet.value ? 2 : 1))
+
+// Round-robin distribution — task i goes to column i % columnCount, no height balancing.
+const columns = computed(() => {
+  const cols: UserTask[][] = Array.from({ length: columnCount.value }, () => [])
+  availableTasks.value.forEach((task, index) => {
+    cols[index % columnCount.value]!.push(task)
+  })
+  return cols
+})
 </script>
 
 <style scoped>
@@ -79,7 +104,7 @@ main {
   background-color: white;
   border-radius: 16px;
   margin-top: 32px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
 }
 
 .back_btn {
@@ -117,57 +142,62 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
 }
 
-/* assignment list */
+/* masonry grid — each column is an independent flex container, so card heights
+   (driven by description length) don't get locked to the tallest item in a row */
 
-.assignment_list {
+.masonry_grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.masonry_column {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
 .assignment_item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
   padding: 16px 18px;
   border-radius: 12px;
-  background-color: rgb(244, 243, 250);
+  background-color: white;
   cursor: pointer;
-  transition: 0.2s background-color;
+  transition:
+    0.2s background-color,
+    0.2s transform;
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.15);
 }
 
 .assignment_item:hover {
   background-color: rgb(235, 230, 245);
-}
-
-.assignment_main {
-  min-width: 0;
+  transform: translateY(-4px);
 }
 
 .assignment_title {
   font-family: Nagel;
   font-size: 15px;
   color: rgb(65, 65, 65);
-  margin-bottom: 4px;
 }
 
 .assignment_description {
   font-family: Nagel;
   font-size: 13px;
   color: rgb(150, 150, 150);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: pre-wrap;
 }
 
-.assignment_side {
-  text-align: right;
-  flex-shrink: 0;
+.assignment_footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .deadline_label {
@@ -187,7 +217,7 @@ main {
   font-family: Nagel;
   font-size: 12px;
   color: rgb(160, 125, 180);
-  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 /* states */
@@ -204,7 +234,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {
@@ -215,15 +245,6 @@ main {
 @media screen and (max-width: 540px) {
   .main_contents {
     padding-top: 70px;
-  }
-
-  .assignment_item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .assignment_side {
-    text-align: left;
   }
 }
 </style>

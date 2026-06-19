@@ -1,4 +1,4 @@
-import type { Task } from '@/types/tasks.ts'
+import type { UserTaskStatus } from '@/types/tasks.ts'
 
 function formatDateShort(str: string): string {
   return new Date(str).toLocaleDateString('ru-RU', {
@@ -19,16 +19,18 @@ function formatDateLong(str: string): string {
   })
 }
 
-function statusChip(status: Task['status']): string {
-  if (status === 'graded') return 'chip_graded'
-  if (status === 'submitted') return 'chip_submitted'
+// CSS class names keep their old wording (chip_graded etc.) — they're purely visual
+// and already used across several components' <style> blocks, no need to churn those.
+function statusChip(status: UserTaskStatus): string {
+  if (status === 'accepted') return 'chip_graded'
+  if (status === 'pending') return 'chip_submitted'
   if (status === 'rejected') return 'chip_rejected'
   return 'chip_assigned'
 }
 
-function statusLabel(status: Task['status']): string {
-  if (status === 'graded') return 'Проверено'
-  if (status === 'submitted') return 'Сдано'
+function statusLabel(status: UserTaskStatus): string {
+  if (status === 'accepted') return 'Проверено'
+  if (status === 'pending') return 'Сдано'
   if (status === 'rejected') return 'Отклонено'
   return 'Доступно'
 }

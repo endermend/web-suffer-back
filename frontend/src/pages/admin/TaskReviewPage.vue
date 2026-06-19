@@ -3,10 +3,10 @@
     <div class="main_contents">
       <button type="button" class="back_btn" @click="router.push('/admin/tasks')">← Назад</button>
 
-      <div v-if="!task" class="card">
+      <div v-if="!submission || !task" class="card">
         <div class="empty_state">Сдача не найдена</div>
       </div>
-      <div v-else-if="task.status !== 'submitted'" class="card">
+      <div v-else-if="submission.status !== 'pending'" class="card">
         <div class="empty_state">Это задание уже проверено</div>
       </div>
 
@@ -15,30 +15,22 @@
         <div class="page_hero">
           <div>
             <h1 class="page_title">{{ task.title }}</h1>
-            <span class="submitter_email">{{ task.submitted_by }}</span>
+            <span class="submitter_email">{{ submission.user_email }}</span>
           </div>
-          <div class="points_pill">{{ task.points }} баллов</div>
+          <div class="points_pill">{{ task.exp }} баллов</div>
         </div>
 
         <div class="card">
           <span class="card_title">Письменный ответ</span>
-          <p class="answer_text">{{ task.answer || 'Без письменного ответа' }}</p>
+          <p class="answer_text">{{ submission.content || 'Без письменного ответа' }}</p>
         </div>
 
         <div class="card">
-          <span class="card_title">Файлы ответа</span>
-          <div v-if="task.submission_files.length" class="file_list">
-            <a
-              v-for="file in task.submission_files"
-              :key="file.id"
-              :href="file.url"
-              target="_blank"
-              class="file_item"
-            >
-              {{ file.name }}
-            </a>
-          </div>
-          <p v-else class="muted_text">Файлов нет</p>
+          <span class="card_title">Файл ответа</span>
+          <a v-if="submission.file" :href="submission.file.url" target="_blank" class="file_item">
+            {{ submission.file.name }}
+          </a>
+          <p v-else class="muted_text">Файла нет</p>
         </div>
 
         <div class="card">
@@ -75,20 +67,21 @@ const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
 
-const taskId = Number(route.params.id)
-const task = computed(() => tasksStore.tasks.find((t) => t.id === taskId))
+const submissionId = Number(route.params.id)
+const submission = computed(() => tasksStore.submissions.find((s) => s.id === submissionId))
+const task = computed(() => tasksStore.tasks.find((t) => t.id === submission.value?.task_id))
 
 const comment = ref('')
 
 function handleAccept(): void {
-  if (!task.value) return
-  tasksStore.gradeTask(task.value.id, comment.value)
+  if (!submission.value) return
+  tasksStore.acceptSubmission(submission.value.id, comment.value)
   router.push('/admin/tasks')
 }
 
 function handleReject(): void {
-  if (!task.value) return
-  tasksStore.rejectTask(task.value.id, comment.value)
+  if (!submission.value) return
+  tasksStore.rejectSubmission(submission.value.id, comment.value)
   router.push('/admin/tasks')
 }
 </script>
@@ -138,7 +131,7 @@ main {
   padding: 28px 32px;
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
 }
 
 .page_title {
@@ -169,7 +162,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
 }
 
@@ -217,12 +210,6 @@ main {
 }
 
 /* files */
-
-.file_list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
 .file_item {
   display: block;
@@ -290,7 +277,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

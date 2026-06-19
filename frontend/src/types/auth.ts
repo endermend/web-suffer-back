@@ -11,4 +11,4 @@ export interface EmailResponse {
   email: string
 }
 
-export type UserRole = 'admin' | 'member'
+export type UserRole = 'admin' | 'moderator' | 'member'

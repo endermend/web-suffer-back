@@ -265,7 +265,7 @@ button {
   margin-bottom: 40px;
   border-radius: 16px;
   font-family: Nagel;
-  box-shadow: 0px 0px 30px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 30px 0px rgb(0, 0, 0, 0.2);
 }
 
 .auth_form_header {
@@ -402,7 +402,6 @@ button {
 }
 
 /* transitions */
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s;
@@ -411,7 +410,6 @@ button {
 .fade-leave-to {
   opacity: 0;
 }
-
 /* shake animation */
 
 @keyframes shake {

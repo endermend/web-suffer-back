@@ -94,7 +94,8 @@ const useAuthStore = defineStore('auth', {
 
     // test-only role switch, triggered by clicking the role label in the profile
     toggleRole() {
-      this.role = this.role === 'admin' ? 'member' : 'admin'
+      const order: UserRole[] = ['member', 'moderator', 'admin']
+      this.role = order[(order.indexOf(this.role) + 1) % order.length]!
       localStorage.setItem('role', this.role)
     },
   },

@@ -7,10 +7,15 @@
     </div>
 
     <div
+      v-if="authStore.role !== 'admin'"
       class="settings_trigger"
       @mouseenter="isSettingsMenuOpen = true"
       @mouseleave="isSettingsMenuOpen = false"
     >
+      <RouterLink to="/settings" class="gear_link">
+        <GearIcon class="gear_icon" :class="{ rotated: isSettingsMenuOpen }" />
+      </RouterLink>
+
       <transition name="fade" mode="out-in">
         <span v-if="!isSettingsMenuOpen" class="settings_label">Настройки аккаунта</span>
         <div v-else class="settings_menu">
@@ -24,10 +29,6 @@
           </RouterLink>
         </div>
       </transition>
-
-      <RouterLink to="/settings" class="gear_link">
-        <GearIcon class="gear_icon" :class="{ rotated: isSettingsMenuOpen }" />
-      </RouterLink>
     </div>
   </div>
 </template>
@@ -47,12 +48,14 @@ const authStore = useAuthStore()
 const isSettingsMenuOpen = ref(false)
 
 const roleLabel = computed(function () {
-  return authStore.role === 'admin' ? 'Администратор' : 'Участник'
+  if (authStore.role === 'admin') return 'Администратор'
+  if (authStore.role === 'moderator') return 'Модератор'
+  return 'Участник'
 })
 
 function toggleRole(): void {
   authStore.toggleRole()
-  if (authStore.role === 'admin') {
+  if (authStore.role === 'admin' || authStore.role === 'moderator') {
     router.push('/admin/profile')
   } else {
     router.push('/profile')
@@ -72,7 +75,7 @@ const avatarLetter = computed(function () {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
 }
 
@@ -80,8 +83,9 @@ const avatarLetter = computed(function () {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 6px;
   margin-top: 32px;
+  padding: 24px;
 }
 
 .avatar {
@@ -127,15 +131,17 @@ const avatarLetter = computed(function () {
 .settings_trigger {
   margin-left: auto;
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 12px;
 }
 
 .settings_label {
+  text-align: right;
   font-family: Nagel;
   font-size: 14px;
   color: rgb(65, 65, 65);
-  white-space: nowrap;
+  /* white-space: nowrap; */
   text-decoration: underline;
 }
 
@@ -204,5 +210,16 @@ const avatarLetter = computed(function () {
 .fade-leave-to {
   opacity: 0;
   transform: translateX(8px);
+}
+
+@media screen and (max-width: 540px) {
+  .profile_email {
+    font-size: 4vw;
+  }
+
+  .avatar {
+    height: 12vw;
+    width: 12vw;
+  }
 }
 </style>
