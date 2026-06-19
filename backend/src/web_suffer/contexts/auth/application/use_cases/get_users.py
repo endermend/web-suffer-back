@@ -61,7 +61,7 @@ class GetUsersUseCase:
             logger.warning("auth.email.failed", reason="user_not_found")
             raise InvalidCredentialsError
 
-        if UserRights.CHECK_USER_LIST.is_satisfied_by(user.role, user.status):
+        if not UserRights.CHECK_USER_LIST.is_satisfied_by(user.role, user.status):
             logger.warning("auth.email.failed", reason="not_enought_permission")
             raise InsufficientPermissionsError
 
