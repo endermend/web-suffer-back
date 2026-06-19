@@ -12,21 +12,26 @@ from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     SubmissionRangesDTO,
     SubmissionTokenIDDTO,
 )
-from web_suffer.contexts.tasks.application.dtos.task_dto import UpdateTaskDTO
+from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO
 from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submission_by_id import GetSubmissionByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submissions import GetSubmissionsUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_task_by_id import GetTaskByIDUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_tasks_statistics import GetTasksStatisticsUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
 from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
 from web_suffer.infrastructure.constants import UPLOAD_DIR
 from web_suffer.presentation.api.routers.utils import CredentialsType
-from web_suffer.presentation.api.schemas.submission import SubmissionResponce
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
+from web_suffer.presentation.api.schemas.task.submission import SubmissionResponce
+from web_suffer.presentation.api.schemas.task.task import TaskResponce
+from web_suffer.presentation.api.schemas.task.tasks_statistics import TaskStatisticsResponce
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
 from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
+from web_suffer.shared.application.dtos.access_token_dto import PublicAccessTokenDTO
 
 router = APIRouter(prefix="/task", tags=["Task"])
 
@@ -222,3 +227,66 @@ async def submissions(
         )
         for subm in subms
     ]
+
+
+@router.get(
+    "/task",
+    status_code=status.HTTP_200_OK,
+    summary="Получение задания",
+)
+@inject
+async def task(
+    task_id: Annotated[uuid.UUID, Query(description="ID задания")],
+    use_case: FromDishka[GetTaskByIDUseCase],
+) -> TaskResponce:
+    """
+    Эндпоинт получения задания.
+
+    Returns:
+        TaskResponce
+
+    """
+    output_dto = await use_case.execute(
+        input_dto=TaskIDDTO(
+            task_id=task_id,
+        ),
+    )
+    return TaskResponce(
+        task_id=output_dto.task_id,
+        title=output_dto.title,
+        description=output_dto.description,
+        deadline=output_dto.deadline,
+        exp=output_dto.exp,
+        money=output_dto.money,
+    )
+
+
+@router.get(
+    "/tasks-statistics",
+    status_code=status.HTTP_200_OK,
+    summary="Получение статистики о заданиях",
+)
+@inject
+async def tasks_statistics(
+    use_case: FromDishka[GetTasksStatisticsUseCase],
+    credentials: CredentialsType | None = None,
+) -> TaskStatisticsResponce:
+    """
+    Эндпоинт получения задания.
+
+    Если access_token не указан, возвращает только общее число доступных задач.
+
+    Returns:
+        TaskStatisticsResponce
+
+    """
+    access_token = credentials.credentials if credentials is not None else None
+    output_dto = await use_case.execute(
+        input_dto=PublicAccessTokenDTO(
+            access_token=access_token,
+        ),
+    )
+    return TaskStatisticsResponce(
+        task_all=output_dto.tasks_all,
+        task_status=output_dto.tasks_status,
+    )
