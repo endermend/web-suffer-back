@@ -59,8 +59,9 @@ class TaskStatisticsDTO:
     tasks_status: dict[TaskStatus, int] | None
 
 
-class CreateTaskDTO:
-    """DTO создания задания."""
+@dataclass(slots=True, frozen=True)
+class UpdateeTaskDTO:
+    """DTO создания/изменения задания."""
 
     access_token: str
     task_id: UUID | None

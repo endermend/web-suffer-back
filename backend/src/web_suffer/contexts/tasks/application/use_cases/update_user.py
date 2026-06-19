@@ -3,7 +3,7 @@ import structlog
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateeTaskDTO
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.entities.task import Task
-from web_suffer.contexts.tasks.domain.repository.task_repository import ITaskRepository
+from web_suffer.contexts.tasks.domain.repository.user_repository import IUserTRepository
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
 from web_suffer.shared.domain.value_objects.user_right import UserRights
@@ -16,12 +16,12 @@ class UpdateTaskUseCase:
 
     def __init__(
             self,
-            task_repo: ITaskRepository,
+            usert_repo: IUserTRepository,
             mapper: ITaskDTOMapper,
             auth_service: IAuthService,
         ) -> None:
         """Инициализация use case."""
-        self._task_repo = task_repo
+        self._usert_repo = usert_repo
         self._mapper = mapper
         self._auth_service = auth_service
 

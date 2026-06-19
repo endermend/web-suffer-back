@@ -27,7 +27,7 @@ class TaskDTOMapper(ITaskDTOMapper):
         )
 
     @staticmethod
-    def from_id_dto(task_id: TaskIDDTO) -> TaskID:
+    def from_task_id_dto(task_id: TaskIDDTO) -> TaskID:
         """
         DTO -> Domain value object.
 
@@ -38,7 +38,7 @@ class TaskDTOMapper(ITaskDTOMapper):
         return TaskID(value=task_id.task_id)
 
     @staticmethod
-    def to_id_dto(task: TaskID) -> TaskIDDTO:
+    def to_task_id_dto(task: TaskID) -> TaskIDDTO:
         """
         Domain value object -> DTO.
 
