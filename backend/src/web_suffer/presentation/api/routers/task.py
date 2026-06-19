@@ -1,5 +1,6 @@
 import shutil
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -12,22 +13,24 @@ from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     SubmissionRangesDTO,
     SubmissionTokenIDDTO,
 )
-from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO
+from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO, UsersTasksRangeDTO
 from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submission_by_id import GetSubmissionByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submissions import GetSubmissionsUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_task_by_id import GetTaskByIDUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_tasks import GetTasksUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks_statistics import GetTasksStatisticsUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
-from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus, TaskOrderBy, TaskStatusFilter
 from web_suffer.infrastructure.constants import UPLOAD_DIR
 from web_suffer.presentation.api.routers.utils import CredentialsType, OptionalCredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
 from web_suffer.presentation.api.schemas.task.submission import SubmissionResponce
 from web_suffer.presentation.api.schemas.task.task import TaskResponce
+from web_suffer.presentation.api.schemas.task.tasks import UserTaskResponce
 from web_suffer.presentation.api.schemas.task.tasks_statistics import TaskStatisticsResponce
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
 from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
@@ -290,3 +293,54 @@ async def tasks_statistics(
         task_all=output_dto.tasks_all,
         task_status=output_dto.tasks_status,
     )
+
+
+@router.get(
+    "/tasks",
+    status_code=status.HTTP_200_OK,
+    summary="Получение заданий пользователя по фильтру",
+)
+@inject
+async def tasks(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetTasksUseCase],
+    limit: Annotated[int, Query(description="Предел записей", le=100, ge=1)] = 20,
+    offset: Annotated[int, Query(description="Отступ от начала")] = 0,
+    deadline_from: Annotated[datetime | None, Query(description="Дедлайн от")] = None,
+    deadline_till: Annotated[datetime | None, Query(description="Дедлайн до")] = None,
+    status: Annotated[TaskStatusFilter | None, Query(description="Статус задания")] = None,
+    order_by: Annotated[TaskOrderBy | None, Query(description="Порядок сортировки")] = None,
+) -> list[UserTaskResponce]:
+    """
+    Эндпоинт получения задания.
+
+    Если access_token не указан, возвращает только общее число доступных задач.
+
+    Returns:
+        TaskStatisticsResponce
+
+    """
+    access_token = credentials.credentials if credentials is not None else None
+    tasks = await use_case.execute(
+        input_dto=UsersTasksRangeDTO(
+            access_token=access_token,
+            deadline_from=deadline_from,
+            deadline_till=deadline_till,
+            status=status,
+            order_by=order_by,
+            limit=limit,
+            offset=offset,
+        ),
+    )
+    return [
+        UserTaskResponce(
+            task_id=task.task_id,
+            title=task.title,
+            description=task.description,
+            deadline=task.deadline,
+            exp=task.exp,
+            money=task.money,
+            status=task.status,
+        )
+        for task in tasks
+    ]

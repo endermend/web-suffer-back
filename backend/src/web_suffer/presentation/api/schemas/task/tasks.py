@@ -3,8 +3,10 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from web_suffer.contexts.tasks.domain.types import TaskStatus
 
-class TaskResponce(BaseModel):
+
+class UserTaskResponce(BaseModel):
     """
     Результат запроса получения задания.
 
@@ -14,6 +16,7 @@ class TaskResponce(BaseModel):
     deadline: Время истечения задания.
     exp: опыт.
     money: монеты.
+    status:  Статус лучшего отправления "pending", "accepted" или "rejected".
 
     """
 
@@ -23,3 +26,4 @@ class TaskResponce(BaseModel):
     deadline: datetime
     exp: int
     money: int
+    status: TaskStatus
