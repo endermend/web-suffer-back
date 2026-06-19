@@ -14,7 +14,7 @@ class SubmissionDTO:
     user_id: UUID
     content: str
     file: Path | None
-    status: str
+    status: SubmissionStatus
     comment: str
 
 
