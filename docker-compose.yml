@@ -4,6 +4,8 @@ services:
     build: ./backend/
     ports:
       - "8000:${APP__PORT}"
+    volumes:
+      - backend_data:/files/
     environment:
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
@@ -98,12 +100,107 @@ services:
     restart: unless-stopped
   frontend:
     container_name: frontend
-    build: ./frontend/
+    build: 
+      context: ./frontend/
+      dockerfile: Dockerfile
+      target: development
     ports:
       - "80:80"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.pnpm-store
+    develop:
+      watch:
+
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+          ignore:
+            - node_modules/
+            - .vite/
+            - dist/
+        
+        - action: sync
+          path: ./frontend/public
+          target: /app/public
+          ignore:
+            - node_modules/
+        
+        - action: rebuild
+          path: ./frontend/package.json
+          target: /app/package.json
+        
+        - action: rebuild
+          path: ./frontend/pnpm-lock.yaml
+          target: /app/pnpm-lock.yaml
+        
+        - action: rebuild
+          path: ./frontend/vite.config.ts
+          target: /app/vite.config.ts
+        
+        - action: rebuild
+          path: ./frontend/vite.config.js
+          target: /app/vite.config.js
+        
+        - action: rebuild
+          path: ./frontend/index.html
+          target: /app/index.html
+        
+        - action: rebuild
+          path: ./frontend/.env
+          target: /app/.env
+        
+        - action: rebuild
+          path: ./frontend/.env.local
+          target: /app/.env.local
+        
+        - action: sync
+          path: ./frontend/src/components
+          target: /app/src/components
+          ignore:
+            - node_modules/
+            - *.spec.ts
+            - *.test.ts
+        
+        - action: sync
+          path: ./frontend/src/views
+          target: /app/src/views
+          ignore:
+            - node_modules/
+        
+        - action: sync
+          path: ./frontend/src/router
+          target: /app/src/router
+        
+        - action: sync
+          path: ./frontend/src/stores
+          target: /app/src/stores
+        
+        - action: sync
+          path: ./frontend/src/assets
+          target: /app/src/assets
+        
+        - action: sync
+          path: ./frontend/src/types
+          target: /app/src/types
+        
+        - action: sync
+          path: ./frontend/src/composables
+          target: /app/src/composables
+        
+        - action: sync
+          path: ./frontend/src/utils
+          target: /app/src/utils
+        
+        - action: sync
+          path: ./frontend/src/plugins
+          target: /app/src/plugins
+
 
 volumes:
   database_data:
   redis_data:
+  backend_data:

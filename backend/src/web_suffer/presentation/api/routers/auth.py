@@ -187,11 +187,12 @@ async def users(
 )
 @inject
 async def change_password(
-    access_token: str,
+    credentials: CredentialsType,
     new_password: str,
     use_case: FromDishka[ChangePasswordUseCase],
 ) -> None:
     """Эндпоинт смены пароля у пользователя."""  # noqa: RUF002
+    access_token = credentials.credentials
     await use_case.execute(
         input_dto=ChangePasswordDTO(access_token=access_token, new_password=new_password),
     )
