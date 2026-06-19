@@ -24,6 +24,7 @@ dev = [
     "cosmic-ray>=8.4.4",
     "hypothesis>=6.151.9",
     "mypy>=1.19.1",
+    "pyrefly>=1.1.0",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.1.0",
@@ -54,15 +55,15 @@ target-version = "py313"
 preview = true
 select = ["ALL"]
 ignore = [
-    "TD002",  # автор в todo
-    "TD003",  # ссылка на issue в todo
-    "CPY001", # лицензия в начале файла
-    "D100",   # docstring для модуля
-    "D104",   # docstring для пакета
-    "D203",   # пустая строки перед docstring класса, конфликт с D211
-    "D212",   # summary на первой строке, конфликт с D213
-    "FIX002", # наличие TODO
-    "RUF001", # Русский алфавит
+    "TD002",   # автор в todo
+    "TD003",   # ссылка на issue в todo
+    "CPY001",  # лицензия в начале файла
+    "D100",    # docstring для модуля
+    "D104",    # docstring для пакета
+    "D203",    # пустая строки перед docstring класса, конфликт с D211
+    "D212",    # summary на первой строке, конфликт с D213
+    "FIX002",  # наличие TODO
+    "RUF001",  # Русский алфавит
     "PLR0913",
     "PLR0917",
 ]
@@ -89,3 +90,9 @@ color = "auto"
 sort = "desc"
 output-csv = true
 output-json = false
+
+[tool.pyrefly]
+search-path = ["src"]
+python-version = "3.13.0"
+preset = "strict"
+min-severity = "info"

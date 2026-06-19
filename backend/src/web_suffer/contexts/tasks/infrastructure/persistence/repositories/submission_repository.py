@@ -1,3 +1,5 @@
+from typing import override
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,6 +19,7 @@ class SubmissionRepository(ISubmissionRepository):
         self._session = session
         self._mapper = mapper
 
+    @override
     async def save(self, submission: Submission) -> None:
         """Сохранение Submission."""
         async with self._session.begin():
@@ -28,6 +31,7 @@ class SubmissionRepository(ISubmissionRepository):
             self._mapper.update_from_domain(orm=submission_orm, entity=submission)
             self._session.add(submission_orm)
 
+    @override
     async def get_by_id(self, submission_id: SubmissionID) -> Submission | None:
         """
         Получение Submission по SubmissionID.
@@ -43,6 +47,7 @@ class SubmissionRepository(ISubmissionRepository):
             return None
         return self._mapper.to_domain(orm=submussion_orm)
 
+    @override
     async def get_list(self, status: SubmissionStatus | None = None) -> list[Submission]:
         """
         Получение Submission.

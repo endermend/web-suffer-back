@@ -10,7 +10,7 @@ from web_suffer.shared.domain.interfaces.auth_service import IAuthService
 class AdapterProvider(Provider):
     """Провайдер для контекста auth."""
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     @staticmethod
     def get_auth_service_adapter(
         get_user_id_use_case: GetUserIDByAccessTokenUseCase,

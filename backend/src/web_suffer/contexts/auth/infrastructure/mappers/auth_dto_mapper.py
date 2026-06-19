@@ -1,3 +1,5 @@
+from typing import override
+
 from web_suffer.contexts.auth.application.dtos.token_dto import (
     RefreshTokenDTO,
     TokensDTO,
@@ -26,6 +28,7 @@ class AuthDTOMapper(IAuthDTOMapper):
     """Mapper между Domain Entity и DTO."""
 
     @staticmethod
+    @override
     def to_user_dto(user: User) -> UserDTO:
         """
         Domain Entity -> DTO.
@@ -43,6 +46,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def to_login_dto(user: User) -> LoginDTO:
         """
         Domain Entity -> Login DTO.
@@ -56,6 +60,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def create_from_dto(
         create_dto: CredentialsDTO,
     ) -> User:
@@ -73,6 +78,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def update_from_dto(
         user: User,
         update_dto: UpdateUserDTO,
@@ -86,6 +92,7 @@ class AuthDTOMapper(IAuthDTOMapper):
             user.set_status(UserStatus(update_dto.status))
 
     @staticmethod
+    @override
     def to_access_dto(
         token_pair: TokenPair,
     ) -> AccessTokenDTO:
@@ -101,6 +108,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def to_refresh_dto(
         token_pair: TokenPair,
     ) -> RefreshTokenDTO:
@@ -116,6 +124,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def to_token_dto(
         token_pair: TokenPair,
     ) -> TokensDTO:
@@ -132,6 +141,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         )
 
     @staticmethod
+    @override
     def from_userid_dto(
         user_id: UserIDDTO,
     ) -> UserID:
@@ -145,6 +155,7 @@ class AuthDTOMapper(IAuthDTOMapper):
         return UserID(value=user_id.user_id)
 
     @staticmethod
+    @override
     def to_userid_dto(
         user_id: UserID,
     ) -> UserIDDTO:

@@ -1,8 +1,8 @@
-
 from typing import Protocol
 
-from web_suffer.contexts.tasks.application.dtos.task_dto import TaskDTO, TaskIDDTO
+from web_suffer.contexts.tasks.application.dtos.task_dto import TaskDTO, TaskIDDTO, UsersTaskDTO
 from web_suffer.contexts.tasks.domain.entities.task import Task
+from web_suffer.contexts.tasks.domain.types import TaskStatus
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 
 
@@ -26,5 +26,15 @@ class ITaskDTOMapper(Protocol):
 
         Returns:
             Domain TaskID value object.
+
+        """
+
+    @staticmethod
+    def to_user_task_dto(task: Task, status: TaskStatus) -> UsersTaskDTO:
+        """
+        Domain Entity -> DTO.
+
+        Returns:
+            Immutable User's task DTO.
 
         """

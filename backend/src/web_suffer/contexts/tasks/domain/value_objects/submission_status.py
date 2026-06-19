@@ -8,6 +8,7 @@ class SubmissionStatus(SingleValueObject):
 
     value: str
 
+    AWAIABLE: ClassVar["SubmissionStatus"]
     PENDING: ClassVar["SubmissionStatus"]
     ACCEPTED: ClassVar["SubmissionStatus"]
     REJECTED: ClassVar["SubmissionStatus"]
@@ -25,6 +26,7 @@ class SubmissionStatus(SingleValueObject):
         return self.value == SubmissionStatus.PENDING.value
 
 
-SubmissionStatus.PENDING = SubmissionStatus("На проверке")
-SubmissionStatus.ACCEPTED = SubmissionStatus("Принято")
-SubmissionStatus.REJECTED = SubmissionStatus("Не принято")
+SubmissionStatus.AWAIABLE = SubmissionStatus("available")
+SubmissionStatus.PENDING = SubmissionStatus("pending")
+SubmissionStatus.ACCEPTED = SubmissionStatus("accepted")
+SubmissionStatus.REJECTED = SubmissionStatus("rejected")

@@ -31,7 +31,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    
+
     develop:
       watch:
         # Sync source code (exclude Python cache and type checking artifacts)
@@ -47,15 +47,15 @@ services:
             - htmlcov/
             - .mypy_cache/
             - .ruff_cache/
-        
+
         - action: sync+restart
           path: ./backend/pyproject.toml
           target: /src/pyproject.toml
-        
+
         - action: sync+restart
           path: ./backend/uv.lock
           target: /src/uv.lock
-        
+
         - action: rebuild
           path: ./backend/Dockerfile
 
@@ -96,6 +96,13 @@ services:
       start_period: 10s
       start_interval: 5s
     restart: unless-stopped
+  frontend:
+    container_name: frontend
+    build: ./frontend/
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
 volumes:
   database_data:

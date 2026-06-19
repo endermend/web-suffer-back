@@ -3,7 +3,9 @@ from datetime import datetime
 from typing import Protocol
 
 from web_suffer.contexts.tasks.domain.entities.task import Task
+from web_suffer.contexts.tasks.domain.types import TaskOrderBy, TaskStatus, TaskStatusFilter
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
+from web_suffer.shared.domain.value_objects.user_id import UserID
 
 
 class ITaskRepository(Protocol):
@@ -22,9 +24,34 @@ class ITaskRepository(Protocol):
         """
 
     @abstractmethod
-    async def get_list(self, before: datetime | None = None) -> list[Task]:
+    async def get_unathorized_list(
+        self,
+        deadline_from: datetime | None = None,
+        deadline_till: datetime | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[Task]:
+        """
+        Получение списка заданий без пользователя.
+
+        Returns:
+            list[Task] - список заданий.
+
+        """
+
+    @abstractmethod
+    async def get_list(
+        self,
+        user_id: UserID,
+        deadline_from: datetime | None = None,
+        deadline_till: datetime | None = None,
+        status: TaskStatusFilter | None = None,
+        order_by: TaskOrderBy | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+        ) -> list[tuple[Task, TaskStatus]]:
         """
         Получение Tasks.
 
-        Если before не None, фильтрует по дедлайнду задания до before
+        Если before не None, фильтрует по параметрам.
         """
