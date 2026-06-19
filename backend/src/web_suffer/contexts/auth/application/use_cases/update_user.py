@@ -65,10 +65,10 @@ class UpdateUserUseCase:
 
         change_user = user
         no_user_id = input_dto.user_id is None
-        change_self = (no_user_id or (not no_user_id and input_dto.user_id == user.id.value)) \
-            and UserRights.CHANGE_SELF.is_satisfied_by(role=user.role, status=user.status)
-        change_other = not no_user_id and input_dto.user_id != user.id.value \
-            and UserRights.CHANGE_USER.is_satisfied_by(role=user.role, status=user.status)
+        change_self = (no_user_id or (not no_user_id and input_dto.user_id == user.id.value)) and UserRights.CHANGE_SELF.is_satisfied_by(
+            role=user.role, status=user.status,
+        )
+        change_other = not no_user_id and input_dto.user_id != user.id.value and UserRights.CHANGE_USER.is_satisfied_by(role=user.role, status=user.status)
 
         if not change_self and not change_other:
             raise InsufficientPermissionsError
@@ -91,8 +91,9 @@ class UpdateUserUseCase:
             password_hash = self._password_hasher.hash_password(password=input_dto.new_password)
             change_user.set_password_hash(PasswordHash(password_hash))
 
-        if (input_dto.status is not None or input_dto.role is not None) \
-            and not UserRights.CHANGE_RESTRICTED_USER.is_satisfied_by(role=user.role, status=user.status):
+        if (input_dto.status is not None or input_dto.role is not None) and not UserRights.CHANGE_RESTRICTED_USER.is_satisfied_by(
+            role=user.role, status=user.status,
+        ):
             raise InsufficientPermissionsError
 
         self._mapper.update_from_dto(user=change_user, update_dto=input_dto)
