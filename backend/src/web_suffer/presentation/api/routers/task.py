@@ -24,7 +24,7 @@ from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTa
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
 from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
 from web_suffer.infrastructure.constants import UPLOAD_DIR
-from web_suffer.presentation.api.routers.utils import CredentialsType
+from web_suffer.presentation.api.routers.utils import CredentialsType, OptionalCredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
 from web_suffer.presentation.api.schemas.task.submission import SubmissionResponce
 from web_suffer.presentation.api.schemas.task.task import TaskResponce
@@ -269,7 +269,7 @@ async def task(
 @inject
 async def tasks_statistics(
     use_case: FromDishka[GetTasksStatisticsUseCase],
-    credentials: CredentialsType | None = None,
+    credentials: OptionalCredentialsType = None,
 ) -> TaskStatisticsResponce:
     """
     Эндпоинт получения задания.
