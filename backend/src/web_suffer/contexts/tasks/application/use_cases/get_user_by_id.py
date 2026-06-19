@@ -44,7 +44,7 @@ class GetUserByIDUseCase:
         info_user_id = UserID(input_dto.user_id)
         if user_id != info_user_id and not await self._auth_service.check_user_right(user_id=user_id, right=UserRights.VIEW_USER):
             error = "Not enought permission."
-            logger.warning("task.create.failed", reason="not_enought_permission")
+            logger.warning("task.get_user.failed", reason="not_enough_permission")
             raise InsufficientPermissionsError(error)
 
         user = await self._user_repo.get_by_id(info_user_id)
@@ -52,13 +52,13 @@ class GetUserByIDUseCase:
         if user is None:
             if not await self._auth_service.check_user_right(user_id=update_user_id, right=UserRights.TO_EXISTS):
                 error = "Not enought permission."
-                logger.warning("task.create.failed", reason="not_enought_permission")
+                logger.warning("task.get_user.failed", reason="not_enough_permission")
                 raise InsufficientPermissionsError(error)
 
             await self._user_service.update_user_by_id(update_user_id, 0, 0)
         user = await self._user_repo.get_by_id(info_user_id)
         if user is None:
             error = "Could not create user."
-            logger.warning("task.create.failed", reason="can_not_create_user")
+            logger.warning("task.get_user.failed", reason="can_not_create_user")
             raise DomainError
         return self._mapper.to_user_dto(user=user)

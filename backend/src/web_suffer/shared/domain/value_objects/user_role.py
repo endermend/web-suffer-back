@@ -36,6 +36,25 @@ class UserRole(SingleValueObject):
             case _:
                 raise DomainError  # FIXME: изменить на более подходящую  # noqa: FIX001, TD001
 
+    def to_str(self) -> UserRolesType:
+        """
+        Превращает в строку.
+
+        Returns:
+            UserRolesType
+
+        Raises:
+            DomainError: если не смог преобразовать
+
+        """
+        if self == UserRole.USER:
+            return "user"
+        if self == UserRole.ADMIN:
+            return "admin"
+        if self == UserRole.MODERATOR:
+            return "moderator"
+        raise DomainError  # FIXME: изменить на более подходящую  # noqa: FIX001, TD001
+
 
 UserRole.USER = UserRole("user")
 UserRole.ADMIN = UserRole("admin")

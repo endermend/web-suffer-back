@@ -1,13 +1,15 @@
+import uuid
 from typing import Annotated
 from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Cookie, HTTPException, Response, status
+from fastapi import APIRouter, Cookie, HTTPException, Query, Response, status
 
 from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
-from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO, UpdateUserDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO, GetUserDTO, UpdateUserDTO
 from web_suffer.contexts.auth.application.use_cases import (
     GetLoginByAccessTokenUseCase,
+    GetUserByUserIDUseCase,
     GetUsersUseCase,
     LoginUserUseCase,
     RefreshUserUseCase,
@@ -31,6 +33,7 @@ from web_suffer.presentation.api.schemas.auth.register import (
     UserRegisterRequest,
     UserRegisterResponse,
 )
+from web_suffer.presentation.api.schemas.auth.user import UserResponse
 from web_suffer.presentation.api.schemas.auth.users import GetUsersResponse
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 
@@ -209,3 +212,33 @@ async def email(
         input_dto=AccessTokenDTO(access_token=access_token),
     )
     return GetEmailResponse(email=output_dto.email)
+
+
+@router.get(
+    "/user",
+    status_code=status.HTTP_200_OK,
+    summary="Получение данных пользователя",
+)
+@inject
+async def user(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetUserByUserIDUseCase],
+    user_id: Annotated[uuid.UUID | None, Query(description="ID пользователя")] = None,
+) -> UserResponse:
+    """
+    Эндпоинт получения данных о пользователе.
+
+    Returns:
+        UserResponse
+
+    """  # noqa: RUF002
+    access_token = credentials.credentials
+    output_dto = await use_case.execute(
+        input_dto=GetUserDTO(access_token=access_token, user_id=user_id),
+    )
+    return UserResponse(
+        user_id=output_dto.user_id,
+        email=output_dto.email,
+        role=output_dto.role,
+        status=output_dto.status,
+    )

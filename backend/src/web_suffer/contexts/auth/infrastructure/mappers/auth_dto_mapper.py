@@ -38,11 +38,10 @@ class AuthDTOMapper(IAuthDTOMapper):
 
         """
         return UserDTO(
+            user_id=user.id.value,
             email=user.email.value,
-            role=user.role.value,
-            created_at=user.created_at,
-            updated_at=user.updated_at,
-            status=user.status.value,
+            role=user.role.to_str(),
+            status=user.status.to_str(),
         )
 
     @staticmethod
