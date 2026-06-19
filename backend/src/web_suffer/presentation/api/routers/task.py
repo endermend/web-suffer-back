@@ -179,7 +179,7 @@ async def submission(
 @router.get(
     "/submissions",
     status_code=status.HTTP_200_OK,
-    summary="Получение отправления",
+    summary="Получение отправлений по фильтру",
 )
 @inject
 async def submissions(
