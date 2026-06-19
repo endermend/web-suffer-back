@@ -22,10 +22,13 @@ class LoginDTO:
 class UpdateUserDTO:
     """DTO для обновления пользователя."""
 
-    user_id: UUID
+    access_token: str
+
+    user_id: UUID | None = None
     email: str | None = None
     role: str | None = None
     status: int | None = None
+    new_password: str | None = None
 
 
 @dataclass(slots=True, frozen=True)

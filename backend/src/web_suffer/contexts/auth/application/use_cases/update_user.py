@@ -1,0 +1,89 @@
+import structlog
+
+from web_suffer.contexts.auth.application.dtos.user_dto import UpdateUserDTO
+from web_suffer.contexts.auth.application.exceptions import (
+    EmailAlreadyExistsError,
+    InvalidAccessTokenError,
+    InvalidCredentialsError,
+)
+from web_suffer.contexts.auth.application.interfaces import IPasswordHasher
+from web_suffer.contexts.auth.application.interfaces.token_service import ITokenService
+from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import IAuthDTOMapper
+from web_suffer.contexts.auth.domain.repositories import IUserRepository
+from web_suffer.contexts.auth.domain.value_objects import PasswordHash, UserEmail
+from web_suffer.contexts.auth.domain.value_objects.token import Token
+from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
+from web_suffer.shared.domain.value_objects.user_id import UserID
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
+
+logger = structlog.stdlib.get_logger()
+
+
+class UpdateUserUseCase:
+    """Use case обновления данных пользователя."""
+
+    def __init__(
+        self,
+        user_repo: IUserRepository,
+        token_service: ITokenService,
+        password_hasher: IPasswordHasher,
+        mapper: IAuthDTOMapper,
+    ) -> None:
+        """Инициализирует use case обновления данных пользователя."""
+        self._user_repo = user_repo
+        self._token_service = token_service
+        self._password_hasher = password_hasher
+        self._mapper = mapper
+
+    async def execute(self, input_dto: UpdateUserDTO) -> None:
+        """
+        Меняет пароль пользователя по access_token.
+
+        Raises:
+            InvalidAccessTokenError: неверный формат access token
+            InvalidCredentialsError: нет пользователя с указанным ID
+            InsufficientPermissionsError: админ передал неверный userid
+            InsufficientPermissionsError: админ пытается изменить себя
+            EmailAlreadyExistsError: попытка изменить почту на почту другого пользователя
+
+        """  # noqa: RUF002
+        user_id = self._token_service.get_user_id_by_access_token(
+            access_token=Token(input_dto.access_token),
+        )
+        if user_id is None:
+            logger.warning("auth.email.failed", reason="token_not_valid")
+            raise InvalidAccessTokenError
+
+        logger.info("auth.email.succesed", id=str(user_id.value))
+
+        user = await self._user_repo.get_user_by_id(
+            user_id=user_id,
+        )
+        if user is None:
+            logger.warning("auth.email.failed", reason="user_not_found")
+            raise InvalidCredentialsError
+
+        if input_dto.user_id is not None and (
+            input_dto.user_id == user.id.value or UserRights.CHANGE_USER.is_satisfied_by(role=user.role, status=user.status)
+        ):
+            user = await self._user_repo.get_user_by_id(
+                user_id=UserID(input_dto.user_id),
+            )
+            if user is None:
+                raise InsufficientPermissionsError
+
+        if UserRights.CHANGE_SELF.is_satisfied_by(role=user.role, status=user.status):
+            raise InsufficientPermissionsError
+
+        if input_dto.email is not None:
+            user_email = await self._user_repo.get_user_by_email(email=UserEmail(input_dto.email))
+            if user_email is not None and user_email != user:
+                raise EmailAlreadyExistsError
+
+        if input_dto.new_password:
+            password_hash = self._password_hasher.hash_password(password=input_dto.new_password)
+            user.set_password_hash(PasswordHash(password_hash))
+
+        self._mapper.update_from_dto(user=user, update_dto=input_dto)
+
+        await self._user_repo.save(user=user)

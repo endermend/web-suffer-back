@@ -12,6 +12,7 @@ from web_suffer.contexts.auth.application.use_cases import (
     LoginUserUseCase,
     RefreshUserUseCase,
     RegisterUserUseCase,
+    UpdateUserUseCase,
 )
 from web_suffer.contexts.auth.application.use_cases.get_userid import GetUserIDByAccessTokenUseCase
 from web_suffer.contexts.auth.infrastructure.mappers.auth_dto_mapper import AuthDTOMapper
@@ -35,3 +36,4 @@ class AuthUseCasesProvider(Provider):
     get_userid_by_token = provide(GetUserIDByAccessTokenUseCase)
     get_users = provide(GetUsersUseCase)
     change_password = provide(ChangePasswordUseCase)
+    update_user = provide(UpdateUserUseCase)

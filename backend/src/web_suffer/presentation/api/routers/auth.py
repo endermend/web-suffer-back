@@ -1,10 +1,11 @@
 from typing import Annotated
+from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
 from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
-from web_suffer.contexts.auth.application.dtos.user_dto import ChangePasswordDTO, CredentialsDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import ChangePasswordDTO, CredentialsDTO, UpdateUserDTO
 from web_suffer.contexts.auth.application.use_cases import (
     ChangePasswordUseCase,
     GetLoginByAccessTokenUseCase,
@@ -12,6 +13,7 @@ from web_suffer.contexts.auth.application.use_cases import (
     LoginUserUseCase,
     RefreshUserUseCase,
     RegisterUserUseCase,
+    UpdateUserUseCase,
 )
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
@@ -195,4 +197,33 @@ async def change_password(
     access_token = credentials.credentials
     await use_case.execute(
         input_dto=ChangePasswordDTO(access_token=access_token, new_password=new_password),
+    )
+
+
+@router.post(
+    "/update-user",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Изменение данных пользователя",
+)
+@inject
+async def update_user(
+    credentials: CredentialsType,
+    use_case: FromDishka[UpdateUserUseCase],
+    user_id: UUID | None = None,
+    email: str | None = None,
+    role: str | None = None,
+    status: int | None = None,
+    new_password: str | None = None,
+) -> None:
+    """Эндпоинт изменение данных пользователя."""
+    access_token = credentials.credentials
+    await use_case.execute(
+        input_dto=UpdateUserDTO(
+            access_token=access_token,
+            user_id=user_id,
+            email=email,
+            role=role,
+            status=status,
+            new_password=new_password,
+        ),
     )
