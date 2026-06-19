@@ -27,14 +27,14 @@ class TaskRepository(ITaskRepository):
     @override
     async def save(self, task: Task) -> None:
         """Сохранение Task."""
-        async with self._session.begin():
-            task_orm = await self._session.get(TaskORMModel, task.id.value)
+        task_orm = await self._session.get(TaskORMModel, task.id.value)
 
-            if not task_orm:
-                task_orm = TaskORMModel()
+        if not task_orm:
+            task_orm = TaskORMModel()
 
-            self._mapper.update_from_domain(orm=task_orm, entity=task)
-            self._session.add(task_orm)
+        self._mapper.update_from_domain(orm=task_orm, entity=task)
+        self._session.add(task_orm)
+        await self._session.commit()
 
     @override
     async def get_by_id(self, task_id: TaskID) -> Task | None:

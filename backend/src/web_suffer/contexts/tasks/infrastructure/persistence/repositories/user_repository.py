@@ -21,14 +21,14 @@ class UserTRepository(IUserTRepository):
     @override
     async def save(self, user: UserT) -> None:
         """Сохранение UserT."""
-        async with self._session.begin():
-            user_orm = await self._session.get(UserTORMModel, user.id.value)
+        user_orm = await self._session.get(UserTORMModel, user.id.value)
 
-            if not user_orm:
-                user_orm = UserTORMModel()
+        if not user_orm:
+            user_orm = UserTORMModel()
 
-            self._mapper.update_from_domain(orm=user_orm, user=user)
-            self._session.add(user_orm)
+        self._mapper.update_from_domain(orm=user_orm, user=user)
+        self._session.add(user_orm)
+        await self._session.commit()
 
     @override
     async def get_by_id(self, user_id: UserID) -> UserT | None:
