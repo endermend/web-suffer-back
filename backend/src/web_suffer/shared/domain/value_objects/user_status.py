@@ -1,5 +1,7 @@
 from typing import ClassVar
 
+from web_suffer.contexts.auth.domain.types import UserStatusType
+from web_suffer.shared.domain.exceptions import DomainError
 from web_suffer.shared.domain.value_objects.single_value_object import SingleValueObject
 
 
@@ -21,6 +23,26 @@ class UserStatus(SingleValueObject):
 
         """
         return self.value == UserStatus.ACTIVE.value
+
+    @staticmethod
+    def from_str(user_status_str: UserStatusType) -> "UserStatus":
+        """
+        Преобразует строку в UserStatus.
+
+        Returns:
+            UserStatus
+
+        Raises:
+            DomainError: если не смог преобразовать
+
+        """
+        if user_status_str == "active":
+            return UserStatus.ACTIVE
+        if user_status_str == "banned":
+            return UserStatus.BANNED
+        if user_status_str == "deleted":
+            return UserStatus.DELETED
+        raise DomainError  # FIXME: изменить на более подходящую  # noqa: FIX001, TD001
 
 
 UserStatus.ACTIVE = UserStatus(0)

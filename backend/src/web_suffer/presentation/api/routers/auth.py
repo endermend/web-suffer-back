@@ -15,6 +15,7 @@ from web_suffer.contexts.auth.application.use_cases import (
     RegisterUserUseCase,
     UpdateUserUseCase,
 )
+from web_suffer.contexts.auth.domain.types import UserRolesType, UserStatusType
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
 from web_suffer.presentation.api.adapters.fastapi_response_adapter import FastAPIResponseAdapter
@@ -211,8 +212,8 @@ async def update_user(
     use_case: FromDishka[UpdateUserUseCase],
     user_id: UUID | None = None,
     email: str | None = None,
-    role: str | None = None,
-    status: int | None = None,
+    role: UserRolesType | None = None,
+    status: UserStatusType | None = None,
     new_password: str | None = None,
 ) -> None:
     """Эндпоинт изменение данных пользователя."""

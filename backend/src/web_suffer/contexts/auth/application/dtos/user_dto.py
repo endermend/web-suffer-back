@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from web_suffer.contexts.auth.domain.types import UserRolesType, UserStatusType
+
 
 @dataclass(slots=True, frozen=True)
 class CredentialsDTO:
@@ -26,8 +28,8 @@ class UpdateUserDTO:
 
     user_id: UUID | None = None
     email: str | None = None
-    role: str | None = None
-    status: str | None = None
+    role: UserRolesType | None = None
+    status: UserStatusType | None = None
     new_password: str | None = None
 
 

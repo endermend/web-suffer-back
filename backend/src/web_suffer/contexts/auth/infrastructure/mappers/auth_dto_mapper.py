@@ -87,9 +87,11 @@ class AuthDTOMapper(IAuthDTOMapper):
         if update_dto.email is not None:
             user.set_email(UserEmail(update_dto.email))
         if update_dto.role is not None:
-            user.set_role(UserRole(update_dto.role))
+            user_role = UserRole.from_str(user_role_str=update_dto.role)
+            user.set_role(user_role)
         if update_dto.status is not None:
-            user.set_status(UserStatus(update_dto.status))
+            user_status = UserStatus.from_str(user_status_str=update_dto.status)
+            user.set_status(user_status)
 
     @staticmethod
     @override
