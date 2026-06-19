@@ -32,7 +32,7 @@ async def change_submission(
     data: ChangeSubmissionRequest,
     use_case: FromDishka[ChangeSubmissionUseCase],
 ) -> None:
-    """Эндпоинт проверки задания."""
+    """Эндпоинт проверки отправления."""
     access_token = credentials.credentials
     await use_case.execute(
         input_dto=ChangeSubmissionDTO(
@@ -57,7 +57,7 @@ async def create_submission(
     use_case: FromDishka[CreateSubmissionUseCase],
     file: Annotated[UploadFile | None, File()] = None,
 ) -> None:
-    """Эндпоинт создания задания."""
+    """Эндпоинт создания отправления."""
     access_token = credentials.credentials
     file_path: Path | None = None
     if file is not None:
