@@ -23,6 +23,10 @@ const useAuthStore = defineStore('auth', {
     async register({ email, password }: AuthCredentials) {
       this.loading = true
       this.error = null
+      // a fresh session always starts as a plain member, even if a role was
+      // left over in localStorage from a previous session's dev role-switcher
+      this.role = 'member'
+      localStorage.setItem('role', this.role)
 
       try {
         const tokens = await authService.register({ email, password })
@@ -40,6 +44,10 @@ const useAuthStore = defineStore('auth', {
     async login({ email, password }: AuthCredentials) {
       this.loading = true
       this.error = null
+      // a fresh session always starts as a plain member, even if a role was
+      // left over in localStorage from a previous session's dev role-switcher
+      this.role = 'member'
+      localStorage.setItem('role', this.role)
 
       try {
         const tokens = await authService.login({ email, password })
@@ -92,10 +100,9 @@ const useAuthStore = defineStore('auth', {
       this.setAuthorizationHeader(null)
     },
 
-    // test-only role switch, triggered by clicking the role label in the profile
-    toggleRole() {
-      const order: UserRole[] = ['member', 'moderator', 'admin']
-      this.role = order[(order.indexOf(this.role) + 1) % order.length]!
+    // test-only role switch, triggered by the role dropdown in the profile
+    setRole(role: UserRole) {
+      this.role = role
       localStorage.setItem('role', this.role)
     },
   },

@@ -2,36 +2,18 @@ services:
   frontend:
     build:
       target: dev
-    ports:
-      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.pnpm-store
 
     develop:
       watch:
-        - action: sync
-          path: ./frontend/src
-          target: /app/src
-          ignore:
-            - node_modules/
-
-        - action: sync
-          path: ./frontend/public
-          target: /app/public
-
-        - action: sync
-          path: ./frontend/index.html
-          target: /app/index.html
-
-        - action: sync+restart
-          path: ./frontend/vite.config.ts
-          target: /app/vite.config.ts
-
-        - action: sync+restart
+        - action: rebuild
           path: ./frontend/package.json
-          target: /app/package.json
 
-        - action: sync+restart
+        - action: rebuild
           path: ./frontend/package-lock.json
-          target: /app/package-lock.json
 
         - action: rebuild
           path: ./frontend/Dockerfile

@@ -66,7 +66,6 @@ const usersStore = useUsersStore()
 
 const modules = [Pagination, Autoplay]
 
-// local-only mock data, never backed by an API — no need for a named interface
 const slides = ref([
   {
     id: 1,
@@ -85,7 +84,7 @@ const slides = ref([
     title: 'Последние новости: Гриссом приземлился на поверхность экзопланеты "Альфа Изатои IV"',
   },
   {
-    id: 3,
+    id: 4,
     image: surpriseImg,
     title: 'Ой не то видео простите',
   },
@@ -238,7 +237,7 @@ main {
 }
 
 .col_name:hover {
-  transform: translateX(32px);
+  transform: translateX(8px);
 }
 
 .col_points {

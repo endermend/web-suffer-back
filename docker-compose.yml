@@ -100,17 +100,14 @@ services:
     restart: unless-stopped
   frontend:
     container_name: frontend
-    build: 
+    build:
       context: ./frontend/
       dockerfile: Dockerfile
+      target: production
     ports:
       - "80:80"
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.pnpm-store
 
 volumes:
   database_data:
