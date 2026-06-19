@@ -44,13 +44,14 @@
         </div>
 
         <div class="review_actions">
-          <button type="button" class="action_btn action_btn_accept" @click="handleAccept">
+          <button type="button" class="action_btn_accept" @click="handleReview('accepted')">
             Принять
           </button>
-          <button type="button" class="action_btn action_btn_reject" @click="handleReject">
+          <button type="button" class="action_btn_reject" @click="handleReview('rejected')">
             Отклонить
           </button>
         </div>
+        <p v-if="reviewError" class="review_error">{{ reviewError }}</p>
       </template>
     </div>
   </main>
@@ -67,22 +68,21 @@ const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
 
-const submissionId = Number(route.params.id)
+const submissionId = route.params.id as string
 const submission = computed(() => tasksStore.submissions.find((s) => s.id === submissionId))
 const task = computed(() => tasksStore.tasks.find((t) => t.id === submission.value?.task_id))
 
 const comment = ref('')
+const reviewError = ref('')
 
-function handleAccept(): void {
+async function handleReview(decision: 'accepted' | 'rejected'): Promise<void> {
   if (!submission.value) return
-  tasksStore.acceptSubmission(submission.value.id, comment.value)
-  router.push('/admin/tasks')
-}
+  reviewError.value = ''
 
-function handleReject(): void {
-  if (!submission.value) return
-  tasksStore.rejectSubmission(submission.value.id, comment.value)
-  router.push('/admin/tasks')
+  const action = decision === 'accepted' ? tasksStore.acceptSubmission : tasksStore.rejectSubmission
+  const result = await action(submission.value.id, comment.value)
+  if (result.success) router.push('/admin/tasks')
+  else reviewError.value = 'Не удалось оценить задание'
 }
 </script>
 
@@ -233,7 +233,7 @@ main {
   gap: 12px;
 }
 
-.action_btn {
+.action_btn_accept {
   appearance: none;
   flex: 1;
   border: none;
@@ -243,9 +243,6 @@ main {
   font-size: 15px;
   cursor: pointer;
   transition: 0.2s background-color;
-}
-
-.action_btn_accept {
   background-color: rgb(22, 163, 74);
   color: white;
 }
@@ -255,12 +252,28 @@ main {
 }
 
 .action_btn_reject {
+  appearance: none;
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 28px;
+  font-family: Nagel;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s background-color;
   background-color: rgb(204, 63, 75);
   color: white;
 }
 
 .action_btn_reject:hover {
   background-color: rgb(180, 50, 62);
+}
+
+.review_error {
+  font-family: Nagel;
+  font-size: 13px;
+  color: rgb(204, 63, 75);
+  margin: 0;
 }
 
 /* states */

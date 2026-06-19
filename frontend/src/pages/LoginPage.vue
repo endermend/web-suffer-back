@@ -47,7 +47,7 @@
     </div>
 
     <div class="adv_options">
-      <span>Забыли пароль?</span>
+      <span></span>
       <RouterLink to="/register">Зарегистрироваться</RouterLink>
     </div>
 

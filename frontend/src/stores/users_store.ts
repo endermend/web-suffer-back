@@ -1,19 +1,12 @@
 import { defineStore } from 'pinia'
+import authService from '@/services/api/auth_service.ts'
 import type { UserManagement } from '@/types/users.ts'
 import type { UserRole } from '@/types/auth.ts'
 
 const useUsersStore = defineStore('users', {
   state: () => ({
-    // TODO: replace with API call
-    // NOTE: points here are independent mock data, not derived from tasksStore's accepted
-    // submissions. Once the backend is the source of truth, a user's points must match the
-    // same total ProfilePage.vue computes from tasksStore.acceptedSubmissionsWithTask().
-    users: [
-      { id: 1, email: 'ivan.petrov@example.com', points: 145, role: 'member', banned: false },
-      { id: 2, email: 'anna.smirnova@example.com', points: 320, role: 'member', banned: false },
-      { id: 3, email: 'troll228@example.com', points: 10, role: 'member', banned: true },
-      { id: 4, email: 'maria.k@example.com', points: 210, role: 'member', banned: false },
-    ] as UserManagement[],
+    users: [] as UserManagement[],
+    loading: false,
   }),
 
   getters: {
@@ -24,6 +17,31 @@ const useUsersStore = defineStore('users', {
   },
 
   actions: {
+    // GET /api/auth/users only returns { email } for now — role/points/banned have no
+    // backing endpoint yet, so existing local state for a known email is preserved across
+    // refetches. `id` is synthesized from list position until the backend adds a real one.
+    async fetchUsers() {
+      this.loading = true
+
+      try {
+        const apiUsers = await authService.getUsers()
+        this.users = apiUsers.map((apiUser, index) => {
+          const existing = this.users.find((u) => u.email === apiUser.email)
+          return (
+            existing ?? {
+              id: index + 1,
+              email: apiUser.email,
+              points: 0,
+              role: 'member',
+              banned: false,
+            }
+          )
+        })
+      } finally {
+        this.loading = false
+      }
+    },
+
     // TODO: replace with API call
     toggleBan(id: number) {
       const user = this.users.find((u) => u.id === id)

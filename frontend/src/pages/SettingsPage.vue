@@ -174,6 +174,7 @@
 import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store.ts'
+import authService from '@/services/api/auth_service.ts'
 import EyeOpenIcon from '@/assets/icons/eye-open.svg'
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg'
 
@@ -232,7 +233,7 @@ async function triggerEmailShake(target: EmailShakeTarget): Promise<void> {
   else isEmailFieldShaking.value = true
 }
 
-function handleEmailSave(): void {
+async function handleEmailSave(): Promise<void> {
   emailFieldErrors.general = ''
   emailSuccess.value = false
 
@@ -242,12 +243,17 @@ function handleEmailSave(): void {
     return
   }
 
-  // TODO: replace with API call
-  authStore.userEmail = emailForm.newEmail
-  localStorage.setItem('user_email', emailForm.newEmail)
-  currentEmail.value = emailForm.newEmail
-  emailForm.newEmail = ''
-  emailSuccess.value = true
+  try {
+    await authService.updateUser({ email: emailForm.newEmail })
+    authStore.userEmail = emailForm.newEmail
+    localStorage.setItem('user_email', emailForm.newEmail)
+    currentEmail.value = emailForm.newEmail
+    emailForm.newEmail = ''
+    emailSuccess.value = true
+  } catch (error: any) {
+    emailFieldErrors.general = error.message
+    triggerEmailShake('form')
+  }
 }
 
 // --- password form ---
@@ -350,7 +356,7 @@ async function triggerPasswordShake(target: PasswordShakeTarget): Promise<void> 
   }
 }
 
-function handlePasswordSave(): void {
+async function handlePasswordSave(): Promise<void> {
   passwordFieldErrors.general = ''
   passwordSuccess.value = false
 
@@ -367,11 +373,16 @@ function handlePasswordSave(): void {
     return
   }
 
-  // TODO: replace with API call
-  passwordForm.currentPassword = ''
-  passwordForm.newPassword = ''
-  passwordForm.repeatPassword = ''
-  passwordSuccess.value = true
+  try {
+    await authService.updateUser({ new_password: passwordForm.newPassword })
+    passwordForm.currentPassword = ''
+    passwordForm.newPassword = ''
+    passwordForm.repeatPassword = ''
+    passwordSuccess.value = true
+  } catch (error: any) {
+    passwordFieldErrors.general = error.message
+    triggerPasswordShake('form')
+  }
 }
 </script>
 
