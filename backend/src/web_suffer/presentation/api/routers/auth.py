@@ -5,9 +5,8 @@ from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
 from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
-from web_suffer.contexts.auth.application.dtos.user_dto import ChangePasswordDTO, CredentialsDTO, UpdateUserDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO, UpdateUserDTO
 from web_suffer.contexts.auth.application.use_cases import (
-    ChangePasswordUseCase,
     GetLoginByAccessTokenUseCase,
     GetUsersUseCase,
     LoginUserUseCase,
@@ -36,30 +35,6 @@ from web_suffer.presentation.api.schemas.auth.users import GetUsersResponse
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
-
-@router.get(
-    "/email",
-    status_code=status.HTTP_200_OK,
-    summary="Получение почты",
-)
-@inject
-async def email(
-    credentials: CredentialsType,
-    use_case: FromDishka[GetLoginByAccessTokenUseCase],
-) -> GetEmailResponse:
-    """
-    Эндпоинт получения почты.
-
-    Returns:
-        GetEmailResponse
-
-    """
-    access_token = credentials.credentials
-    output_dto = await use_case.execute(
-        input_dto=AccessTokenDTO(access_token=access_token),
-    )
-    return GetEmailResponse(email=output_dto.email)
 
 
 @router.post(
@@ -159,48 +134,6 @@ async def register(
     return UserRegisterResponse(access_token=output_dto.access_token)
 
 
-@router.get(
-    "/users",
-    status_code=status.HTTP_200_OK,
-    summary="Получение списка пользователей",
-)
-@inject
-async def users(
-    credentials: CredentialsType,
-    use_case: FromDishka[GetUsersUseCase],
-) -> list[GetUsersResponse]:
-    """
-    Эндпоинт получения списка пользователей.
-
-    Returns:
-        GetEmailResponse
-
-    """
-    access_token = credentials.credentials
-    output_dto = await use_case.execute(
-        input_dto=AccessTokenDTO(access_token=access_token),
-    )
-    return [GetUsersResponse(email=user.email) for user in output_dto]
-
-
-@router.post(
-    "/change-password",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Смена пароля",
-)
-@inject
-async def change_password(
-    credentials: CredentialsType,
-    new_password: str,
-    use_case: FromDishka[ChangePasswordUseCase],
-) -> None:
-    """Эндпоинт смены пароля у пользователя."""  # noqa: RUF002
-    access_token = credentials.credentials
-    await use_case.execute(
-        input_dto=ChangePasswordDTO(access_token=access_token, new_password=new_password),
-    )
-
-
 @router.post(
     "/update-user",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -228,3 +161,51 @@ async def update_user(
             new_password=new_password,
         ),
     )
+
+
+@router.get(
+    "/users",
+    status_code=status.HTTP_200_OK,
+    summary="Получение списка пользователей",
+)
+@inject
+async def users(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetUsersUseCase],
+) -> list[GetUsersResponse]:
+    """
+    Эндпоинт получения списка пользователей.
+
+    Returns:
+        GetEmailResponse
+
+    """
+    access_token = credentials.credentials
+    output_dto = await use_case.execute(
+        input_dto=AccessTokenDTO(access_token=access_token),
+    )
+    return [GetUsersResponse(email=user.email) for user in output_dto]
+
+
+@router.get(
+    "/email",
+    status_code=status.HTTP_200_OK,
+    summary="Получение почты",
+)
+@inject
+async def email(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetLoginByAccessTokenUseCase],
+) -> GetEmailResponse:
+    """
+    Эндпоинт получения почты.
+
+    Returns:
+        GetEmailResponse
+
+    """
+    access_token = credentials.credentials
+    output_dto = await use_case.execute(
+        input_dto=AccessTokenDTO(access_token=access_token),
+    )
+    return GetEmailResponse(email=output_dto.email)

@@ -6,7 +6,6 @@ from dishka import (
 
 from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import IAuthDTOMapper
 from web_suffer.contexts.auth.application.use_cases import (
-    ChangePasswordUseCase,
     GetLoginByAccessTokenUseCase,
     GetUsersUseCase,
     LoginUserUseCase,
@@ -35,5 +34,4 @@ class AuthUseCasesProvider(Provider):
     get_login_by_token = provide(GetLoginByAccessTokenUseCase)
     get_userid_by_token = provide(GetUserIDByAccessTokenUseCase)
     get_users = provide(GetUsersUseCase)
-    change_password = provide(ChangePasswordUseCase)
     update_user = provide(UpdateUserUseCase)
