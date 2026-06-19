@@ -8,12 +8,15 @@ from fastapi import APIRouter, File, Form, UploadFile, status
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO, CreateSubmissionDTO
 from web_suffer.contexts.tasks.application.dtos.task_dto import UpdateTaskDTO
+from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
+from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
 from web_suffer.presentation.api.routers.utils import CredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
+from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
 
 UPLOAD_DIR = Path("./files")
 
@@ -109,4 +112,27 @@ async def update_task(
     )
     return UpdateTaskResponse(
         task_id=task_id.task_id,
+    )
+
+
+@router.post(
+    "/update_user",
+    status_code=status.HTTP_200_OK,
+    summary="Изменение пользователя.",
+)
+@inject
+async def update_user(
+    credentials: CredentialsType,
+    data: UpdateUserRequest,
+    use_case: FromDishka[UpdateUserUseCase],
+) -> None:
+    """Эндпоинт изменения пользователя."""
+    access_token = credentials.credentials
+    await use_case.execute(
+        input_dto=UpdateUserTDTO(
+            access_token=access_token,
+            user_id=data.user_id,
+            exp_diff=data.exp_diff,
+            money_diff=data.money_diff,
+        ),
     )
