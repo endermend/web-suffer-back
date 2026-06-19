@@ -42,8 +42,8 @@ class UpdateUserUseCase:
         Raises:
             InvalidAccessTokenError: неверный формат access token
             InvalidCredentialsError: нет пользователя с указанным ID
-            InsufficientPermissionsError: админ передал неверный userid
-            InsufficientPermissionsError: админ пытается изменить себя
+            InsufficientPermissionsError: у пользователя нет прав менять пользователя
+            ValueError: пользователя с указанным ID не существует
             EmailAlreadyExistsError: попытка изменить почту на почту другого пользователя
 
         """  # noqa: RUF002
@@ -63,27 +63,38 @@ class UpdateUserUseCase:
             logger.warning("auth.email.failed", reason="user_not_found")
             raise InvalidCredentialsError
 
-        if input_dto.user_id is not None and (
-            input_dto.user_id == user.id.value or UserRights.CHANGE_USER.is_satisfied_by(role=user.role, status=user.status)
-        ):
-            user = await self._user_repo.get_user_by_id(
+        change_user = user
+        no_user_id = input_dto.user_id is None
+        change_self = (no_user_id or (not no_user_id and input_dto.user_id == user.id.value)) \
+            and UserRights.CHANGE_SELF.is_satisfied_by(role=user.role, status=user.status)
+        change_other = not no_user_id and input_dto.user_id != user.id.value \
+            and UserRights.CHANGE_USER.is_satisfied_by(role=user.role, status=user.status)
+
+        if not change_self and not change_other:
+            raise InsufficientPermissionsError
+
+        if change_other:
+            input_user = await self._user_repo.get_user_by_id(
                 user_id=UserID(input_dto.user_id),
             )
-            if user is None:
-                raise InsufficientPermissionsError
 
-        if UserRights.CHANGE_SELF.is_satisfied_by(role=user.role, status=user.status):
-            raise InsufficientPermissionsError
+            if input_user is None:
+                raise ValueError
+            change_user = input_user
 
         if input_dto.email is not None:
             user_email = await self._user_repo.get_user_by_email(email=UserEmail(input_dto.email))
-            if user_email is not None and user_email != user:
+            if user_email is not None and user_email != change_user:
                 raise EmailAlreadyExistsError
 
         if input_dto.new_password:
             password_hash = self._password_hasher.hash_password(password=input_dto.new_password)
-            user.set_password_hash(PasswordHash(password_hash))
+            change_user.set_password_hash(PasswordHash(password_hash))
 
-        self._mapper.update_from_dto(user=user, update_dto=input_dto)
+        if (input_dto.status is not None or input_dto.role is not None) \
+            and not UserRights.CHANGE_RESTRICTED_USER.is_satisfied_by(role=user.role, status=user.status):
+            raise InsufficientPermissionsError
 
-        await self._user_repo.save(user=user)
+        self._mapper.update_from_dto(user=change_user, update_dto=input_dto)
+
+        await self._user_repo.save(user=change_user)

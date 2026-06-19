@@ -27,7 +27,7 @@ class UpdateUserDTO:
     user_id: UUID | None = None
     email: str | None = None
     role: str | None = None
-    status: int | None = None
+    status: str | None = None
     new_password: str | None = None
 
 
