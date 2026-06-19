@@ -58,7 +58,7 @@ class ChangeSubmissionUseCase:
         update_user_id = subm.user_id
         if not await self._auth_service.check_user_right(user_id=update_user_id, right=UserRights.TO_EXISTS):
             error = "Not enought permission."
-            logger.warning("task.create.failed", reason="not_enought_permission")
+            logger.warning("task.create.failed", reason="user_not_exists")
             raise InsufficientPermissionsError(error)
 
         task = await self._task_repo.get_by_id(subm.task_id)
@@ -68,7 +68,7 @@ class ChangeSubmissionUseCase:
         old_result = int(subm.status == SubmissionStatus.ACCEPTED)
         new_result = int(subm.status == SubmissionStatus.ACCEPTED)
 
-        subm.set_status(input_dto.status)
+        subm.set_status(self._mapper.from_status_dto(input_dto.status))
         subm.set_comment(input_dto.comment)
 
         await self._subm_repo.save(subm)

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import override
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.task import Task
@@ -113,7 +113,7 @@ class TaskRepository(ITaskRepository):
                 ),
             )
             .order_by(
-                func.case(
+                case(
                     (SubmissionORMModel.status == "accepted", 1),
                     (SubmissionORMModel.status == "pending", 2),
                     (SubmissionORMModel.status == "rejected", 3),
@@ -171,7 +171,7 @@ class TaskRepository(ITaskRepository):
             stmt = stmt.order_by(TaskORMModel.deadline)
         elif order_by == "status":
             stmt = stmt.order_by(
-                func.case(
+                case(
                     (func.coalesce(status_stmt, "available") == "accepted", 1),
                     (func.coalesce(status_stmt, "available") == "pending", 2),
                     (func.coalesce(status_stmt, "available") == "rejected", 3),

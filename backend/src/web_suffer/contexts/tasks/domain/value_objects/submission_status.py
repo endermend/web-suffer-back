@@ -1,12 +1,13 @@
 from typing import ClassVar
 
+from web_suffer.contexts.tasks.domain import types
 from web_suffer.shared.domain.value_objects.single_value_object import SingleValueObject
 
 
 class SubmissionStatus(SingleValueObject):
     """Value object статуса посылки."""
 
-    value: str
+    value: types.SubmissionStatus
 
     AWAIABLE: ClassVar["SubmissionStatus"]
     PENDING: ClassVar["SubmissionStatus"]

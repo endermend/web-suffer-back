@@ -67,7 +67,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
-    def from_subm_id_dto(task_id: SubmissionIDDTO) -> SubmissionID:
+    def from_subm_id_dto(subm_id: SubmissionIDDTO) -> SubmissionID:
         """
         DTO -> Domain value object.
 
@@ -77,7 +77,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
-    def to_subm_id_dto(task: SubmissionID) -> SubmissionIDDTO:
+    def to_subm_id_dto(subm: SubmissionID) -> SubmissionIDDTO:
         """
         Domain value object -> DTO.
 

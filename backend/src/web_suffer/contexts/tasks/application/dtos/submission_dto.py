@@ -19,10 +19,17 @@ class SubmissionDTO:
 
 
 @dataclass(slots=True, frozen=True)
-class SubmissionIDDTO:
+class SubmissionTokenIDDTO:
     """DTO id отправления."""
 
     access_token: str
+    submission_id: UUID
+
+
+@dataclass(slots=True, frozen=True)
+class SubmissionIDDTO:
+    """DTO id отправления."""
+
     submission_id: UUID
 
 

@@ -34,7 +34,7 @@ class Task(BaseEntity):
     @property
     def deadline(self) -> datetime:
         """Дедлайн задания."""
-        return self._deadline
+        return self._deadline.replace(tzinfo=UTC)
 
     @property
     def exp(self) -> int:

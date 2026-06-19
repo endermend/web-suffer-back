@@ -1,9 +1,10 @@
 import structlog
 
-from web_suffer.contexts.tasks.application.dtos.submission_dto import SubmissionDTO, SubmissionIDDTO
+from web_suffer.contexts.tasks.application.dtos.submission_dto import SubmissionDTO, SubmissionTokenIDDTO
 from web_suffer.contexts.tasks.application.exceptions import InvalidSubmissionError
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.repository.submission_repository import ISubmissionRepository
+from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
 from web_suffer.shared.domain.value_objects.user_rights import UserRights
@@ -25,7 +26,7 @@ class GetSubmissionByIDUseCase:
         self._mapper = mapper
         self._auth_service = auth_service
 
-    async def execute(self, input_dto: SubmissionIDDTO) -> SubmissionDTO:
+    async def execute(self, input_dto: SubmissionTokenIDDTO) -> SubmissionDTO:
         """
         Возвращает полную информацию о задании по Submission ID.
 
@@ -38,7 +39,7 @@ class GetSubmissionByIDUseCase:
 
         """  # noqa: RUF002
         user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
-        subm = await self._subm_repo.get_by_id(self._mapper.from_subm_id_dto(input_dto))
+        subm = await self._subm_repo.get_by_id(SubmissionID(input_dto.submission_id))
         if not subm:
             logger.warning("task.subm.failed", reason="submission_not_found")
             raise InvalidSubmissionError

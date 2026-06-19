@@ -41,7 +41,7 @@ class GetTasksStatisticsUseCase:
         now = datetime.now(UTC)
         tasks_all = len(
             await self._task_repo.get_unathorized_list(
-                deadline_till=now,
+                deadline_from=now,
             ),
         )
         tasks_status: dict[TaskStatus, int] | None = None
@@ -49,7 +49,7 @@ class GetTasksStatisticsUseCase:
             user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
             tasks = await self._task_repo.get_list(
                 user_id=user_id,
-                deadline_till=now,
+                deadline_from=now,
             )
             tasks_status = dict(
                 Counter(status for _, status in tasks),
