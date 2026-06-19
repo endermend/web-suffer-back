@@ -1,19 +1,12 @@
-from fastapi import Header
+from typing import Annotated
 
-from web_suffer.presentation.exceptions import UnauthorizedCallError
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+security = HTTPBearer(
+    auto_error=True,
+    description="JWT токен доступа. Формат: Bearer <token>",
+    scheme_name="JWT Authentication",
+)
 
-def get_token(authorization: str = Header(...)) -> str:
-    """
-    Извлекает токен из заголовка Authorization.
-
-    Returns:
-        authorization token (access token).
-
-    Raises:
-        UnauthorizedCallError: не указан заголовок Authorization.
-
-    """
-    if not authorization.startswith("Bearer "):
-        raise UnauthorizedCallError
-    return authorization.replace("Bearer ", "")
+type CredentialsType = Annotated[HTTPAuthorizationCredentials, Depends(security)]

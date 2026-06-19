@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from web_suffer.presentation.api.exception_handlers import auth, task
+from web_suffer.presentation.api.exception_handlers import auth, shared, task
 from web_suffer.presentation.exceptions import UnauthorizedCallError
 
 
@@ -27,3 +27,4 @@ def setup_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(UnauthorizedCallError, unauthorized_user_handler)
     auth.setup_exception_handlers(app=app)
     task.setup_exception_handlers(app=app)
+    shared.setup_exception_handlers(app=app)

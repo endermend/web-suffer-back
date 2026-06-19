@@ -16,6 +16,7 @@ from web_suffer.contexts.auth.application.use_cases import (
 from web_suffer.contexts.auth.infrastructure.services.cookie_service import CookieService
 from web_suffer.infrastructure.constants import REFRESH_TOKEN_COOKIE_NAME
 from web_suffer.presentation.api.adapters.fastapi_response_adapter import FastAPIResponseAdapter
+from web_suffer.presentation.api.routers.utils import CredentialsType
 from web_suffer.presentation.api.schemas.auth.email import GetEmailResponse
 from web_suffer.presentation.api.schemas.auth.login import (
     UserLoginRequest,
@@ -41,7 +42,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 )
 @inject
 async def email(
-    access_token: str,
+    credentials: CredentialsType,
     use_case: FromDishka[GetLoginByAccessTokenUseCase],
 ) -> GetEmailResponse:
     """
@@ -51,6 +52,7 @@ async def email(
         GetEmailResponse
 
     """
+    access_token = credentials.credentials
     output_dto = await use_case.execute(
         input_dto=AccessTokenDTO(access_token=access_token),
     )
@@ -161,7 +163,7 @@ async def register(
 )
 @inject
 async def users(
-    access_token: str,
+    credentials: CredentialsType,
     use_case: FromDishka[GetUsersUseCase],
 ) -> list[GetUsersResponse]:
     """
@@ -171,6 +173,7 @@ async def users(
         GetEmailResponse
 
     """
+    access_token = credentials.credentials
     output_dto = await use_case.execute(
         input_dto=AccessTokenDTO(access_token=access_token),
     )

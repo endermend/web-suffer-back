@@ -10,4 +10,4 @@ class ChangeSubmissionRequest(BaseModel):
 
     submission_id: UUID
     status: SubmissionStatus
-    comment: str | None
+    comment: str | None = None

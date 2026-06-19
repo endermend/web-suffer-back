@@ -1,11 +1,10 @@
-from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
-from web_suffer.presentation.api.routers.utils import get_token
+from web_suffer.presentation.api.routers.utils import CredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
 
 router = APIRouter(prefix="/task", tags=["Task"])
@@ -18,11 +17,12 @@ router = APIRouter(prefix="/task", tags=["Task"])
 )
 @inject
 async def change_submission(
+    credentials: CredentialsType,
     data: ChangeSubmissionRequest,
     use_case: FromDishka[ChangeSubmissionUseCase],
-    access_token: Annotated[str, Depends(get_token)],
 ) -> None:
     """Эндпоинт проверки задания."""
+    access_token = credentials.credentials
     await use_case.execute(
         input_dto=ChangeSubmissionDTO(
             access_token=access_token,
