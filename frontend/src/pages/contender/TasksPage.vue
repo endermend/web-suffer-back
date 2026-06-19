@@ -17,12 +17,17 @@
           <div class="card">
             <div class="card_header">
               <div>
-                <span class="card_title">Активные задания</span>
-                <p class="card_subtitle">Новые задания, доступные для выполнения</p>
+                <span class="card_title">Доступные задания</span>
+                <p class="card_subtitle">Новые задания для выполнения</p>
               </div>
             </div>
             <div v-if="activeTasks.length" class="assignment_list">
-              <div v-for="item in activeTasks" :key="item.id" class="assignment_item">
+              <div
+                v-for="item in activeTasks"
+                :key="item.id"
+                class="assignment_item"
+                @click="router.push(`/tasks/${item.id}`)"
+              >
                 <div class="assignment_main">
                   <div class="assignment_title">{{ item.title }}</div>
                 </div>
@@ -34,8 +39,9 @@
               </div>
             </div>
             <div v-else class="empty_state">Активных заданий нет</div>
-            <!-- TODO: link to TasksList page once it exists -->
-            <button type="button" class="view_all_btn">Перейти ко всем доступным</button>
+            <button type="button" class="view_all_btn" @click="router.push('/tasks/all')">
+              Перейти ко всем доступным
+            </button>
           </div>
 
           <!-- recent grades -->
@@ -99,6 +105,28 @@
             </div>
             <div v-else class="ok_state">Все работы проверены</div>
           </div>
+
+          <!-- rejected -->
+          <div class="card">
+            <div class="card_header">
+              <div>
+                <span class="card_title">Отклонённые</span>
+                <p class="card_subtitle">Можно исправить и отправить повторно</p>
+              </div>
+            </div>
+            <div v-if="rejectedTasks.length" class="pending_list">
+              <div
+                v-for="item in rejectedTasks"
+                :key="item.id"
+                class="rejected_item"
+                @click="router.push(`/tasks/${item.id}`)"
+              >
+                <div class="pending_title">{{ item.title }}</div>
+                <span class="status_chip chip_rejected">Отклонено</span>
+              </div>
+            </div>
+            <div v-else class="ok_state">Отклонённых заданий нет</div>
+          </div>
         </div>
       </div>
 
@@ -124,6 +152,7 @@
               <option value="available">Доступно</option>
               <option value="submitted">Сдано</option>
               <option value="graded">Проверено</option>
+              <option value="rejected">Отклонено</option>
             </select>
           </div>
           <div class="filter_actions">
@@ -154,7 +183,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in paginatedTasks" :key="item.id">
+                <tr
+                  v-for="item in paginatedTasks"
+                  :key="item.id"
+                  class="task_row"
+                  @click="router.push(`/tasks/${item.id}`)"
+                >
                   <td>{{ item.title }}</td>
                   <td>{{ formatDate(item.deadline) }}</td>
                   <td>
@@ -192,16 +226,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import { formatDateShort as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
 
 defineOptions({ name: 'TasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
-
-const newTask = reactive({ title: '', deadline: '', points: 0 })
 
 const searchQuery = ref('')
 const deadlineBefore = ref('')
@@ -209,15 +242,6 @@ const deadlineAfter = ref('')
 const statusFilter = ref('')
 const currentPage = ref(1)
 const PAGE_SIZE = 10
-
-function formatDate(str: string): string {
-  return new Date(str).toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 
 const filteredTasks = computed(() =>
   tasksStore.tasks.filter((t) => {
@@ -239,6 +263,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(filteredTasks.value.leng
 
 const activeTasks = computed(() => tasksStore.availableTasks.slice(0, 4))
 const pendingTasks = computed(() => tasksStore.pendingTasks)
+const rejectedTasks = computed(() => tasksStore.rejectedTasks)
 
 const recentCompleted = computed(() =>
   [...tasksStore.completedTasks]
@@ -251,18 +276,6 @@ const completedCount = computed(() => tasksStore.completedTasks.length)
 const progress = computed(() =>
   totalCount.value ? Math.round((completedCount.value / totalCount.value) * 100) : 0,
 )
-
-function statusChip(status: string): string {
-  if (status === 'graded') return 'chip_graded'
-  if (status === 'submitted') return 'chip_submitted'
-  return 'chip_assigned'
-}
-
-function statusLabel(status: string): string {
-  if (status === 'graded') return 'Проверено'
-  if (status === 'submitted') return 'Сдано'
-  return 'Доступно'
-}
 
 function applyFilters(): void {
   currentPage.value = 1
@@ -562,6 +575,22 @@ main {
   background-color: rgba(202, 138, 4, 0.08);
 }
 
+.rejected_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: rgba(204, 63, 75, 0.08);
+  cursor: pointer;
+  transition: 0.2s background-color;
+}
+
+.rejected_item:hover {
+  background-color: rgba(204, 63, 75, 0.14);
+}
+
 .pending_title {
   font-family: Nagel;
   font-size: 14px;
@@ -609,6 +638,10 @@ main {
 .chip_graded {
   background-color: rgba(22, 163, 74, 0.12);
   color: rgb(22, 163, 74);
+}
+.chip_rejected {
+  background-color: rgba(204, 63, 75, 0.12);
+  color: rgb(204, 63, 75);
 }
 
 /* filters */
@@ -722,6 +755,10 @@ main {
 .tasks_table td {
   padding: 12px 14px;
   border-bottom: thin solid rgb(244, 243, 250);
+}
+
+.task_row {
+  cursor: pointer;
 }
 
 .tasks_table tbody tr:hover td {

@@ -18,17 +18,21 @@
           <div class="leaderboard_table">
             <div class="leaderboard_header">
               <span class="col_rank">#</span>
-              <span class="col_name">Имя</span>
+              <span class="col_name">Почта</span>
               <span class="col_points">Очки</span>
             </div>
-            <div v-for="entry in leaderboard" :key="entry.rank" class="leaderboard_row">
+            <div
+              v-for="(entry, index) in sortedLeaderboard"
+              :key="entry.email"
+              class="leaderboard_row"
+            >
               <span class="col_rank">
-                <span v-if="entry.rank === 1" class="rank_badge rank_gold">1</span>
-                <span v-else-if="entry.rank === 2" class="rank_badge rank_silver">2</span>
-                <span v-else-if="entry.rank === 3" class="rank_badge rank_bronze">3</span>
-                <span v-else class="rank_plain">{{ entry.rank }}</span>
+                <span v-if="index === 0" class="rank_badge rank_gold">1</span>
+                <span v-else-if="index === 1" class="rank_badge rank_silver">2</span>
+                <span v-else-if="index === 2" class="rank_badge rank_bronze">3</span>
+                <span v-else class="rank_plain">{{ index + 1 }}</span>
               </span>
-              <span class="col_name">{{ entry.name }}</span>
+              <span class="col_name">{{ entry.email }}</span>
               <span class="col_points">{{ entry.points }}</span>
             </div>
           </div>
@@ -39,32 +43,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { Pagination } from 'swiper/modules'
 import beachImg from '@/assets/images/beach.jpg'
 import starfishImg from '@/assets/images/starfish.jpg'
+import { useUsersStore } from '@/stores/users_store.ts'
 
 defineOptions({ name: 'DashboardPage' })
 
+const usersStore = useUsersStore()
+
 const modules = [Pagination]
 
-interface Slide {
-  id: number
-  image: string
-  title: string
-}
-
-interface LeaderboardEntry {
-  rank: number
-  name: string
-  points: number
-}
-
-// TODO: replace with API call
-const slides = ref<Slide[]>([
+// local-only mock data, never backed by an API — no need for a named interface
+const slides = ref([
   {
     id: 1,
     image: beachImg,
@@ -74,13 +69,7 @@ const slides = ref<Slide[]>([
   { id: 2, image: starfishImg, title: 'Вы готовы дети? Да капитан Я не слышу Так точно капитан' },
 ])
 
-// TODO: replace with API call
-const leaderboard = ref<LeaderboardEntry[]>([
-  { rank: 1, name: 'Денис королев', points: 1240 },
-  { rank: 2, name: 'endermend1', points: 1105 },
-  { rank: 3, name: 'Упростил по жести', points: 980 },
-  { rank: 4, name: 'Новый чомпион', points: 500 },
-])
+const sortedLeaderboard = computed(() => usersStore.sortedByPoints)
 </script>
 
 <style scoped>

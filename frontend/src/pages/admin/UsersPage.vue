@@ -53,48 +53,34 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useUsersStore } from '@/stores/users_store.ts'
+import type { UserManagement } from '@/types/users.ts'
 
 defineOptions({ name: 'UsersPage' })
 
-interface AdminUser {
-  id: number
-  email: string
-  banned: boolean
-}
-
-// TODO: replace with API call
-const users = ref<AdminUser[]>([
-  { id: 1, email: 'ivan.petrov@example.com', banned: false },
-  { id: 2, email: 'anna.smirnova@example.com', banned: false },
-  { id: 3, email: 'troll228@example.com', banned: true },
-  { id: 4, email: 'maria.k@example.com', banned: false },
-])
+const usersStore = useUsersStore()
 
 const searchQuery = ref('')
 
 const filteredUsers = computed(function () {
-  return users.value.filter(function (user) {
+  return usersStore.users.filter(function (user) {
     return user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
   })
 })
 
-function toggleBan(user: AdminUser): void {
-  // TODO: replace with API call
-  user.banned = !user.banned
+function toggleBan(user: UserManagement): void {
+  usersStore.toggleBan(user.id)
 }
 
-function deleteUser(user: AdminUser): void {
-  // TODO: replace with API call
-  users.value = users.value.filter(function (item) {
-    return item.id !== user.id
-  })
+function deleteUser(user: UserManagement): void {
+  usersStore.deleteUser(user.id)
 }
 
 const editingUserId = ref<number | null>(null)
 const editingField = ref<'email' | 'password' | null>(null)
 const editValue = ref('')
 
-function startEdit(user: AdminUser, field: 'email' | 'password'): void {
+function startEdit(user: UserManagement, field: 'email' | 'password'): void {
   editingUserId.value = user.id
   editingField.value = field
   editValue.value = field === 'email' ? user.email : ''
@@ -106,10 +92,9 @@ function cancelEdit(): void {
   editValue.value = ''
 }
 
-function saveEdit(user: AdminUser): void {
-  // TODO: replace with API call
+function saveEdit(user: UserManagement): void {
   if (editingField.value === 'email') {
-    user.email = editValue.value
+    usersStore.updateEmail(user.id, editValue.value)
   }
   cancelEdit()
 }
