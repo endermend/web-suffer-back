@@ -55,7 +55,7 @@ async def create_submission(
     task_id: Annotated[uuid.UUID, Form()],
     content: Annotated[str, Form()],
     use_case: FromDishka[CreateSubmissionUseCase],
-    file: Annotated[UploadFile | None, File(default=None)] = None,
+    file: Annotated[UploadFile | None, File()] = None,
 ) -> None:
     """Эндпоинт создания задания."""
     access_token = credentials.credentials
