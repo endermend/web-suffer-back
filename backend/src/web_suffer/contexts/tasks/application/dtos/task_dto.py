@@ -57,3 +57,15 @@ class TaskStatisticsDTO:
     tasks_all: int
 
     tasks_status: dict[TaskStatus, int] | None
+
+
+class CreateTaskDTO:
+    """DTO создания задания."""
+
+    access_token: str
+    task_id: UUID | None
+    title: str
+    description: str
+    deadline: datetime
+    exp: int
+    money: int

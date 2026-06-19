@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 from web_suffer.contexts.auth.domain.value_objects import (
     PasswordHash,
     UserEmail,
-    UserRole,
-    UserStatus,
 )
 from web_suffer.shared.domain.value_objects import UserID
+from web_suffer.shared.domain.value_objects.user_role import UserRole
+from web_suffer.shared.domain.value_objects.user_status import UserStatus
 from web_suffer.shared.entities.base_entity import BaseEntity
 
 

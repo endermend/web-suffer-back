@@ -30,6 +30,16 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    def to_id_dto(task: TaskID) -> TaskIDDTO:
+        """
+        Domain value object -> DTO.
+
+        Returns:
+            Immutable Task ID DTO.
+
+        """
+
+    @staticmethod
     def to_user_task_dto(task: Task, status: TaskStatus) -> UsersTaskDTO:
         """
         Domain Entity -> DTO.

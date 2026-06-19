@@ -8,7 +8,6 @@ from web_suffer.contexts.auth.domain.repositories import IUserRepository
 from web_suffer.contexts.auth.domain.value_objects import (
     UserEmail,
 )
-from web_suffer.contexts.auth.domain.value_objects.user_role import UserRole
 from web_suffer.contexts.auth.infrastructure.mappers.user_orm_mapper import (
     UserORMMapper,
 )
@@ -16,6 +15,7 @@ from web_suffer.contexts.auth.infrastructure.persistence.models.user_model impor
     UserORMModel,
 )
 from web_suffer.shared.domain.value_objects import UserID
+from web_suffer.shared.domain.value_objects.user_role import UserRole
 
 
 class UserRepository(IUserRepository):
