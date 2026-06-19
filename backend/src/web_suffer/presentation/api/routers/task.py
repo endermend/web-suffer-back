@@ -205,14 +205,15 @@ async def submissions(
             order_by=order_by,
         ),
     )
-    return [SubmissionResponce(
-        submission_id=subm.submission_id,
-        task_id=subm.task_id,
-        user_id=subm.user_id,
-        content=subm.content,
-        file=subm.file.name if subm.file is not None else None,
-        status=subm.status,
-        comment=subm.comment,
-    )
-    for subm in subms
+    return [
+        SubmissionResponce(
+            submission_id=subm.submission_id,
+            task_id=subm.task_id,
+            user_id=subm.user_id,
+            content=subm.content,
+            file=subm.file.name if subm.file is not None else None,
+            status=subm.status,
+            comment=subm.comment,
+        )
+        for subm in subms
     ]
