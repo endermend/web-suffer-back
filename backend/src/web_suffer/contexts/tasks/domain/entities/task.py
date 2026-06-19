@@ -9,7 +9,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class Task(BaseEntity):
     """Доменная сущность задания (Entity DDD)."""
 
-    _id: TaskID
+    _id: TaskID  # pyrefly: ignore [bad-override-mutable-attribute]
     _title: str
     _description: str
     _deadline: datetime

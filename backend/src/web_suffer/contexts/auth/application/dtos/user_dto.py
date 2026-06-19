@@ -37,3 +37,11 @@ class UserDTO:
     created_at: datetime
     updated_at: datetime
     status: int
+
+
+@dataclass(slots=True, frozen=True)
+class ChangePasswordDTO:
+    """DTO смены пароля."""
+
+    access_token: str
+    new_password: str

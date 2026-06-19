@@ -13,7 +13,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class Submission(BaseEntity):
     """Доменная сущность задания (Entity DDD)."""
 
-    _id: SubmissionID
+    _id: SubmissionID  # pyrefly: ignore [bad-override-mutable-attribute]
     _task_id: TaskID
     _user_id: UserID
     _content: str

@@ -15,7 +15,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class User(BaseEntity):
     """Доменная сущность пользователя (Entity DDD)."""
 
-    _id: UserID
+    _id: UserID  # pyrefly: ignore [bad-override-mutable-attribute]
     _email: UserEmail
     _password_hash: PasswordHash
     _role: UserRole
@@ -65,6 +65,11 @@ class User(BaseEntity):
     def set_status(self, status: UserStatus) -> None:
         """Обновление статуса пользователя."""
         self._status = status
+
+    @BaseEntity.update
+    def set_password_hash(self, password_hash: PasswordHash) -> None:
+        """Обновление хеш пароля пользователя."""
+        self._password_hash = password_hash
 
     @classmethod
     def register(

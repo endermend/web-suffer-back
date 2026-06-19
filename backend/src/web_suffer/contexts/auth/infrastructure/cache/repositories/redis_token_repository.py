@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, override
 
 from redis.asyncio.client import Redis
 
@@ -18,6 +18,7 @@ class RedisTokenRepository(ITokenRepository):
         """Инициализация RedisTokenRepository."""
         self._redis = redis
 
+    @override
     async def save_refresh_token(
         self,
         user_id: UserID,
@@ -43,6 +44,7 @@ class RedisTokenRepository(ITokenRepository):
             )
             await pipe.execute()
 
+    @override
     async def get_user_id_by_refresh_token(self, refresh_token: Token) -> UserID | None:
         """
         Получение UserID по значению refresh token.
@@ -60,6 +62,7 @@ class RedisTokenRepository(ITokenRepository):
         user_id_str = data["user_id"]
         return UserID.from_str(user_id_str)
 
+    @override
     async def delete_refresh_token(
         self,
         refresh_token: Token,

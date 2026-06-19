@@ -1,3 +1,5 @@
+from typing import override
+
 from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import IAuthDTOMapper
 from web_suffer.contexts.auth.application.use_cases.get_userid import GetUserIDByAccessTokenUseCase
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
@@ -9,14 +11,15 @@ class AuthServiceAdapter(IAuthService):
     """Адаптер для сервиса аутентификации."""
 
     def __init__(
-            self,
-            get_user_id_use_case: GetUserIDByAccessTokenUseCase,
-            mapper: IAuthDTOMapper,
-        ) -> None:
+        self,
+        get_user_id_use_case: GetUserIDByAccessTokenUseCase,
+        mapper: IAuthDTOMapper,
+    ) -> None:
         """Инициализация адаптера."""
         self._get_user_id_use_case = get_user_id_use_case
         self._mapper = mapper
 
+    @override
     async def get_user_id_by_token(self, acess_token: str) -> UserID:
         """
         Получить ID пользователя по токену через use case.

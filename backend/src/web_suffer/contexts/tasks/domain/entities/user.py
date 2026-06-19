@@ -9,7 +9,7 @@ from web_suffer.shared.entities.base_entity import BaseEntity
 class UserT(BaseEntity):
     """Доменная сущность пользователя в заданиях (Entity DDD)."""
 
-    _id: UserID
+    _id: UserID  # pyrefly: ignore [bad-override-mutable-attribute]
     _exp: int
     _money: int
 
@@ -30,7 +30,7 @@ class UserT(BaseEntity):
 
     @BaseEntity.update
     def set_money(self, money: int) -> None:
-        """Обновленние денег пользователя."""
+        """Обновление денег пользователя."""
         self._money = money
 
     @BaseEntity.update
@@ -40,7 +40,7 @@ class UserT(BaseEntity):
 
     @BaseEntity.update
     def set_exp(self, exp: int) -> None:
-        """Обновленние опыта пользователя."""
+        """Обновление опыта пользователя."""
         self._money = exp
 
     @BaseEntity.update

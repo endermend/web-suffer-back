@@ -28,7 +28,7 @@ def create_app() -> FastAPI:
     container = make_container_di(config=config)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI) -> AsyncGenerator[None, ]:
+    async def lifespan(_app: FastAPI) -> AsyncGenerator[None,]:
         await _run_seeders(container)
         yield
         await container.close()

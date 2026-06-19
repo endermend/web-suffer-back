@@ -4,8 +4,9 @@ from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
 from web_suffer.contexts.auth.application.dtos.token_dto import RefreshTokenDTO
-from web_suffer.contexts.auth.application.dtos.user_dto import CredentialsDTO
+from web_suffer.contexts.auth.application.dtos.user_dto import ChangePasswordDTO, CredentialsDTO
 from web_suffer.contexts.auth.application.use_cases import (
+    ChangePasswordUseCase,
     GetLoginByAccessTokenUseCase,
     GetUsersUseCase,
     LoginUserUseCase,
@@ -174,3 +175,20 @@ async def users(
         input_dto=AccessTokenDTO(access_token=access_token),
     )
     return [GetUsersResponse(email=user.email) for user in output_dto]
+
+
+@router.post(
+    "/change-password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Смена пароля",
+)
+@inject
+async def change_password(
+    access_token: str,
+    new_password: str,
+    use_case: FromDishka[ChangePasswordUseCase],
+) -> None:
+    """Эндпоинт смены пароля у пользователя."""  # noqa: RUF002
+    await use_case.execute(
+        input_dto=ChangePasswordDTO(access_token=access_token, new_password=new_password),
+    )
