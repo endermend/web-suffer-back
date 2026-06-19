@@ -14,7 +14,7 @@ from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     SubmissionTokenIDDTO,
 )
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO, UsersTasksRangeDTO
-from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
+from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO, UserTIDDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submission_by_id import GetSubmissionByIDUseCase
@@ -22,6 +22,7 @@ from web_suffer.contexts.tasks.application.use_cases.get_submissions import GetS
 from web_suffer.contexts.tasks.application.use_cases.get_task_by_id import GetTaskByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks import GetTasksUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks_statistics import GetTasksStatisticsUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_user_by_id import GetUserByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
 from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus, TaskOrderBy, TaskStatusFilter
@@ -34,6 +35,7 @@ from web_suffer.presentation.api.schemas.task.tasks import UserTaskResponce
 from web_suffer.presentation.api.schemas.task.tasks_statistics import TaskStatisticsResponce
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
 from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
+from web_suffer.presentation.api.schemas.task.user import UserResponce
 from web_suffer.shared.application.dtos.access_token_dto import PublicAccessTokenDTO
 
 router = APIRouter(prefix="/task", tags=["Task"])
@@ -243,7 +245,7 @@ async def task(
     use_case: FromDishka[GetTaskByIDUseCase],
 ) -> TaskResponce:
     """
-    Эндпоинт получения задания.
+    Эндпоинт получения описания задания.
 
     Returns:
         TaskResponce
@@ -275,14 +277,14 @@ async def tasks_statistics(
     credentials: OptionalCredentialsType = None,
 ) -> TaskStatisticsResponce:
     """
-    Эндпоинт получения задания.
+    Эндпоинт получения статистики о заданиях.
 
     Если access_token не указан, возвращает только общее число доступных задач.
 
     Returns:
         TaskStatisticsResponce
 
-    """
+    """  # noqa: RUF002
     access_token = credentials.credentials if credentials is not None else None
     output_dto = await use_case.execute(
         input_dto=PublicAccessTokenDTO(
@@ -312,12 +314,10 @@ async def tasks(
     order_by: Annotated[TaskOrderBy | None, Query(description="Порядок сортировки")] = None,
 ) -> list[UserTaskResponce]:
     """
-    Эндпоинт получения задания.
-
-    Если access_token не указан, возвращает только общее число доступных задач.
+    Эндпоинт получения списка заданий.
 
     Returns:
-        TaskStatisticsResponce
+        list[UserTaskResponce]
 
     """
     access_token = credentials.credentials if credentials is not None else None
@@ -344,3 +344,37 @@ async def tasks(
         )
         for task in tasks
     ]
+
+
+@router.get(
+    "/user",
+    status_code=status.HTTP_200_OK,
+    summary="Получение информации о пользователе по ID.",
+)
+@inject
+async def user(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetUserByIDUseCase],
+    user_id: Annotated[uuid.UUID | None, Query(description="ID пользователя")] = None,
+) -> UserResponce:
+    """
+    Эндпоинт получения информации о пользователе.
+
+    Если ID не указан, возвращает информацию о пользователе по access_token.
+
+    Returns:
+        UserResponce
+
+    """  # noqa: RUF002
+    access_token = credentials.credentials if credentials is not None else None
+    user = await use_case.execute(
+        input_dto=UserTIDDTO(
+            access_token=access_token,
+            user_id=user_id,
+        ),
+    )
+    return UserResponce(
+        user_id=user.user_id,
+        exp=user.exp,
+        money=user.money,
+    )
