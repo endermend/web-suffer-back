@@ -14,7 +14,7 @@ from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     SubmissionTokenIDDTO,
 )
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO, UsersTasksRangeDTO
-from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO, UserTIDDTO
+from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO, UserTIDDTO, UserTTOPDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submission_by_id import GetSubmissionByIDUseCase
@@ -22,6 +22,7 @@ from web_suffer.contexts.tasks.application.use_cases.get_submissions import GetS
 from web_suffer.contexts.tasks.application.use_cases.get_task_by_id import GetTaskByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks import GetTasksUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks_statistics import GetTasksStatisticsUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_top_users import GetTopUsersUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_user_by_id import GetUserByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
@@ -378,3 +379,37 @@ async def user(
         exp=user.exp,
         money=user.money,
     )
+
+
+@router.get(
+    "/top-users",
+    status_code=status.HTTP_200_OK,
+    summary="Получение топа пользователей по опыту.",
+)
+@inject
+async def top_users(
+    use_case: FromDishka[GetTopUsersUseCase],
+    limit: Annotated[int, Query(description="ID пользователя")] = 5,
+) -> list[UserResponce]:
+    """
+    Эндпоинт получения информации о пользователе.
+
+    Если ID не указан, возвращает информацию о пользователе по access_token.
+
+    Returns:
+        UserResponce
+
+    """  # noqa: RUF002
+    users = await use_case.execute(
+        input_dto=UserTTOPDTO(
+            amount=limit,
+        ),
+    )
+    return [
+        UserResponce(
+            user_id=user.user_id,
+            exp=user.exp,
+            money=user.money,
+        )
+        for user in users
+    ]

@@ -41,21 +41,19 @@ class GetUserByIDUseCase:
 
         """  # noqa: RUF002
         user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
-        info_user_id = UserID(input_dto.user_id)
-        if user_id != info_user_id and not await self._auth_service.check_user_right(user_id=user_id, right=UserRights.VIEW_USER):
-            error = "Not enought permission."
-            logger.warning("task.get_user.failed", reason="not_enough_permission")
-            raise InsufficientPermissionsError(error)
+        info_user_id = UserID(input_dto.user_id) if input_dto.user_id is not None else None
+        if info_user_id is None or not await self._auth_service.check_user_right(user_id=user_id, right=UserRights.VIEW_USER):
+            info_user_id = user_id
 
         user = await self._user_repo.get_by_id(info_user_id)
-        update_user_id = UserID(input_dto.user_id)
         if user is None:
-            if not await self._auth_service.check_user_right(user_id=update_user_id, right=UserRights.TO_EXISTS):
+            if not await self._auth_service.check_user_right(user_id=info_user_id, right=UserRights.TO_EXISTS):
                 error = "Not enought permission."
-                logger.warning("task.get_user.failed", reason="not_enough_permission")
+                logger.warning("task.get_user.failed", reason="no_user_exists")
                 raise InsufficientPermissionsError(error)
 
-            await self._user_service.update_user_by_id(update_user_id, 0, 0)
+            await self._user_service.update_user_by_id(info_user_id, 0, 0)
+
         user = await self._user_repo.get_by_id(info_user_id)
         if user is None:
             error = "Could not create user."

@@ -66,10 +66,11 @@ class ChangeSubmissionUseCase:
             logger.error("task.subm.failed", reason="task_not_found")
             raise InvalidTaskError
         old_result = int(subm.status == SubmissionStatus.ACCEPTED)
-        new_result = int(subm.status == SubmissionStatus.ACCEPTED)
 
         subm.set_status(self._mapper.from_status_dto(input_dto.status))
         subm.set_comment(input_dto.comment)
+
+        new_result = int(subm.status == SubmissionStatus.ACCEPTED)
 
         await self._subm_repo.save(subm)
 
