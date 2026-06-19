@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 logger = structlog.stdlib.get_logger()
 
 
-class GetTasksUseCase:
+class GetTasksStatisticsUseCase:
     """Use Case получения статистики по заданиям."""
 
     def __init__(

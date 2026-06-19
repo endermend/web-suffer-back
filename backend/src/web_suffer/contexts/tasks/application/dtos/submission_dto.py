@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID
 
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
+
 
 @dataclass(slots=True, frozen=True)
 class SubmissionDTO:
@@ -42,3 +44,13 @@ class ChangeSubmissionDTO:
     submission_id: UUID
     status: str
     comment: str
+
+
+@dataclass(slots=True, frozen=True)
+class SubmissionRangesDTO:
+    """DTO получения списка отправлений."""
+
+    access_token: str
+    user_id: UUID | None
+    status: SubmissionStatus | None
+    order_by: SubmissionOrderBy | None
