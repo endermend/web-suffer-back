@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import ProfileHero from '@/components/profile/ProfileHero.vue'
 
-defineOptions({ name: 'AdminProfilePage' })
+defineOptions({ name: 'ModeratorProfilePage' })
 </script>
 
 <style scoped>

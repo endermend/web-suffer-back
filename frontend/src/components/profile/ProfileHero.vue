@@ -55,11 +55,9 @@ const isSettingsMenuOpen = ref(false)
 function handleRoleChange(e: Event): void {
   const role = (e.target as HTMLSelectElement).value as UserRole
   authStore.setRole(role)
-  if (role === 'admin' || role === 'moderator') {
-    router.push('/admin/profile')
-  } else {
-    router.push('/profile')
-  }
+  if (role === 'admin') router.push('/admin/profile')
+  else if (role === 'moderator') router.push('/moderator/profile')
+  else router.push('/profile')
 }
 
 const userEmail = computed(function () {
@@ -106,6 +104,7 @@ const avatarLetter = computed(function () {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-left: 8px;
 }
 
 .profile_email {

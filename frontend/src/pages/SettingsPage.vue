@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <div class="page_hero">
         <h1 class="page_title">Настройки</h1>
         <p class="page_subtitle">Управление почтой и паролем аккаунта</p>
@@ -424,6 +424,29 @@ main {
   font-size: 14px;
   color: rgb(150, 150, 150);
   margin: 0;
+}
+
+.back_btn {
+  appearance: none;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: rgb(160, 125, 180);
+  transition: color 0.2s;
+}
+
+.back_btn:hover {
+  color: rgb(140, 105, 160);
+}
+
+.back_icon {
+  width: 24px;
+  height: 24px;
+  transform: rotate(180deg);
 }
 
 /* cards */

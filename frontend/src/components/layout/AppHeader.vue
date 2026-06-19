@@ -74,10 +74,10 @@
           >Задания</RouterLink
         >
         <RouterLink
-          to="/admin/tasks"
+          to="/moderator/tasks"
           v-if="authStore.role === 'moderator' && isAuthenticated"
-          @click="toggleNavJump('/admin/tasks')"
-          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @click="toggleNavJump('/moderator/tasks')"
+          :class="{ jump: jumpingPath === '/moderator/tasks' }"
           @animationend="jumpingPath = null"
           >Управление заданиями</RouterLink
         >
@@ -119,10 +119,10 @@
           >Задания</RouterLink
         >
         <RouterLink
-          to="/admin/tasks"
+          to="/moderator/tasks"
           v-if="authStore.role === 'moderator' && isAuthenticated"
-          @click="toggleNavJump('/admin/tasks')"
-          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @click="toggleNavJump('/moderator/tasks')"
+          :class="{ jump: jumpingPath === '/moderator/tasks' }"
           @animationend="jumpingPath = null"
           >Управление заданиями</RouterLink
         >
@@ -159,9 +159,11 @@ const router = useRouter()
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const userEmail = computed(() => authStore.userEmail)
-const profileLink = computed(() =>
-  authStore.role === 'admin' || authStore.role === 'moderator' ? '/admin/profile' : '/profile',
-)
+const profileLink = computed(() => {
+  if (authStore.role === 'admin') return '/admin/profile'
+  if (authStore.role === 'moderator') return '/moderator/profile'
+  return '/profile'
+})
 
 // anims
 

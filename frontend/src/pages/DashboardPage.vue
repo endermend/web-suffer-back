@@ -23,7 +23,7 @@
           <div class="leaderboard_table">
             <div class="leaderboard_header">
               <span class="col_rank">#</span>
-              <span class="col_name">Почта</span>
+              <span class="col_name_header">Почта</span>
               <span class="col_points">Очки</span>
             </div>
             <div
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
@@ -63,6 +63,10 @@ import MedalIcon from '@/assets/icons/medal.svg'
 defineOptions({ name: 'DashboardPage' })
 
 const usersStore = useUsersStore()
+
+onMounted(() => {
+  usersStore.fetchUsers()
+})
 
 const modules = [Pagination, Autoplay]
 
@@ -90,7 +94,7 @@ const slides = ref([
   },
 ])
 
-const sortedLeaderboard = computed(() => usersStore.sortedByPoints)
+const sortedLeaderboard = computed(() => usersStore.sortedByPoints.slice(0, 5))
 </script>
 
 <style scoped>
@@ -223,6 +227,13 @@ main {
   display: flex;
   align-items: center;
   align-content: center;
+}
+
+.col_name_header {
+  word-break: break-all;
+  min-width: 0px;
+  padding: 16px;
+  font-size: 16px;
 }
 
 .col_name {

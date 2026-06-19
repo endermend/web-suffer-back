@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <div class="page_hero">
         <h1 class="page_title">Управление заданиями</h1>
         <p class="page_subtitle">Создание заданий и проверка ответов участников</p>
@@ -53,7 +53,7 @@
             <button
               type="button"
               class="open_review_btn"
-              @click="router.push(`/admin/submissions/${item.submission.id}/review`)"
+              @click="router.push(`/moderator/submissions/${item.submission.id}/review`)"
             >
               Открыть
             </button>

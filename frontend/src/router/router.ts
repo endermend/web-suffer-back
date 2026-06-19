@@ -9,8 +9,9 @@ import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import ProfilePage from '@/pages/contender/ProfilePage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
-import ManageTasksPage from '@/pages/admin/ManageTasksPage.vue'
-import TaskReviewPage from '@/pages/admin/TaskReviewPage.vue'
+import ManageTasksPage from '@/pages/moderator/ManageTasksPage.vue'
+import TaskReviewPage from '@/pages/moderator/TaskReviewPage.vue'
+import ModeratorProfilePage from '@/pages/moderator/ModeratorProfilePage.vue'
 import UsersPage from '@/pages/admin/UsersPage.vue'
 import AdminProfilePage from '@/pages/admin/AdminProfilePage.vue'
 import NotFoundPage from '@/pages/NotFoundPage.vue'
@@ -42,13 +43,18 @@ const router = createRouter({
       meta: { layout: 'default', roles: ['member', 'moderator'], adminBypass: false },
     },
     {
-      path: '/admin/tasks',
+      path: '/moderator/tasks',
       component: ManageTasksPage,
       meta: { layout: 'default', roles: ['moderator'], adminBypass: false },
     },
     {
-      path: '/admin/submissions/:id/review',
+      path: '/moderator/submissions/:id/review',
       component: TaskReviewPage,
+      meta: { layout: 'default', roles: ['moderator'], adminBypass: false },
+    },
+    {
+      path: '/moderator/profile',
+      component: ModeratorProfilePage,
       meta: { layout: 'default', roles: ['moderator'], adminBypass: false },
     },
     {
@@ -59,7 +65,7 @@ const router = createRouter({
     {
       path: '/admin/profile',
       component: AdminProfilePage,
-      meta: { layout: 'default', roles: ['admin', 'moderator'] },
+      meta: { layout: 'default', roles: ['admin'], adminBypass: false },
     },
     { path: '/login', component: LoginPage, meta: { layout: 'auth' } },
     { path: '/register', component: RegisterPage, meta: { layout: 'auth' } },

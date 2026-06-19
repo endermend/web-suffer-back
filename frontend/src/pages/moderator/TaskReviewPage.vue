@@ -1,8 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
-      <button type="button" class="back_btn" @click="router.push('/admin/tasks')">← Назад</button>
-
+    <div class="main_contents page_enter">
       <div v-if="!submission || !task" class="card">
         <div class="empty_state">Сдача не найдена</div>
       </div>
@@ -13,7 +11,10 @@
       <template v-else>
         <!-- hero -->
         <div class="page_hero">
-          <div>
+          <button type="button" class="back_btn" @click="router.push('/moderator/tasks')">
+            <BackArrowIcon class="back_icon" />
+          </button>
+          <div class="hero_title_group">
             <h1 class="page_title">{{ task.title }}</h1>
             <span class="submitter_email">{{ submission.user_email }}</span>
           </div>
@@ -61,6 +62,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
 defineOptions({ name: 'TaskReviewPage' })
 
@@ -81,7 +83,7 @@ async function handleReview(decision: 'accepted' | 'rejected'): Promise<void> {
 
   const action = decision === 'accepted' ? tasksStore.acceptSubmission : tasksStore.rejectSubmission
   const result = await action(submission.value.id, comment.value)
-  if (result.success) router.push('/admin/tasks')
+  if (result.success) router.push('/moderator/tasks')
   else reviewError.value = 'Не удалось оценить задание'
 }
 </script>
@@ -108,30 +110,41 @@ main {
 
 .back_btn {
   appearance: none;
-  align-self: flex-start;
+  flex-shrink: 0;
   border: none;
   background: none;
   padding: 0;
-  font-family: Nagel;
-  font-size: 14px;
-  color: rgb(160, 125, 180);
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  color: rgb(160, 125, 180);
+  transition: color 0.2s;
 }
 
 .back_btn:hover {
-  text-decoration: underline;
+  color: rgb(140, 105, 160);
+}
+
+.back_icon {
+  width: 24px;
+  height: 24px;
+  transform: rotate(180deg);
 }
 
 /* hero */
 
 .page_hero {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 28px 32px;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+}
+
+.hero_title_group {
+  flex: 1;
 }
 
 .page_title {
