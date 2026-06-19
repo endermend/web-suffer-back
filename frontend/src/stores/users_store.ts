@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import type { UserManagement } from '@/types/users.ts'
+import type { UserRole } from '@/types/auth.ts'
 
 const useUsersStore = defineStore('users', {
   state: () => ({
     // TODO: replace with API call
-    // NOTE: points here are independent mock data, not derived from tasksStore.completedTasks.
-    // Once the backend is the source of truth, a user's points must match the same total
-    // ProfilePage.vue computes from completed tasks (currently computed client-side per user).
+    // NOTE: points here are independent mock data, not derived from tasksStore's accepted
+    // submissions. Once the backend is the source of truth, a user's points must match the
+    // same total ProfilePage.vue computes from tasksStore.acceptedSubmissionsWithTask().
     users: [
       { id: 1, email: 'ivan.petrov@example.com', points: 145, role: 'member', banned: false },
       { id: 2, email: 'anna.smirnova@example.com', points: 320, role: 'member', banned: false },
@@ -33,6 +34,12 @@ const useUsersStore = defineStore('users', {
     updateEmail(id: number, email: string) {
       const user = this.users.find((u) => u.id === id)
       if (user) user.email = email
+    },
+
+    // TODO: replace with API call
+    setUserRole(id: number, role: UserRole) {
+      const user = this.users.find((u) => u.id === id)
+      if (user) user.role = role
     },
 
     // TODO: replace with API call

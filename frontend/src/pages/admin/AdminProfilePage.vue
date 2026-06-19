@@ -34,7 +34,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

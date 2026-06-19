@@ -58,37 +58,97 @@
     <!-- lower header -->
     <div v-if="isDesktop || isTablet" class="header_lower">
       <nav class="nav_desktop">
-        <RouterLink to="/">Новости</RouterLink>
-        <RouterLink to="/tasks" v-if="authStore.role !== 'admin' && isAuthenticated"
+        <RouterLink
+          to="/"
+          @click="toggleNavJump('/')"
+          :class="{ jump: jumpingPath === '/' }"
+          @animationend="jumpingPath = null"
+          >Новости</RouterLink
+        >
+        <RouterLink
+          to="/tasks"
+          v-if="authStore.role === 'member' && isAuthenticated"
+          @click="toggleNavJump('/tasks')"
+          :class="{ jump: jumpingPath === '/tasks' }"
+          @animationend="jumpingPath = null"
           >Задания</RouterLink
         >
-        <template v-if="authStore.role === 'admin' && isAuthenticated">
-          <RouterLink to="/admin/tasks">Управление заданиями</RouterLink>
-          <RouterLink to="/admin/users">Пользователи</RouterLink>
-        </template>
-        <RouterLink :to="profileLink" v-if="isAuthenticated">Профиль</RouterLink>
+        <RouterLink
+          to="/admin/tasks"
+          v-if="authStore.role === 'moderator' && isAuthenticated"
+          @click="toggleNavJump('/admin/tasks')"
+          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @animationend="jumpingPath = null"
+          >Управление заданиями</RouterLink
+        >
+        <RouterLink
+          to="/admin/users"
+          v-if="authStore.role === 'admin' && isAuthenticated"
+          @click="toggleNavJump('/admin/users')"
+          :class="{ jump: jumpingPath === '/admin/users' }"
+          @animationend="jumpingPath = null"
+          >Пользователи</RouterLink
+        >
+        <RouterLink
+          :to="profileLink"
+          v-if="isAuthenticated"
+          @click="toggleNavJump(profileLink)"
+          :class="{ jump: jumpingPath === profileLink }"
+          @animationend="jumpingPath = null"
+          >Профиль</RouterLink
+        >
       </nav>
     </div>
 
     <!-- mobile nav -->
     <div v-if="isMobile" class="mobile_footer">
       <nav class="nav_mobile">
-        <RouterLink to="/">Новости</RouterLink>
-        <RouterLink to="/tasks" v-if="authStore.role !== 'admin' && isAuthenticated"
+        <RouterLink
+          to="/"
+          @click="toggleNavJump('/')"
+          :class="{ jump: jumpingPath === '/' }"
+          @animationend="jumpingPath = null"
+          >Новости</RouterLink
+        >
+        <RouterLink
+          to="/tasks"
+          v-if="authStore.role === 'member' && isAuthenticated"
+          @click="toggleNavJump('/tasks')"
+          :class="{ jump: jumpingPath === '/tasks' }"
+          @animationend="jumpingPath = null"
           >Задания</RouterLink
         >
-        <RouterLink :to="profileLink" v-if="isAuthenticated">Профиль</RouterLink>
-        <template v-if="authStore.role === 'admin' && isAuthenticated">
-          <RouterLink to="/admin/tasks">Управление заданиями</RouterLink>
-          <RouterLink to="/admin/users">Пользователи</RouterLink>
-        </template>
+        <RouterLink
+          to="/admin/tasks"
+          v-if="authStore.role === 'moderator' && isAuthenticated"
+          @click="toggleNavJump('/admin/tasks')"
+          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @animationend="jumpingPath = null"
+          >Управление заданиями</RouterLink
+        >
+        <RouterLink
+          :to="profileLink"
+          v-if="isAuthenticated"
+          @click="toggleNavJump(profileLink)"
+          :class="{ jump: jumpingPath === profileLink }"
+          @animationend="jumpingPath = null"
+          >Профиль</RouterLink
+        >
+        <RouterLink
+          to="/admin/users"
+          v-if="authStore.role === 'admin' && isAuthenticated"
+          @click="toggleNavJump('/admin/users')"
+          :class="{ jump: jumpingPath === '/admin/users' }"
+          @animationend="jumpingPath = null"
+          >Пользователи</RouterLink
+        >
       </nav>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store.ts'
 import { useBreakpoints, onClickOutside } from '@vueuse/core'
@@ -99,7 +159,20 @@ const router = useRouter()
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const userEmail = computed(() => authStore.userEmail)
-const profileLink = computed(() => (authStore.role === 'admin' ? '/admin/profile' : '/profile'))
+const profileLink = computed(() =>
+  authStore.role === 'admin' || authStore.role === 'moderator' ? '/admin/profile' : '/profile',
+)
+
+// anims
+
+const jumpingPath = ref<string | null>(null)
+
+async function toggleNavJump(path: string) {
+  await nextTick()
+  jumpingPath.value = path
+}
+
+// javascript adaptivity
 
 const breakpoints = useBreakpoints({
   mobile: 0,
@@ -114,17 +187,16 @@ const isMobile = breakpoints.smaller('tablet')
 const notificationsPanelRef = ref<HTMLDivElement | null>(null)
 const logoutConfirmPanelRef = ref<HTMLDivElement | null>(null)
 
-// --- panel positioning ---
+// panel position
 
 const VIEWPORT_MARGIN = 8
 
-// keep in sync with the panel's CSS width
 function clampPanelLeft(left: number, panelWidth: number): number {
   const maxLeft = window.innerWidth - panelWidth - VIEWPORT_MARGIN
   return Math.min(Math.max(left, VIEWPORT_MARGIN), maxLeft)
 }
 
-// --- notifications ---
+// notifications
 
 const bellIconRef = ref<HTMLDivElement | null>(null)
 const isNotificationsOpen = ref(false)
@@ -193,6 +265,8 @@ header {
   position: fixed;
   width: 100%;
 }
+
+/* Transition */
 
 /* logout confirmation */
 
@@ -325,6 +399,11 @@ header {
   height: 100%;
   cursor: pointer;
   min-width: 32px;
+  transition: 0.2s transform;
+}
+
+.account_main div svg:hover {
+  transform: scale(1.1);
 }
 
 .logout_text {
@@ -334,11 +413,16 @@ header {
   font-size: 16px;
   padding-block: 8px;
   padding-inline: 16px;
-  /* border: solid rgb(119, 92, 134); */
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   border-radius: 24px;
   background-color: white;
   cursor: pointer;
+  display: inline-block;
+  transition: 0.2s transform;
+}
+
+.logout_text:hover {
+  transform: scale(1.06);
 }
 
 .user_email {
@@ -349,6 +433,12 @@ header {
   cursor: pointer;
   margin-inline: 8px;
   white-space: nowrap;
+  display: inline-block;
+  transition: 0.2s transform;
+}
+
+.user_email:hover {
+  transform: scale(1.06);
 }
 
 /* lower header */
@@ -360,7 +450,7 @@ header {
   display: flex;
   justify-content: center;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
 }
 
 .nav_desktop {
@@ -382,6 +472,21 @@ header {
   text-decoration: none;
 }
 
+.nav_desktop a.jump {
+  animation: jump 0.4s ease;
+}
+@keyframes jump {
+  0% {
+    transform: translateY(0px);
+  }
+  30% {
+    transform: translateY(-16px);
+  }
+  0% {
+    transform: translateY(0px);
+  }
+}
+
 .nav_desktop a.router-link-active {
   color: rgb(160, 125, 180);
   border-bottom-color: rgb(160, 125, 180);
@@ -398,7 +503,7 @@ header {
   display: flex;
   justify-content: center;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
 }
 
 .nav_mobile {
@@ -433,7 +538,7 @@ header {
 
 @media screen and (max-width: 540px) {
   .header_upper {
-    box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
   }
 
   .logo_main span {

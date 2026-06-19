@@ -1,8 +1,13 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <section class="banners">
-        <swiper :pagination="true" :modules="modules" class="swiper_carousel">
+        <swiper
+          :pagination="true"
+          :modules="modules"
+          :autoplay="{ delay: 5000, disableOnInteraction: false }"
+          class="swiper_carousel"
+        >
           <swiper-slide v-for="slide in slides" :key="slide.id">
             <img :src="slide.image" class="swiper_image" />
             <div class="slide_caption">
@@ -27,9 +32,9 @@
               class="leaderboard_row"
             >
               <span class="col_rank">
-                <span v-if="index === 0" class="rank_badge rank_gold">1</span>
-                <span v-else-if="index === 1" class="rank_badge rank_silver">2</span>
-                <span v-else-if="index === 2" class="rank_badge rank_bronze">3</span>
+                <MedalIcon v-if="index === 0" class="rank_gold" />
+                <MedalIcon v-else-if="index === 1" class="rank_silver" />
+                <MedalIcon v-else-if="index === 2" class="rank_bronze" />
                 <span v-else class="rank_plain">{{ index + 1 }}</span>
               </span>
               <span class="col_name">{{ entry.email }}</span>
@@ -47,16 +52,19 @@ import { ref, computed } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
-import { Pagination } from 'swiper/modules'
+import { Pagination, Autoplay } from 'swiper/modules'
 import beachImg from '@/assets/images/beach.jpg'
 import starfishImg from '@/assets/images/starfish.jpg'
+import grissomImg from '@/assets/images/grissom.png'
+import surpriseImg from '@/assets/images/surprise.gif'
 import { useUsersStore } from '@/stores/users_store.ts'
+import MedalIcon from '@/assets/icons/medal.svg'
 
 defineOptions({ name: 'DashboardPage' })
 
 const usersStore = useUsersStore()
 
-const modules = [Pagination]
+const modules = [Pagination, Autoplay]
 
 // local-only mock data, never backed by an API — no need for a named interface
 const slides = ref([
@@ -64,9 +72,23 @@ const slides = ref([
     id: 1,
     image: beachImg,
     title:
-      'А вы были в Майами? Майами Майами Майами Майами Майами Майами Майами Майами Майами Майами Майами а вот я был в майами',
+      'Я вы были в Майами? Майами Майами Я когда был в Майами Майами Майами Майами вот я реально когда был в Майами Майами Майами это Майами Бич отдельно Майами Посмотрите пожалуйста моё видео из Майами Бич Майами это реальный Майами Майами',
   },
-  { id: 2, image: starfishImg, title: 'Вы готовы дети? Да капитан Я не слышу Так точно капитан' },
+  {
+    id: 2,
+    image: starfishImg,
+    title: 'Вы готовы дети? Да капитан! Я не слышу! Так точно капитан!',
+  },
+  {
+    id: 3,
+    image: grissomImg,
+    title: 'Последние новости: Гриссом приземлился на поверхность экзопланеты "Альфа Изатои IV"',
+  },
+  {
+    id: 3,
+    image: surpriseImg,
+    title: 'Ой не то видео простите',
+  },
 ])
 
 const sortedLeaderboard = computed(() => usersStore.sortedByPoints)
@@ -95,7 +117,7 @@ main {
 .banners {
   height: 600px;
   margin-block: 30px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -109,6 +131,15 @@ main {
 
 :deep(.swiper-slide) {
   position: relative;
+}
+
+:deep(.swiper-pagination-bullet) {
+  background: rgb(160, 125, 180);
+  opacity: 0.6;
+}
+
+:deep(.swiper-pagination-bullet-active) {
+  opacity: 1;
 }
 
 .swiper_image {
@@ -142,7 +173,7 @@ main {
 .leaderboard_card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
 }
 
@@ -160,7 +191,7 @@ main {
 
 .leaderboard_header {
   display: grid;
-  grid-template-columns: 64px 1fr 100px;
+  grid-template-columns: 64px 1fr 50px;
   padding: 10px 16px;
   background: rgb(244, 243, 250);
   border-radius: 8px;
@@ -172,8 +203,8 @@ main {
 
 .leaderboard_row {
   display: grid;
-  grid-template-columns: 64px 1fr 100px;
-  padding: 14px 16px;
+  grid-template-columns: 64px 1fr 50px;
+  padding: 0px;
   border-bottom: 1px solid rgb(230, 228, 240);
   font-family: Nagel;
   color: rgb(65, 65, 65);
@@ -192,42 +223,50 @@ main {
 .col_rank {
   display: flex;
   align-items: center;
+  align-content: center;
 }
 
 .col_name {
+  word-break: break-all;
+  min-width: 0px;
+  padding: 16px;
   font-size: 16px;
+  cursor: pointer;
+  transition:
+    transform 0.4s ease,
+    background-color 0.15s;
+}
+
+.col_name:hover {
+  transform: translateX(32px);
 }
 
 .col_points {
   font-size: 16px;
+  padding: 16px;
   font-weight: bold;
   color: rgb(160, 125, 180);
   text-align: right;
 }
 
-.rank_badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: white;
-  font-family: Nagel;
-}
-
 .rank_gold {
-  background-color: #e0a820;
+  padding: 16px;
+  color: #e0a820;
+  height: 100%;
 }
 .rank_silver {
-  background-color: #9ea6b4;
+  padding: 16px;
+  color: #9ea6b4;
+  height: 100%;
 }
 .rank_bronze {
-  background-color: #b07040;
+  padding: 16px;
+  color: #b07040;
+  height: 100%;
 }
 
 .rank_plain {
+  padding-inline: 30px;
   font-size: 14px;
   color: rgb(150, 150, 150);
 }
@@ -236,7 +275,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

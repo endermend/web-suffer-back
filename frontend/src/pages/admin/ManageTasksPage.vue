@@ -16,12 +16,7 @@
           </div>
           <div class="form_field">
             <label class="form_label">Описание</label>
-            <textarea
-              v-model="form.description"
-              class="form_input"
-              rows="3"
-              required
-            ></textarea>
+            <textarea v-model="form.description" class="form_input" rows="3" required></textarea>
           </div>
           <div class="form_row">
             <div class="form_field">
@@ -30,13 +25,7 @@
             </div>
             <div class="form_field">
               <label class="form_label">Баллы</label>
-              <input
-                v-model.number="form.points"
-                type="number"
-                min="1"
-                class="form_input"
-                required
-              />
+              <input v-model.number="form.exp" type="number" min="1" class="form_input" required />
             </div>
           </div>
           <button type="submit" class="submit_btn">Создать задание</button>
@@ -54,16 +43,16 @@
       <!-- review -->
       <div class="card">
         <span class="card_title">Проверка выполненных заданий</span>
-        <div v-if="pendingTasks.length" class="review_list">
-          <div v-for="item in pendingTasks" :key="item.id" class="review_item">
+        <div v-if="pendingSubmissions.length" class="review_list">
+          <div v-for="item in pendingSubmissions" :key="item.submission.id" class="review_item">
             <div class="review_main">
-              <span class="review_title">{{ item.title }}</span>
-              <span class="review_submitter">{{ item.submitted_by }}</span>
+              <span class="review_title">{{ item.task?.title }}</span>
+              <span class="review_submitter">{{ item.submission.user_email }}</span>
             </div>
             <button
               type="button"
               class="open_review_btn"
-              @click="router.push(`/admin/tasks/${item.id}/review`)"
+              @click="router.push(`/admin/submissions/${item.submission.id}/review`)"
             >
               Открыть
             </button>
@@ -90,7 +79,9 @@ const form = reactive({
   title: '',
   description: '',
   deadline: '',
-  points: 10,
+  exp: 10,
+  // not shown in the create form yet — see types/tasks.ts for why the field still exists
+  money: 0,
 })
 
 function handleCreate(): void {
@@ -98,11 +89,20 @@ function handleCreate(): void {
   form.title = ''
   form.description = ''
   form.deadline = ''
-  form.points = 10
+  form.exp = 10
 }
 
-const availableTasks = computed(() => tasksStore.availableTasks)
-const pendingTasks = computed(() => tasksStore.pendingTasks)
+// Task templates have no status of their own anymore, so every one of them belongs here.
+const availableTasks = computed(() => tasksStore.tasks)
+
+// Submissions are their own entities now (one task can have several pending submissions,
+// one per user), so each pending row is joined with its task for display.
+const pendingSubmissions = computed(() =>
+  tasksStore.pendingSubmissions.map((submission) => ({
+    submission,
+    task: tasksStore.tasks.find((t) => t.id === submission.task_id),
+  })),
+)
 </script>
 
 <style scoped>
@@ -150,7 +150,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -329,7 +329,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

@@ -14,7 +14,5 @@ defineOptions({ name: 'App' })
 
 const route = useRoute()
 
-const currentLayout = computed(() =>
-  route.meta.layout === 'auth' ? AuthLayout : DefaultLayout
-)
+const currentLayout = computed(() => (route.meta.layout === 'auth' ? AuthLayout : DefaultLayout))
 </script>

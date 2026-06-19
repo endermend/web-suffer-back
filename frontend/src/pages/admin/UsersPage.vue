@@ -16,6 +16,15 @@
               <span class="status_chip" :class="user.banned ? 'chip_banned' : 'chip_active'">
                 {{ user.banned ? 'Забанен' : 'Активен' }}
               </span>
+              <select
+                class="role_select"
+                :value="user.role"
+                @change="setRole(user, ($event.target as HTMLSelectElement).value as UserRole)"
+              >
+                <option value="member">Участник</option>
+                <option value="moderator">Модератор</option>
+                <option value="admin">Администратор</option>
+              </select>
             </div>
 
             <div class="user_actions">
@@ -55,6 +64,7 @@
 import { ref, computed } from 'vue'
 import { useUsersStore } from '@/stores/users_store.ts'
 import type { UserManagement } from '@/types/users.ts'
+import type { UserRole } from '@/types/auth.ts'
 
 defineOptions({ name: 'UsersPage' })
 
@@ -74,6 +84,10 @@ function toggleBan(user: UserManagement): void {
 
 function deleteUser(user: UserManagement): void {
   usersStore.deleteUser(user.id)
+}
+
+function setRole(user: UserManagement, role: UserRole): void {
+  usersStore.setUserRole(user.id, role)
 }
 
 const editingUserId = ref<number | null>(null)
@@ -145,7 +159,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(211, 211, 211);
+  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -192,6 +206,25 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.role_select {
+  appearance: none;
+  border: thin solid rgb(210, 208, 220);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-family: Nagel;
+  font-size: 12px;
+  color: rgb(65, 65, 65);
+  background-color: white;
+  outline: none;
+  cursor: pointer;
+  margin-left: auto;
+  transition: 0.2s border-color;
+}
+
+.role_select:focus {
+  border-color: rgb(160, 125, 180);
 }
 
 .user_email {
@@ -298,7 +331,7 @@ main {
 
 @media screen and (max-width: 1050px) {
   main {
-    padding-inline: 32px;
+    padding-inline: 16px;
   }
 
   .main_contents {

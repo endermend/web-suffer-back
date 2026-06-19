@@ -11,3 +11,18 @@ body {
 }
 
 @import "tailwindcss";
+
+@keyframes page-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page_enter {
+  animation: page-slide-up 0.5s ease both;
+}
