@@ -1,10 +1,11 @@
 
 import shutil
 import uuid
+from pathlib import Path
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, File, Path, UploadFile, status
+from fastapi import APIRouter, File, UploadFile, status
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO, CreateSubmissionDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
@@ -57,7 +58,7 @@ async def create_submission(
     """Эндпоинт создания задания."""
     access_token = credentials.credentials
     file_name = uuid.uuid4()
-    file_path = UPLOAD_DIR / f"{file_name}{Path(file.filename).suffix}"
+    file_path = UPLOAD_DIR / f"{file_name}{Path(file.filename).suffix if file.filename is not None else ""}"
 
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
