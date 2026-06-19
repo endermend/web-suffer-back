@@ -180,14 +180,14 @@ async def users(
     Эндпоинт получения списка пользователей.
 
     Returns:
-        GetEmailResponse
+        GetUsersResponse
 
     """
     access_token = credentials.credentials
     output_dto = await use_case.execute(
         input_dto=AccessTokenDTO(access_token=access_token),
     )
-    return [GetUsersResponse(email=user.email) for user in output_dto]
+    return [GetUsersResponse(user_id=user.user_id) for user in output_dto]
 
 
 @router.get(

@@ -1,6 +1,5 @@
 import structlog
 
-from web_suffer.contexts.auth.application.dtos.user_dto import LoginDTO
 from web_suffer.contexts.auth.application.exceptions import (
     InvalidAccessTokenError,
     InvalidCredentialsError,
@@ -12,6 +11,7 @@ from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import (
 from web_suffer.contexts.auth.domain.repositories import IUserRepository
 from web_suffer.contexts.auth.domain.value_objects.token import Token
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
+from web_suffer.shared.application.dtos.user_id_dto import UserIDDTO
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
@@ -32,12 +32,12 @@ class GetUsersUseCase:
         self._token_service = token_service
         self._mapper = mapper
 
-    async def execute(self, input_dto: AccessTokenDTO) -> list[LoginDTO]:
+    async def execute(self, input_dto: AccessTokenDTO) -> list[UserIDDTO]:
         """
         Возвращает список почт пользователей.
 
         Returns:
-            list[LoginDTO]: список пользователей
+            list[UserIDDTO]: список пользователей
 
         Raises:
             InvalidAccessTokenError: неверный формат access token
@@ -67,4 +67,4 @@ class GetUsersUseCase:
 
         users = await self._user_repo.get_users()
 
-        return [self._mapper.to_login_dto(user=user) for user in users]
+        return [self._mapper.to_userid_dto(user_id=user.id) for user in users]
