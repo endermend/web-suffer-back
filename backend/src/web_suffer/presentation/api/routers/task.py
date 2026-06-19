@@ -4,14 +4,13 @@ from pathlib import Path
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, File, UploadFile, status
+from fastapi import APIRouter, File, Form, UploadFile, status
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO, CreateSubmissionDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.presentation.api.routers.utils import CredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
-from web_suffer.presentation.api.schemas.task.create_submission import CreateSubmissionRequest
 
 UPLOAD_DIR = Path("./files")
 
@@ -50,7 +49,8 @@ async def change_submission(
 @inject
 async def create_submission(
     credentials: CredentialsType,
-    data: CreateSubmissionRequest,
+    task_id: Annotated[uuid.UUID, Form()],
+    content: Annotated[str, Form()],
     use_case: FromDishka[CreateSubmissionUseCase],
     file: Annotated[UploadFile, File()],
 ) -> None:
@@ -65,8 +65,8 @@ async def create_submission(
     await use_case.execute(
         input_dto=CreateSubmissionDTO(
             access_token=access_token,
-            task_id=data.task_id,
-            content=data.content,
+            task_id=task_id,
+            content=content,
             file=file_path,
         ),
     )

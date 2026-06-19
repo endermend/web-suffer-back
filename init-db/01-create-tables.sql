@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "email" varchar(255) NOT NULL UNIQUE,
     "password_hash" varchar(255) NOT NULL,
     "role" varchar(255) NOT NULL,
-    "status" varchar(255) NOT NULL,
+    "status" INTEGER NOT NULL,
     PRIMARY KEY("id")
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS "submissions" (
     "status" varchar(255) NOT NULL,
     "admin_comment" varchar(65535) NOT NULL,
     FOREIGN KEY ("task_id") REFERENCES "tasks" ("id"),
-    FOREIGN KEY ("user_id") REFERENCES "users_t" ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
     PRIMARY KEY("id")
 );
 
@@ -76,7 +76,7 @@ CREATE TRIGGER update_tasks_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_tasks_updated_at
+CREATE TRIGGER update_subms_updated_at
     BEFORE UPDATE ON submissions
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
