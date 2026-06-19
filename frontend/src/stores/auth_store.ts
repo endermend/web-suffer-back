@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import authService from '@/services/api/auth_service.ts'
 import type { AuthCredentials, AuthToken, UserRole } from '@/types/auth.ts'
-import axios from 'axios'
 
 const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -64,20 +63,11 @@ const useAuthStore = defineStore('auth', {
       }
     },
 
-    // save access token to localStorage
+    // save access token to localStorage — auth_service's apiClient reads it from there
+    // on every request, so there's no separate header to keep in sync here
     setAccessToken(tokens: AuthToken) {
       this.accessToken = tokens.access_token
-
       localStorage.setItem('access_token', tokens.access_token)
-      this.setAuthorizationHeader(tokens.access_token)
-    },
-
-    setAuthorizationHeader(token: string | null) {
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      } else {
-        delete axios.defaults.headers.common['Authorization']
-      }
     },
 
     async fetchUserEmail() {
@@ -97,7 +87,6 @@ const useAuthStore = defineStore('auth', {
       localStorage.removeItem('access_token')
       localStorage.removeItem('user_email')
       localStorage.removeItem('role')
-      this.setAuthorizationHeader(null)
     },
 
     // test-only role switch, triggered by the role dropdown in the profile

@@ -8,7 +8,7 @@ export interface SubmissionFile {
 // `money` exists on the type to match the backend shape but isn't shown in the UI yet —
 // `exp` is what our old `points` field maps to and is the only reward we display.
 export interface Task {
-  id: number
+  id: string
   title: string
   description: string
   deadline: string
@@ -25,8 +25,8 @@ export type UserTaskStatus = 'available' | SubmissionStatus
 // creates a NEW row instead of mutating the old one — the backend keeps every attempt
 // and resolves the "current" status by priority (accepted > pending > rejected).
 export interface Submission {
-  id: number
-  task_id: number
+  id: string
+  task_id: string
   user_email: string
   content: string
   file: SubmissionFile | null
@@ -40,4 +40,32 @@ export interface Submission {
 // never stored directly.
 export interface UserTask extends Task {
   status: UserTaskStatus
+}
+
+// POST /api/task/update_task — task_id omitted/null creates a new task.
+export interface UpdateTaskRequest {
+  task_id?: string | null
+  title: string
+  description: string
+  deadline: string
+  exp: number
+  money: number
+}
+
+export interface UpdateTaskResponse {
+  task_id: string
+}
+
+// POST /api/task/change_submission
+export interface ChangeSubmissionRequest {
+  submission_id: string
+  status: SubmissionStatus
+  comment?: string | null
+}
+
+// POST /api/task/update_user — awards exp/money to a user, e.g. on accepting a submission.
+export interface UpdateUserExpRequest {
+  user_id: string
+  exp_diff: number
+  money_diff: number
 }

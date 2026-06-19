@@ -29,6 +29,7 @@
             </div>
           </div>
           <button type="submit" class="submit_btn">Создать задание</button>
+          <p v-if="createError" class="create_error">{{ createError }}</p>
         </form>
 
         <div v-if="availableTasks.length" class="existing_list">
@@ -65,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
@@ -84,8 +85,15 @@ const form = reactive({
   money: 0,
 })
 
-function handleCreate(): void {
-  tasksStore.createTask({ ...form })
+const createError = ref('')
+
+async function handleCreate(): Promise<void> {
+  createError.value = ''
+  const result = await tasksStore.createTask({ ...form })
+  if (!result.success) {
+    createError.value = 'Не удалось создать задание'
+    return
+  }
   form.title = ''
   form.description = ''
   form.deadline = ''
@@ -228,6 +236,13 @@ main {
 
 .submit_btn:hover {
   background-color: rgb(140, 105, 160);
+}
+
+.create_error {
+  font-family: Nagel;
+  font-size: 13px;
+  color: rgb(204, 63, 75);
+  margin: 0;
 }
 
 /* existing tasks list */

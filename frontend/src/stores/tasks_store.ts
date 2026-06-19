@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import taskService from '@/services/api/task_service.ts'
 import type { Submission, SubmissionStatus, Task, UserTask } from '@/types/tasks.ts'
 
 // Mirrors the backend's status priority (task_repository.py get_list): when a user has
@@ -24,7 +25,7 @@ const useTasksStore = defineStore('tasks', {
     // Task templates only — no per-user state here, matches the backend's Task entity.
     tasks: [
       {
-        id: 1,
+        id: '1',
         title: 'Орг. встреча волонтёров',
         description:
           'Подготовить подробный план мероприятия: список участников, распределение ролей и зон ответственности, тайминг встречи по минутам, бронирование помещения и согласование с кураторами движения.',
@@ -33,7 +34,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 2,
+        id: '2',
         title: 'Фотоотчёт с акции',
         description: 'Загрузить фото и короткое описание прошедшей акции.',
         deadline: '2026-06-28T23:59:00',
@@ -41,7 +42,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 3,
+        id: '3',
         title: 'Анкета участника форума',
         description:
           'Заполнить анкету для участия в молодёжном форуме: ФИО, контакты, направление, ожидания от участия и краткий рассказ о своём опыте волонтёрства.',
@@ -50,7 +51,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 4,
+        id: '4',
         title: 'Эссе о волонтёрстве',
         description:
           'Написать эссе на 1-2 страницы о личном опыте волонтёрства: что мотивировало присоединиться к движению, какие задачи запомнились больше всего и как этот опыт повлиял на дальнейшие планы.',
@@ -59,7 +60,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 5,
+        id: '5',
         title: 'Регистрация на слёт',
         description: 'Подать заявку на участие в летнем слёте движения.',
         deadline: '2026-06-20T12:00:00',
@@ -67,7 +68,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 6,
+        id: '6',
         title: 'Отчёт по субботнику',
         description:
           'Прислать отчёт о проведённом субботнике: фото до и после, количество участников, список собранного мусора и краткие впечатления от мероприятия.',
@@ -76,7 +77,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 7,
+        id: '7',
         title: 'Мероприятие 1',
         description: 'Организация и проведение мероприятия для участников движения.',
         deadline: '2024-02-15T10:00:00',
@@ -84,7 +85,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 8,
+        id: '8',
         title: 'Мероприятие 2',
         description:
           'Помощь в организации второго мероприятия: встреча гостей, координация волонтёров на площадке, контроль тайминга программы и помощь с техническим оснащением сцены.',
@@ -93,7 +94,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 9,
+        id: '9',
         title: 'Практическое задание',
         description: 'Выполнение практического задания по организации волонтёрства.',
         deadline: '2024-03-05T09:15:00',
@@ -101,7 +102,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 10,
+        id: '10',
         title: 'Выступление',
         description:
           'Подготовка и проведение выступления на форуме: тема по выбору участника, регламент 10 минут, презентация и ответы на вопросы аудитории после доклада.',
@@ -110,7 +111,7 @@ const useTasksStore = defineStore('tasks', {
         money: 0,
       },
       {
-        id: 11,
+        id: '11',
         title: 'Проведение мероприятия',
         description: 'Организация мероприятия для местного сообщества.',
         deadline: '2024-04-01T16:00:00',
@@ -124,8 +125,8 @@ const useTasksStore = defineStore('tasks', {
     // (e.g. rejected, then resubmitted) — the current one is resolved by priority.
     submissions: [
       {
-        id: 1,
-        task_id: 5,
+        id: '1',
+        task_id: '5',
         user_email: 'denis.korolev@mail.ru',
         content: 'Заявка отправлена, жду подтверждения',
         file: null,
@@ -134,8 +135,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2026-06-18T10:00:00',
       },
       {
-        id: 2,
-        task_id: 6,
+        id: '2',
+        task_id: '6',
         user_email: 'endermend1@mail.ru',
         content: 'Отчёт во вложении, субботник прошёл успешно',
         file: null,
@@ -144,8 +145,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2026-06-14T19:00:00',
       },
       {
-        id: 3,
-        task_id: 7,
+        id: '3',
+        task_id: '7',
         user_email: 'denis.korolev@mail.ru',
         content: 'Мероприятие проведено, отчёт приложен',
         file: null,
@@ -154,8 +155,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2024-02-15T10:00:00',
       },
       {
-        id: 4,
-        task_id: 8,
+        id: '4',
+        task_id: '8',
         user_email: 'anna.smirnova@example.com',
         content: 'Задача выполнена',
         file: null,
@@ -164,8 +165,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2024-02-22T14:30:00',
       },
       {
-        id: 5,
-        task_id: 9,
+        id: '5',
+        task_id: '9',
         user_email: 'maria.k@example.com',
         content: 'Выполнено',
         file: null,
@@ -174,8 +175,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2024-03-05T09:15:00',
       },
       {
-        id: 6,
-        task_id: 10,
+        id: '6',
+        task_id: '10',
         user_email: 'denis.korolev@mail.ru',
         content: 'Выступление прошло',
         file: null,
@@ -184,8 +185,8 @@ const useTasksStore = defineStore('tasks', {
         submitted_at: '2024-03-18T11:00:00',
       },
       {
-        id: 7,
-        task_id: 11,
+        id: '7',
+        task_id: '11',
         user_email: 'endermend1@mail.ru',
         content: 'Готово',
         file: null,
@@ -213,7 +214,7 @@ const useTasksStore = defineStore('tasks', {
     // The submission currently representing a user's attempt at one task (if any).
     mySubmissionForTask:
       (state) =>
-      (taskId: number, userEmail: string): Submission | undefined =>
+      (taskId: string, userEmail: string): Submission | undefined =>
         resolveCurrentSubmission(
           state.submissions.filter((s) => s.task_id === taskId && s.user_email === userEmail),
         ),
@@ -243,49 +244,71 @@ const useTasksStore = defineStore('tasks', {
   },
 
   actions: {
-    // TODO: replace with API call
-    createTask(data: {
+    // task_id omitted means "create" — returns the real backend id.
+    async createTask(data: {
       title: string
       description: string
       deadline: string
       exp: number
       money: number
     }) {
-      const id = this.tasks.length ? Math.max(...this.tasks.map((t) => t.id)) + 1 : 1
-      this.tasks.push({ id, ...data })
+      try {
+        const { task_id } = await taskService.updateTask(data)
+        this.tasks.push({ id: task_id, ...data })
+        return { success: true as const }
+      } catch (error: any) {
+        return { success: false as const, error: error.message }
+      }
     },
 
-    // TODO: replace with API call
-    // Creates a new attempt — used for both the first submission and any resubmission
-    // after a rejection. The old rejected row is kept as history, not overwritten.
-    createSubmission(taskId: number, userEmail: string, content: string, file: File | null) {
-      const id = this.submissions.length ? Math.max(...this.submissions.map((s) => s.id)) + 1 : 1
-      this.submissions.push({
-        id,
-        task_id: taskId,
-        user_email: userEmail,
-        content,
-        file: file ? { name: file.name, url: URL.createObjectURL(file) } : null,
-        status: 'pending',
-        admin_comment: '',
-        submitted_at: new Date().toISOString(),
-      })
+    // Backend returns no body, so the id below is local-only and won't match
+    // whatever was actually stored (no GET endpoint yet to check).
+    async createSubmission(taskId: string, userEmail: string, content: string, file: File | null) {
+      try {
+        await taskService.createSubmission(taskId, content, file)
+        this.submissions.push({
+          id: crypto.randomUUID(),
+          task_id: taskId,
+          user_email: userEmail,
+          content,
+          file: file ? { name: file.name, url: URL.createObjectURL(file) } : null,
+          status: 'pending',
+          admin_comment: '',
+          submitted_at: new Date().toISOString(),
+        })
+        return { success: true as const }
+      } catch (error: any) {
+        return { success: false as const, error: error.message }
+      }
     },
 
-    // TODO: replace with API call
-    acceptSubmission(submissionId: number, comment: string) {
+    // Only works for submission ids that genuinely came from the backend.
+    async acceptSubmission(submissionId: string, comment: string) {
       const submission = this.submissions.find((s) => s.id === submissionId)
-      if (!submission || submission.status !== 'pending') return
-      submission.status = 'accepted'
-      submission.admin_comment = comment
+      if (!submission || submission.status !== 'pending') return { success: false as const }
+
+      try {
+        await taskService.changeSubmission(submissionId, 'accepted', comment)
+        submission.status = 'accepted'
+        submission.admin_comment = comment
+        return { success: true as const }
+      } catch (error: any) {
+        return { success: false as const, error: error.message }
+      }
     },
 
-    // TODO: replace with API call
-    rejectSubmission(submissionId: number, comment: string) {
+    async rejectSubmission(submissionId: string, comment: string) {
       const submission = this.submissions.find((s) => s.id === submissionId)
-      if (!submission || submission.status !== 'pending') return
-      submission.status = 'rejected'
-      submission.admin_comment = comment
+      if (!submission || submission.status !== 'pending') return { success: false as const }
+
+      try {
+        await taskService.changeSubmission(submissionId, 'rejected', comment)
+        submission.status = 'rejected'
+        submission.admin_comment = comment
+        return { success: true as const }
+      } catch (error: any) {
+        return { success: false as const, error: error.message }
+      }
     },
   },
 })

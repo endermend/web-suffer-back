@@ -89,6 +89,7 @@
         >
           {{ status === 'rejected' ? 'Отправить повторно' : 'Отправить ответ' }}
         </button>
+        <p v-if="submitError" class="submit_error">{{ submitError }}</p>
       </template>
     </div>
   </main>
@@ -108,7 +109,7 @@ const router = useRouter()
 const tasksStore = useTasksStore()
 const authStore = useAuthStore()
 
-const taskId = Number(route.params.id)
+const taskId = route.params.id as string
 const userEmail = computed(() => authStore.userEmail ?? '')
 
 const task = computed(() => tasksStore.tasks.find((t) => t.id === taskId))
@@ -127,15 +128,24 @@ const isEditable = computed(
 // (no way to turn a stored URL back into a File object for re-upload), so that starts empty.
 const answerInput = ref(currentSubmission.value?.content ?? '')
 const selectedFile = ref<File | null>(null)
+const submitError = ref('')
 
 function handleFileChange(e: Event): void {
   const input = e.target as HTMLInputElement
   selectedFile.value = input.files?.[0] ?? null
 }
 
-function handleSubmit(): void {
+async function handleSubmit(): Promise<void> {
   if (!task.value) return
-  tasksStore.createSubmission(task.value.id, userEmail.value, answerInput.value, selectedFile.value)
+  submitError.value = ''
+
+  const result = await tasksStore.createSubmission(
+    task.value.id,
+    userEmail.value,
+    answerInput.value,
+    selectedFile.value,
+  )
+  if (!result.success) submitError.value = result.error
 }
 </script>
 
@@ -346,6 +356,13 @@ main {
 .submit_btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+.submit_error {
+  font-family: Nagel;
+  font-size: 13px;
+  color: rgb(204, 63, 75);
+  margin: 0;
 }
 
 /* status chip (reused naming/colors from TasksPage) */

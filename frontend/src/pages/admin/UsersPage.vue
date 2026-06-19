@@ -54,6 +54,7 @@
             </div>
           </div>
         </div>
+        <div v-else-if="usersStore.loading" class="empty_state">Загрузка...</div>
         <div v-else class="empty_state">Пользователи не найдены</div>
       </div>
     </div>
@@ -61,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUsersStore } from '@/stores/users_store.ts'
 import type { UserManagement } from '@/types/users.ts'
 import type { UserRole } from '@/types/auth.ts'
@@ -69,6 +70,10 @@ import type { UserRole } from '@/types/auth.ts'
 defineOptions({ name: 'UsersPage' })
 
 const usersStore = useUsersStore()
+
+onMounted(function () {
+  usersStore.fetchUsers()
+})
 
 const searchQuery = ref('')
 
