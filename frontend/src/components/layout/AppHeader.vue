@@ -88,10 +88,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store.ts'
-import { useBreakpoints } from '@vueuse/core'
+import { useBreakpoints, onClickOutside } from '@vueuse/core'
 import PersonIcon from '@/assets/icons/person.svg'
 import BellIcon from '@/assets/icons/bell.svg'
 
@@ -111,27 +111,8 @@ const isDesktop = breakpoints.greater('desktop')
 const isTablet = breakpoints.between('tablet', 'desktop')
 const isMobile = breakpoints.smaller('tablet')
 
-// --- click outside ---
-
 const notificationsPanelRef = ref<HTMLDivElement | null>(null)
 const logoutConfirmPanelRef = ref<HTMLDivElement | null>(null)
-
-function handleClickOutside(event: MouseEvent): void {
-  const target = event.target as Node
-  if (isNotificationsOpen.value) {
-    const insideTrigger = bellIconRef.value?.contains(target)
-    const insidePanel = notificationsPanelRef.value?.contains(target)
-    if (!insideTrigger && !insidePanel) isNotificationsOpen.value = false
-  }
-  if (isLogoutConfirm.value) {
-    const insideTrigger = logoutBtnRef.value?.contains(target)
-    const insidePanel = logoutConfirmPanelRef.value?.contains(target)
-    if (!insideTrigger && !insidePanel) isLogoutConfirm.value = false
-  }
-}
-
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
 // --- panel positioning ---
 
@@ -195,6 +176,15 @@ function confirmLogout(): void {
   authStore.logout()
   isLogoutConfirm.value = false
 }
+
+// --- click outside ---
+
+onClickOutside(notificationsPanelRef, () => (isNotificationsOpen.value = false), {
+  ignore: [bellIconRef],
+})
+onClickOutside(logoutConfirmPanelRef, () => (isLogoutConfirm.value = false), {
+  ignore: [logoutBtnRef],
+})
 </script>
 
 <style scoped>

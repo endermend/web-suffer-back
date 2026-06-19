@@ -1,5 +1,6 @@
-from typing import override
+from typing import Literal, override
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.user import UserT
@@ -44,3 +45,23 @@ class UserTRepository(IUserTRepository):
         if not user_orm:
             return None
         return self._mapper.to_domain(orm=user_orm)
+
+    @override
+    async def get_list(self, amount: int = 5, order_by: Literal["exp", "money"] = "exp") -> list[UserT]:
+        """
+        Получение UserT's.
+
+        Returns:
+            Список пользователей.
+
+        """
+        stmt = select(UserTORMModel)
+        if order_by == "exp":
+            stmt = stmt.order_by(UserTORMModel.exp)
+        elif order_by == "money":
+            stmt = stmt.order_by(UserTORMModel.money)
+
+        stmt = stmt.limit(amount)
+        result = await self._session.execute(stmt)
+        users_orm = result.scalars()
+        return [self._mapper.to_domain(orm=user_orm) for user_orm in users_orm]

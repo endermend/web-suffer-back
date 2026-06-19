@@ -20,7 +20,7 @@ class TokenService(ITokenService):
     """Реализация ITokenService."""
 
     def __init__(self, token_repository: ITokenRepository, jwt_config: JWT) -> None:
-        """Инициализация ITokenService."""
+        """Инициализация TokenService."""
         self._token_repository = token_repository
         self._algorithm = jwt_config.ALGORITHM
         self._secret_key = jwt_config.SECRET_KEY

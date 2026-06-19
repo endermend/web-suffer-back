@@ -1,40 +1,316 @@
-# Logs
-logs
+# Dependencies
+node_modules/
+.pnpm-store/
+package-lock.json
+yarn.lock
+npm-shrinkwrap.json
+
+# Build outputs
+dist/
+build/
+.output/
+.nuxt/
+.out/
+.vite/
+
+# Development files
 *.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+.env.*.development
+.env.*.test
+.env.*.production
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.iml
+/.idea/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab/
+.azure/
+.travis.yml
+circle.yml
+.gitlab-ci.yml
+bitbucket-pipelines.yml
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Claude AI
+.claude/
+.claude.json
+.claude.local.json
+.claude.*
+*.claude*
+*.CLAUDE*
+**/.claude/
+**/.claude.json
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+__tests__/
+__mocks__/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+*.test.jsx
+*.spec.jsx
+*.test.tsx
+*.spec.tsx
+jest.config.*
+vitest.config.*
+cypress/
+cypress.json
+
+# TypeScript
+tsconfig.json
+tsconfig.*.json
+*.tsbuildinfo
+*.tsbuildinfo.*
+
+# ESLint and Prettier
+.eslintrc*
+.prettierrc*
+.eslintignore
+.prettierignore
+.stylelintrc*
+.stylelintignore
+
+# Vite
+vite.config.js
+vite.config.ts
+vite.config.*.js
+vite.config.*.ts
+
+# Vue specific
+*.vue
+*.sh
+*.bat
+*.cmd
+*.ps1
+
+# Documentation
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+docs/
+*.md
+!/*.md  # Исключение для корневого README если нужно
+*.pdf
+*.doc
+*.docx
+
+# Misc
+.cache/
+.temp/
+tmp/
+temp/
+*.tmp
+*.cache
+*.swp
+*.swo
+*~
+
+# System files
+Thumbs.db
+Desktop.ini
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+*.vmdk
+*.vdi
+*.vhd
+
+# Windows
+*.exe
+*.dll
+*.so
+*.pdb
+*.sys
+*.obj
+*.lib
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+.directory
+*.pid
+*.seed
+*.pid.lock
+.*.swp
+.*.swo
+
+# Secrets and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+.secrets/
+secrets/
+*.secret
+*.secrets
+*.env.secrets
+*.env.secret
+*.private
+*.p8
+*.p7b
+
+# Node.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 lerna-debug.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
 
-node_modules
+# Pnpm specific
+.pnpm-store/
+.pnpm-debug.log
+pnpm-lock.yaml
+node_modules/.pnpm-debug.log
+
+# Production artifacts
+*.min.js
+*.min.css
+*.bundle.js
+*.bundle.css
+dist/
+build/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.mdb
+*.accdb
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+*.rej
+
+# OS generated files
 .DS_Store
-dist
-dist-ssr
-coverage
-*.local
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Editor directories and files
+# IDE - Visual Studio Code
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 !.vscode/extensions.json
-.claude
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.code-workspace
 
-*.tsbuildinfo
+# IDE - IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
 
-.eslintcache
+# IDE - Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
 
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
+# IDE - Vim
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+
+# Nuxt.js
+.nuxt/
+.output/
+dist/
+.swc/
 
 # Vitest
-__screenshots__/
+__snapshots__/
+*.snap
+*.snapshots
 
-# Vite
-*.timestamp-*-*.mjs
+# Coverage
+*.lcov
+*.lcov.info
+
+# Storybook
+storybook-static/
+.storybook/
+out/
+
+# Package managers
+.cache/
+.parcel-cache/
+.rollup.cache/
+.esbuild/
+.turbo/
+.vercel/
+.netlify/
+.gh-pages/

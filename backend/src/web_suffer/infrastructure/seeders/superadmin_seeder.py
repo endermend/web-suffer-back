@@ -3,9 +3,10 @@ import logging
 from web_suffer.contexts.auth.application.interfaces.password_hasher import IPasswordHasher
 from web_suffer.contexts.auth.domain.entities import User
 from web_suffer.contexts.auth.domain.repositories import IUserRepository
-from web_suffer.contexts.auth.domain.value_objects import UserEmail, UserRole
+from web_suffer.contexts.auth.domain.value_objects import UserEmail
 from web_suffer.contexts.auth.domain.value_objects.password_hash import PasswordHash
 from web_suffer.infrastructure.config import Config
+from web_suffer.shared.domain.value_objects.user_role import UserRole
 
 logger = logging.getLogger(__name__)
 

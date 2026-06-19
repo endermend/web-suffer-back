@@ -31,7 +31,7 @@ class GetTaskByIDUseCase:
             InvalidTaskError: задание с таким id не существует.
 
         """  # noqa: RUF002
-        task = await self._task_repo.get_by_id(self._mapper.from_id_dto(input_dto))
+        task = await self._task_repo.get_by_id(self._mapper.from_task_id_dto(input_dto))
         if not task:
             logger.warning("task.task.failed", reason="task_not_found")
             raise InvalidTaskError

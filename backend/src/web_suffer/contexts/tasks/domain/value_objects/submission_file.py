@@ -21,5 +21,18 @@ class SubmissionFile(SingleValueObject):
         """
         return self.value is not None
 
+    @classmethod
+    def from_str(cls, posix_path: str) -> "SubmissionFile":
+        """
+        Востановление файла из строки.
+
+        Returns:
+            Путь файла.
+
+        """
+        return cls(
+            value=Path(posix_path),
+        )
+
 
 SubmissionFile.EMPTY = SubmissionFile(None)

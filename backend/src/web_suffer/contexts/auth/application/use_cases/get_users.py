@@ -10,11 +10,10 @@ from web_suffer.contexts.auth.application.mappers.auth_dto_mapper import (
     IAuthDTOMapper,
 )
 from web_suffer.contexts.auth.domain.repositories import IUserRepository
-from web_suffer.contexts.auth.domain.value_objects import (
-    UserRole,
-)
 from web_suffer.contexts.auth.domain.value_objects.token import Token
 from web_suffer.shared.application.dtos.access_token_dto import AccessTokenDTO
+from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
+from web_suffer.shared.domain.value_objects.user_rights import UserRights
 
 logger = structlog.stdlib.get_logger()
 
@@ -43,7 +42,7 @@ class GetUsersUseCase:
         Raises:
             InvalidAccessTokenError: неверный формат access token
             InvalidCredentialsError: нет пользователя с указанным ID
-            InvalidCredentialsError: у пользователя роль не админ
+            InsufficientPermissionsError: у пользователя недостаточно прав.
 
         """  # noqa: RUF002
         user_id = self._token_service.get_user_id_by_access_token(
@@ -62,9 +61,9 @@ class GetUsersUseCase:
             logger.warning("auth.email.failed", reason="user_not_found")
             raise InvalidCredentialsError
 
-        if user.role != UserRole.ADMIN:
-            logger.warning("auth.email.failed", reason="user_not_found")
-            raise InvalidAccessTokenError  # TODO: наверно лучше заменить на другую ошибку
+        if UserRights.CHECK_USER_LIST.is_satisfied_by(user.role, user.status):
+            logger.warning("auth.email.failed", reason="not_enought_permission")
+            raise InsufficientPermissionsError
 
         users = await self._user_repo.get_users()
 

@@ -26,7 +26,7 @@ class SubmissionORMMapper:
             task_id=TaskID(orm.task_id),
             user_id=UserID(orm.user_id),
             content=orm.content,
-            file=SubmissionFile(orm.file),
+            file=SubmissionFile.from_str(orm.file) if orm.file else SubmissionFile.EMPTY,
             status=SubmissionStatus(orm.status),
             comment=orm.admin_comment,
         )
