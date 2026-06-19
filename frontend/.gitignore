@@ -1,9 +1,6 @@
 # Dependencies
 node_modules/
 .pnpm-store/
-package-lock.json
-yarn.lock
-npm-shrinkwrap.json
 
 # Build outputs
 dist/
@@ -46,11 +43,6 @@ Thumbs.db
 *.iml
 /.idea/
 
-# Git
-.git/
-.gitignore
-.gitattributes
-
 # CI/CD
 .github/
 .gitlab/
@@ -59,12 +51,6 @@ Thumbs.db
 circle.yml
 .gitlab-ci.yml
 bitbucket-pipelines.yml
-
-# Docker
-Dockerfile
-.dockerignore
-docker-compose.yml
-docker-compose.*.yml
 
 # Claude AI
 .claude/
@@ -95,12 +81,6 @@ vitest.config.*
 cypress/
 cypress.json
 
-# TypeScript
-tsconfig.json
-tsconfig.*.json
-*.tsbuildinfo
-*.tsbuildinfo.*
-
 # ESLint and Prettier
 .eslintrc*
 .prettierrc*
@@ -108,30 +88,6 @@ tsconfig.*.json
 .prettierignore
 .stylelintrc*
 .stylelintignore
-
-# Vite
-vite.config.js
-vite.config.ts
-vite.config.*.js
-vite.config.*.ts
-
-# Vue specific
-*.vue
-*.sh
-*.bat
-*.cmd
-*.ps1
-
-# Documentation
-README.md
-CHANGELOG.md
-CONTRIBUTING.md
-docs/
-*.md
-!/*.md  # Исключение для корневого README если нужно
-*.pdf
-*.doc
-*.docx
 
 # Misc
 .cache/
@@ -198,17 +154,6 @@ secrets/
 *.private
 *.p8
 *.p7b
-
-# Node.js
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-pnpm-workspace.yaml
 
 # Pnpm specific
 .pnpm-store/
@@ -285,11 +230,6 @@ Thumbs.db
 .cache/
 .parcel-cache/
 
-# Nuxt.js
-.nuxt/
-.output/
-dist/
-.swc/
 
 # Vitest
 __snapshots__/
