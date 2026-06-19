@@ -6,7 +6,12 @@ from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, File, Form, Query, UploadFile, status
 
-from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO, CreateSubmissionDTO, SubmissionIDDTO, SubmissionRangesDTO
+from web_suffer.contexts.tasks.application.dtos.submission_dto import (
+    ChangeSubmissionDTO,
+    CreateSubmissionDTO,
+    SubmissionRangesDTO,
+    SubmissionTokenIDDTO,
+)
 from web_suffer.contexts.tasks.application.dtos.task_dto import UpdateTaskDTO
 from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
@@ -160,7 +165,7 @@ async def submission(
     """
     access_token = credentials.credentials
     output_dto = await use_case.execute(
-        input_dto=SubmissionIDDTO(
+        input_dto=SubmissionTokenIDDTO(
             access_token=access_token,
             submission_id=submission_id,
         ),
