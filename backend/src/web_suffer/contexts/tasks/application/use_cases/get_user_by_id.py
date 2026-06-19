@@ -16,12 +16,12 @@ class GetUserByIDUseCase:
     """Use Case получения информации пользователя по id."""
 
     def __init__(
-            self,
-            user_repo: IUserTRepository,
-            user_service: IUserService,
-            mapper: ITaskDTOMapper,
-            auth_service: IAuthService,
-        ) -> None:
+        self,
+        user_repo: IUserTRepository,
+        user_service: IUserService,
+        mapper: ITaskDTOMapper,
+        auth_service: IAuthService,
+    ) -> None:
         """Инициализация use case."""
         self._user_repo = user_repo
         self._user_service = user_service

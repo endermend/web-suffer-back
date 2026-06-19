@@ -11,10 +11,10 @@ class GetTopUsersUseCase:
     """Use Case получения информации топ пользователей."""
 
     def __init__(
-            self,
-            user_repo: IUserTRepository,
-            mapper: ITaskDTOMapper,
-        ) -> None:
+        self,
+        user_repo: IUserTRepository,
+        mapper: ITaskDTOMapper,
+    ) -> None:
         """Инициализация use case."""
         self._user_repo = user_repo
         self._mapper = mapper

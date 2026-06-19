@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, override
 
 from web_suffer.shared.domain.value_objects.base_value_object import BaseValueObject
 from web_suffer.shared.domain.value_objects.user_role import UserRole
@@ -42,5 +42,6 @@ class UserRight(BaseValueObject):
         """
         return (self.roles == "*" or role in self.roles) and (self.statuses == "*" or status in self.statuses)
 
+    @override
     def _get_equality_components(self) -> tuple[Any, ...]:
         return (self.roles, self.statuses)

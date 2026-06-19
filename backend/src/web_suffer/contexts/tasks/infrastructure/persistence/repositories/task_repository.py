@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import override
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +24,7 @@ class TaskRepository(ITaskRepository):
         self._session = session
         self._mapper = mapper
 
+    @override
     async def save(self, task: Task) -> None:
         """Сохранение Task."""
         async with self._session.begin():
@@ -34,6 +36,7 @@ class TaskRepository(ITaskRepository):
             self._mapper.update_from_domain(orm=task_orm, entity=task)
             self._session.add(task_orm)
 
+    @override
     async def get_by_id(self, task_id: TaskID) -> Task | None:
         """
         Получение Task по TaskID.
@@ -49,6 +52,7 @@ class TaskRepository(ITaskRepository):
             return None
         return self._mapper.to_domain(orm=task_orm)
 
+    @override
     async def get_unathorized_list(
         self,
         deadline_from: datetime | None = None,
@@ -80,6 +84,7 @@ class TaskRepository(ITaskRepository):
         tasks_orm = result.scalars()
         return [self._mapper.to_domain(orm=task_orm) for task_orm in tasks_orm]
 
+    @override
     async def get_list(  # noqa: C901
         self,
         user_id: UserID,
@@ -89,7 +94,7 @@ class TaskRepository(ITaskRepository):
         order_by: TaskOrderBy | None = None,
         limit: int | None = None,
         offset: int | None = None,
-        ) -> list[tuple[Task, TaskStatus]]:
+    ) -> list[tuple[Task, TaskStatus]]:
         """
         Получение Tasks.
 
@@ -97,30 +102,40 @@ class TaskRepository(ITaskRepository):
             Список заданий.
 
         """
-        status_stmt = select(
-            SubmissionORMModel.status,
-        ).where(
-            and_(
-                SubmissionORMModel.user_id == user_id.value,
-                SubmissionORMModel.task_id == TaskORMModel.id,
-            ),
-        ).order_by(
-            func.case(
-                (SubmissionORMModel.status == "accepted", 1),
-                (SubmissionORMModel.status == "pending", 2),
-                (SubmissionORMModel.status == "rejected", 3),
-                else_=4,
-            ),
-        ).limit(1).scalar_subquery()
+        status_stmt = (
+            select(
+                SubmissionORMModel.status,
+            )
+            .where(
+                and_(
+                    SubmissionORMModel.user_id == user_id.value,
+                    SubmissionORMModel.task_id == TaskORMModel.id,
+                ),
+            )
+            .order_by(
+                func.case(
+                    (SubmissionORMModel.status == "accepted", 1),
+                    (SubmissionORMModel.status == "pending", 2),
+                    (SubmissionORMModel.status == "rejected", 3),
+                    else_=4,
+                ),
+            )
+            .limit(1)
+            .scalar_subquery()
+        )
 
-        last_submission_stmt = select(
-            func.max(SubmissionORMModel.created_at),
-        ).where(
-            and_(
-                SubmissionORMModel.user_id == user_id.value,
-                SubmissionORMModel.task_id == TaskORMModel.id,
-            ),
-        ).scalar_subquery()
+        last_submission_stmt = (
+            select(
+                func.max(SubmissionORMModel.created_at),
+            )
+            .where(
+                and_(
+                    SubmissionORMModel.user_id == user_id.value,
+                    SubmissionORMModel.task_id == TaskORMModel.id,
+                ),
+            )
+            .scalar_subquery()
+        )
 
         stmt = select(
             TaskORMModel,

@@ -20,11 +20,11 @@ class GetTasksStatisticsUseCase:
     """Use Case получения статистики по заданиям."""
 
     def __init__(
-            self,
-            task_repo: ITaskRepository,
-            mapper: ITaskDTOMapper,
-            auth_service: IAuthService,
-        ) -> None:
+        self,
+        task_repo: ITaskRepository,
+        mapper: ITaskDTOMapper,
+        auth_service: IAuthService,
+    ) -> None:
         """Инициализация use case."""
         self._task_repo = task_repo
         self._mapper = mapper

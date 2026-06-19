@@ -12,11 +12,11 @@ class GetTasksUseCase:
     """Use Case получения информации о заданиях по фильтру."""  # noqa: RUF002
 
     def __init__(
-            self,
-            task_repo: ITaskRepository,
-            mapper: ITaskDTOMapper,
-            auth_service: IAuthService,
-        ) -> None:
+        self,
+        task_repo: ITaskRepository,
+        mapper: ITaskDTOMapper,
+        auth_service: IAuthService,
+    ) -> None:
         """Инициализация use case."""
         self._task_repo = task_repo
         self._mapper = mapper
@@ -41,7 +41,4 @@ class GetTasksUseCase:
             offset=input_dto.offset,
         )
 
-        return [
-            self._mapper.to_user_task_dto(task=task, status=status)
-            for task, status in tasks
-        ]
+        return [self._mapper.to_user_task_dto(task=task, status=status) for task, status in tasks]

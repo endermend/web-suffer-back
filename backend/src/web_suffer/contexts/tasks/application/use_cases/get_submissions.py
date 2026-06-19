@@ -15,11 +15,11 @@ class GetSubmissionsUseCase:
     """Use Case получения информации об отправлениях по фильтру."""  # noqa: RUF002
 
     def __init__(
-            self,
-            subm_repo: ISubmissionRepository,
-            mapper: ITaskDTOMapper,
-            auth_service: IAuthService,
-        ) -> None:
+        self,
+        subm_repo: ISubmissionRepository,
+        mapper: ITaskDTOMapper,
+        auth_service: IAuthService,
+    ) -> None:
         """Инициализация use case."""
         self._subm_repo = subm_repo
         self._mapper = mapper
@@ -48,7 +48,4 @@ class GetSubmissionsUseCase:
             status=self._mapper.from_status_dto(input_dto.status) if input_dto.status is not None else None,
             order_by=input_dto.order_by,
         )
-        return [
-            self._mapper.to_subm_dto(subm=subm)
-            for subm in subms
-        ]
+        return [self._mapper.to_subm_dto(subm=subm) for subm in subms]

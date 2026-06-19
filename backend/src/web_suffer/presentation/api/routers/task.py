@@ -1,4 +1,3 @@
-
 import shutil
 import uuid
 from pathlib import Path
@@ -58,7 +57,7 @@ async def create_submission(
     """Эндпоинт создания задания."""
     access_token = credentials.credentials
     file_name = uuid.uuid4()
-    file_path = UPLOAD_DIR / f"{file_name}{Path(file.filename).suffix if file.filename is not None else ""}"
+    file_path = UPLOAD_DIR / f"{file_name}{Path(file.filename).suffix if file.filename is not None else ''}"
 
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)

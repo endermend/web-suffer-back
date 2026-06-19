@@ -15,11 +15,11 @@ class UpdateUserUseCase:
     """Use Case обновления пользователя."""
 
     def __init__(
-            self,
-            user_service: IUserService,
-            mapper: ITaskDTOMapper,
-            auth_service: IAuthService,
-        ) -> None:
+        self,
+        user_service: IUserService,
+        mapper: ITaskDTOMapper,
+        auth_service: IAuthService,
+    ) -> None:
         """Инициализация use case."""
         self._user_service = user_service
         self._mapper = mapper

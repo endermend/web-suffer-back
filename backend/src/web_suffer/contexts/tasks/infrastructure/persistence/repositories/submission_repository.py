@@ -45,11 +45,12 @@ class SubmissionRepository(ISubmissionRepository):
             Отправление по id.
 
         """
-        submussion_orm = await self._session.get(SubmissionORMModel, submission_id.value)
-        if not submussion_orm:
+        submission_orm = await self._session.get(SubmissionORMModel, submission_id.value)
+        if not submission_orm:
             return None
-        return self._mapper.to_domain(orm=submussion_orm)
+        return self._mapper.to_domain(orm=submission_orm)
 
+    @override
     async def get_list(
         self,
         user_id: UserID | None,
@@ -62,7 +63,7 @@ class SubmissionRepository(ISubmissionRepository):
         Если submission_status не None, фильтрует по статусу
 
         Returns:
-            Упроядоченные отправления.
+            Упорядоченные отправления.
 
         """
         stmt = select(SubmissionORMModel)

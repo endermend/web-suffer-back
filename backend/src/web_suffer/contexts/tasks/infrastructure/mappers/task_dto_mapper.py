@@ -1,3 +1,5 @@
+from typing import override
+
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskDTO, TaskIDDTO, UsersTaskDTO
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.entities.task import Task
@@ -9,6 +11,7 @@ class TaskDTOMapper(ITaskDTOMapper):
     """Mapper между Domain Entity и DTO."""
 
     @staticmethod
+    @override
     def to_task_dto(task: Task) -> TaskDTO:
         """
         Domain Entity -> DTO.
@@ -27,6 +30,7 @@ class TaskDTOMapper(ITaskDTOMapper):
         )
 
     @staticmethod
+    @override
     def from_task_id_dto(task_id: TaskIDDTO) -> TaskID:
         """
         DTO -> Domain value object.
@@ -38,6 +42,7 @@ class TaskDTOMapper(ITaskDTOMapper):
         return TaskID(value=task_id.task_id)
 
     @staticmethod
+    @override
     def to_task_id_dto(task: TaskID) -> TaskIDDTO:
         """
         Domain value object -> DTO.
@@ -49,6 +54,7 @@ class TaskDTOMapper(ITaskDTOMapper):
         return TaskIDDTO(task.value)
 
     @staticmethod
+    @override
     def to_user_task_dto(task: Task, status: TaskStatus) -> UsersTaskDTO:
         """
         Domain Entity -> DTO.

@@ -49,7 +49,7 @@ class ITaskRepository(Protocol):
         order_by: TaskOrderBy | None = None,
         limit: int | None = None,
         offset: int | None = None,
-        ) -> list[tuple[Task, TaskStatus]]:
+    ) -> list[tuple[Task, TaskStatus]]:
         """
         Получение Tasks.
 

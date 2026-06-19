@@ -1,4 +1,3 @@
-
 import structlog
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import ChangeSubmissionDTO
