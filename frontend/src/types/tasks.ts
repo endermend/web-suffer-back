@@ -124,7 +124,7 @@ export interface UserTaskApiResponse {
 
 // GET /api/task/top-users
 export interface TopUserApiResponse {
-  user_id: string
+  user_email: string
   exp: number
   money: number
 }

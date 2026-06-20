@@ -55,32 +55,16 @@ import grissomImg from '@/assets/images/grissom.png'
 import surpriseImg from '@/assets/images/surprise.gif'
 import hourswith777 from '@/assets/images/2hours.gif'
 import taskService from '@/services/api/task_service.ts'
-import authService from '@/services/api/auth_service.ts'
-import { useAuthStore } from '@/stores/auth_store.ts'
 import MedalIcon from '@/assets/icons/medal.svg'
 
 defineOptions({ name: 'DashboardPage' })
 
-const authStore = useAuthStore()
-
 const leaderboard = ref<{ label: string; exp: number }[]>([])
 
 onMounted(async () => {
+  // /api/task/top-users now returns the email directly, so no per-row lookup is needed
   const topUsers = await taskService.getTopUsers(5)
-
-  if (authStore.isAuthenticated) {
-    leaderboard.value = await Promise.all(
-      topUsers.map(async (u) => {
-        const user = await authService.getUser(u.user_id)
-        return { label: user.email, exp: u.exp }
-      }),
-    )
-  } else {
-    // GET /api/auth/user needs a JWT to resolve an email, which a guest doesn't have —
-    // show what GET /api/task/top-users itself already returned instead of making
-    // calls that are guaranteed to fail for every row.
-    leaderboard.value = topUsers.map((u) => ({ label: u.user_id.slice(0, 8), exp: u.exp }))
-  }
+  leaderboard.value = topUsers.map((u) => ({ label: u.user_email, exp: u.exp }))
 })
 
 const modules = [Pagination, Autoplay]
