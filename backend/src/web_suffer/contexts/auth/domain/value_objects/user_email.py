@@ -7,6 +7,7 @@ from web_suffer.shared.domain.value_objects.single_value_object import SingleVal
 
 _EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9][\w.+-]*[a-zA-Z0-9]@[a-zA-Z][a-zA-Z0-9.\-]*[a-zA-Z]\.[a-zA-Z]{2,}")
 
+
 @dataclass(frozen=True)
 class UserEmail(SingleValueObject):
     """Value object почты пользователя."""
@@ -30,3 +31,6 @@ class UserEmail(SingleValueObject):
 
     def __eq__(self, obj: object) -> bool:  # noqa: D105
         return BaseValueObject.__eq__(self, obj)
+
+    def __hash__(self) -> int:  # noqa: D105
+        return BaseValueObject.__hash__(self)
