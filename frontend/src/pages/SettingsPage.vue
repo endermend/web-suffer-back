@@ -6,164 +6,173 @@
         <p class="page_subtitle">Управление почтой и паролем аккаунта</p>
       </div>
 
-      <!-- email card -->
-      <div
-        ref="emailCardRef"
-        class="card settings_card"
-        :class="{ shake: isEmailFormShaking }"
-        @animationend="isEmailFormShaking = false"
-      >
-        <div class="card_header">
-          <div>
-            <span class="card_title">Email</span>
-            <p class="card_subtitle">Текущий адрес: {{ currentEmail }}</p>
+      <div class="secondary_contents">
+        <!-- email card -->
+        <div
+          ref="emailCardRef"
+          class="card settings_card"
+          :class="{ shake: isEmailFormShaking }"
+          @animationend="isEmailFormShaking = false"
+        >
+          <div class="card_header">
+            <div>
+              <span class="card_title">Email</span>
+              <p class="card_subtitle">Текущий адрес: {{ currentEmail }}</p>
+            </div>
+          </div>
+
+          <div
+            class="input_wrapper"
+            :class="{ field_error: emailFieldErrors.newEmail, shake: isEmailFieldShaking }"
+            @animationend="isEmailFieldShaking = false"
+          >
+            <input
+              autocomplete="new-password"
+              type="email"
+              v-model="emailForm.newEmail"
+              @input="emailFieldErrors.newEmail = ''"
+              @blur="validateNewEmail(emailForm.newEmail)"
+              placeholder="Новый email"
+            />
+            <transition name="fade">
+              <span v-if="emailFieldErrors.newEmail" class="inline_error">{{
+                emailFieldErrors.newEmail
+              }}</span>
+            </transition>
+          </div>
+
+          <button type="button" class="primary_btn" @click="handleEmailSave">Сохранить</button>
+
+          <div class="general_error_area">
+            <transition name="fade">
+              <div v-if="emailFieldErrors.general" class="general_error">
+                {{ emailFieldErrors.general }}
+              </div>
+            </transition>
+            <transition name="fade">
+              <div v-if="emailSuccess" class="general_success">Email обновлён</div>
+            </transition>
           </div>
         </div>
 
+        <!-- password card -->
         <div
-          class="input_wrapper"
-          :class="{ field_error: emailFieldErrors.newEmail, shake: isEmailFieldShaking }"
-          @animationend="isEmailFieldShaking = false"
+          ref="passwordCardRef"
+          class="card settings_card"
+          :class="{ shake: isPasswordFormShaking }"
+          @animationend="isPasswordFormShaking = false"
         >
-          <input
-            type="email"
-            v-model="emailForm.newEmail"
-            @input="emailFieldErrors.newEmail = ''"
-            @blur="validateNewEmail(emailForm.newEmail)"
-            placeholder="Новый email"
-          />
-          <transition name="fade">
-            <span v-if="emailFieldErrors.newEmail" class="inline_error">{{
-              emailFieldErrors.newEmail
-            }}</span>
-          </transition>
-        </div>
-
-        <button type="button" class="primary_btn" @click="handleEmailSave">Сохранить</button>
-
-        <div class="general_error_area">
-          <transition name="fade">
-            <div v-if="emailFieldErrors.general" class="general_error">
-              {{ emailFieldErrors.general }}
+          <div class="card_header">
+            <div>
+              <span class="card_title">Пароль</span>
+              <p class="card_subtitle">Смена пароля аккаунта</p>
             </div>
-          </transition>
-          <transition name="fade">
-            <div v-if="emailSuccess" class="general_success">Email обновлён</div>
-          </transition>
-        </div>
-      </div>
-
-      <!-- password card -->
-      <div
-        ref="passwordCardRef"
-        class="card settings_card"
-        :class="{ shake: isPasswordFormShaking }"
-        @animationend="isPasswordFormShaking = false"
-      >
-        <div class="card_header">
-          <div>
-            <span class="card_title">Пароль</span>
-            <p class="card_subtitle">Смена пароля аккаунта</p>
           </div>
-        </div>
 
-        <div
-          class="input_wrapper"
-          :class="{ field_error: passwordFieldErrors.currentPassword, shake: isCurrentPassShaking }"
-          @animationend="isCurrentPassShaking = false"
-        >
-          <input
-            :type="showCurrentPassword ? 'text' : 'password'"
-            v-model="passwordForm.currentPassword"
-            @input="passwordFieldErrors.currentPassword = ''"
-            @blur="validateCurrentPassword(passwordForm.currentPassword)"
-            placeholder="Текущий пароль"
-          />
-          <transition name="fade">
-            <span v-if="passwordFieldErrors.currentPassword" class="inline_error">{{
-              passwordFieldErrors.currentPassword
-            }}</span>
-          </transition>
-          <button
-            type="button"
-            class="eye_btn"
-            @click="showCurrentPassword = !showCurrentPassword"
-            tabindex="-1"
+          <div
+            class="input_wrapper"
+            :class="{
+              field_error: passwordFieldErrors.currentPassword,
+              shake: isCurrentPassShaking,
+            }"
+            @animationend="isCurrentPassShaking = false"
           >
-            <EyeOpenIcon v-if="!showCurrentPassword" />
-            <EyeClosedIcon v-else />
-          </button>
-        </div>
+            <input
+              autocomplete="new-password"
+              :type="showCurrentPassword ? 'text' : 'password'"
+              v-model="passwordForm.currentPassword"
+              @input="passwordFieldErrors.currentPassword = ''"
+              @blur="validateCurrentPassword(passwordForm.currentPassword)"
+              placeholder="Текущий пароль"
+            />
+            <transition name="fade">
+              <span v-if="passwordFieldErrors.currentPassword" class="inline_error">{{
+                passwordFieldErrors.currentPassword
+              }}</span>
+            </transition>
+            <button
+              type="button"
+              class="eye_btn"
+              @click="showCurrentPassword = !showCurrentPassword"
+              tabindex="-1"
+            >
+              <EyeOpenIcon v-if="!showCurrentPassword" />
+              <EyeClosedIcon v-else />
+            </button>
+          </div>
 
-        <div
-          class="input_wrapper"
-          :class="{ field_error: passwordFieldErrors.newPassword, shake: isNewPassShaking }"
-          @animationend="isNewPassShaking = false"
-        >
-          <input
-            :type="showNewPassword ? 'text' : 'password'"
-            v-model="passwordForm.newPassword"
-            @input="
-              ((passwordFieldErrors.newPassword = ''), (passwordFieldErrors.repeatPassword = ''))
-            "
-            @blur="validateNewPassword(passwordForm.newPassword)"
-            placeholder="Новый пароль"
-          />
-          <transition name="fade">
-            <span v-if="passwordFieldErrors.newPassword" class="inline_error">{{
-              passwordFieldErrors.newPassword
-            }}</span>
-          </transition>
-          <button
-            type="button"
-            class="eye_btn"
-            @click="showNewPassword = !showNewPassword"
-            tabindex="-1"
+          <div
+            class="input_wrapper"
+            :class="{ field_error: passwordFieldErrors.newPassword, shake: isNewPassShaking }"
+            @animationend="isNewPassShaking = false"
           >
-            <EyeOpenIcon v-if="!showNewPassword" />
-            <EyeClosedIcon v-else />
-          </button>
-        </div>
+            <input
+              autocomplete="new-password"
+              :type="showNewPassword ? 'text' : 'password'"
+              v-model="passwordForm.newPassword"
+              @input="
+                ((passwordFieldErrors.newPassword = ''), (passwordFieldErrors.repeatPassword = ''))
+              "
+              @blur="validateNewPassword(passwordForm.newPassword)"
+              placeholder="Новый пароль"
+            />
+            <transition name="fade">
+              <span v-if="passwordFieldErrors.newPassword" class="inline_error">{{
+                passwordFieldErrors.newPassword
+              }}</span>
+            </transition>
+            <button
+              type="button"
+              class="eye_btn"
+              @click="showNewPassword = !showNewPassword"
+              tabindex="-1"
+            >
+              <EyeOpenIcon v-if="!showNewPassword" />
+              <EyeClosedIcon v-else />
+            </button>
+          </div>
 
-        <div
-          class="input_wrapper"
-          :class="{ field_error: passwordFieldErrors.repeatPassword, shake: isRepeatPassShaking }"
-          @animationend="isRepeatPassShaking = false"
-        >
-          <input
-            :type="showRepeatPassword ? 'text' : 'password'"
-            v-model="passwordForm.repeatPassword"
-            @input="passwordFieldErrors.repeatPassword = ''"
-            @blur="validateRepeatPassword(passwordForm.newPassword, passwordForm.repeatPassword)"
-            placeholder="Повторите новый пароль"
-          />
-          <transition name="fade">
-            <span v-if="passwordFieldErrors.repeatPassword" class="inline_error">{{
-              passwordFieldErrors.repeatPassword
-            }}</span>
-          </transition>
-          <button
-            type="button"
-            class="eye_btn"
-            @click="showRepeatPassword = !showRepeatPassword"
-            tabindex="-1"
+          <div
+            class="input_wrapper"
+            :class="{ field_error: passwordFieldErrors.repeatPassword, shake: isRepeatPassShaking }"
+            @animationend="isRepeatPassShaking = false"
           >
-            <EyeOpenIcon v-if="!showRepeatPassword" />
-            <EyeClosedIcon v-else />
-          </button>
-        </div>
+            <input
+              autocomplete="new-password"
+              :type="showRepeatPassword ? 'text' : 'password'"
+              v-model="passwordForm.repeatPassword"
+              @input="passwordFieldErrors.repeatPassword = ''"
+              @blur="validateRepeatPassword(passwordForm.newPassword, passwordForm.repeatPassword)"
+              placeholder="Повторите новый пароль"
+            />
+            <transition name="fade">
+              <span v-if="passwordFieldErrors.repeatPassword" class="inline_error">{{
+                passwordFieldErrors.repeatPassword
+              }}</span>
+            </transition>
+            <button
+              type="button"
+              class="eye_btn"
+              @click="showRepeatPassword = !showRepeatPassword"
+              tabindex="-1"
+            >
+              <EyeOpenIcon v-if="!showRepeatPassword" />
+              <EyeClosedIcon v-else />
+            </button>
+          </div>
 
-        <button type="button" class="primary_btn" @click="handlePasswordSave">Сохранить</button>
+          <button type="button" class="primary_btn" @click="handlePasswordSave">Сохранить</button>
 
-        <div class="general_error_area">
-          <transition name="fade">
-            <div v-if="passwordFieldErrors.general" class="general_error">
-              {{ passwordFieldErrors.general }}
-            </div>
-          </transition>
-          <transition name="fade">
-            <div v-if="passwordSuccess" class="general_success">Пароль обновлён</div>
-          </transition>
+          <div class="general_error_area">
+            <transition name="fade">
+              <div v-if="passwordFieldErrors.general" class="general_error">
+                {{ passwordFieldErrors.general }}
+              </div>
+            </transition>
+            <transition name="fade">
+              <div v-if="passwordSuccess" class="general_success">Пароль обновлён</div>
+            </transition>
+          </div>
         </div>
       </div>
     </div>
@@ -406,6 +415,13 @@ main {
   gap: 24px;
 }
 
+.secondary_contents {
+  gap: 32px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
 /* hero */
 
 .page_hero {
@@ -461,7 +477,8 @@ main {
 .settings_card {
   display: flex;
   flex-direction: column;
-  max-width: 480px;
+  width: 480px;
+  flex-shrink: 0;
 }
 
 .card_header {
@@ -650,6 +667,10 @@ button {
   .main_contents {
     width: 100%;
   }
+
+  .secondary_contents {
+    flex-direction: column;
+  }
 }
 
 @media screen and (max-width: 540px) {
@@ -658,7 +679,7 @@ button {
   }
 
   .settings_card {
-    max-width: 100%;
+    width: 100%;
   }
 }
 </style>

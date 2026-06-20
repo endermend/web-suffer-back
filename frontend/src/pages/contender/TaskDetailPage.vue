@@ -150,6 +150,9 @@ async function handleSubmit(): Promise<void> {
     answerInput.value,
     selectedFile.value,
   )
+
+  router.push('/tasks')
+
   if (!result.success) submitError.value = result.error
 }
 </script>

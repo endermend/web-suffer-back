@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { isExpiredAccessTokenError } from '@/services/api/token_error.ts'
 import type {
   AuthCredentials,
   AuthToken,
@@ -47,7 +48,7 @@ apiClient.interceptors.response.use(
     const config = error.config
     const isRefreshCall = config?.url?.includes('auth/refresh')
 
-    if (error.response?.status === 401 && !isRefreshCall && !config._retry) {
+    if (isExpiredAccessTokenError(error) && !isRefreshCall && !config._retry) {
       config._retry = true
       try {
         const token = await refreshAccessToken()

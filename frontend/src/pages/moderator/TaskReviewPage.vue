@@ -39,16 +39,26 @@
           <textarea
             v-model="comment"
             class="comment_input"
-            placeholder="Комментарий для участника (необязательно)..."
+            placeholder="Комментарий для участника..."
             rows="3"
           ></textarea>
         </div>
 
         <div class="review_actions">
-          <button type="button" class="action_btn_accept" @click="handleReview('accepted')">
+          <button
+            type="button"
+            class="action_btn_accept"
+            :disabled="!isCommentValid"
+            @click="handleReview('accepted')"
+          >
             Принять
           </button>
-          <button type="button" class="action_btn_reject" @click="handleReview('rejected')">
+          <button
+            type="button"
+            class="action_btn_reject"
+            :disabled="!isCommentValid"
+            @click="handleReview('rejected')"
+          >
             Отклонить
           </button>
         </div>
@@ -81,6 +91,8 @@ const task = computed(() => tasksStore.myTasks.find((t) => t.id === submission.v
 
 const comment = ref('')
 const reviewError = ref('')
+
+const isCommentValid = computed(() => comment.value.trim().length > 0)
 
 async function handleReview(decision: 'accepted' | 'rejected'): Promise<void> {
   if (!submission.value) return
@@ -265,7 +277,7 @@ main {
   color: white;
 }
 
-.action_btn_accept:hover {
+.action_btn_accept:hover:not(:disabled) {
   background-color: rgb(18, 138, 63);
 }
 
@@ -283,8 +295,14 @@ main {
   color: white;
 }
 
-.action_btn_reject:hover {
+.action_btn_reject:hover:not(:disabled) {
   background-color: rgb(180, 50, 62);
+}
+
+.action_btn_accept:disabled,
+.action_btn_reject:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .review_error {

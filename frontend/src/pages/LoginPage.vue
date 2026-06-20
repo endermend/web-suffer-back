@@ -14,6 +14,7 @@
       @animationend="isEmailShaking = false"
     >
       <input
+        autocomplete="new-password"
         type="email"
         v-model="form.email"
         @input="fieldErrors.email = ''"
@@ -36,6 +37,7 @@
         @input="fieldErrors.password = ''"
         @blur="validatePass(form.password)"
         placeholder="Пароль"
+        autocomplete="new-password"
       />
       <transition name="fade">
         <span v-if="fieldErrors.password" class="inline_error">{{ fieldErrors.password }}</span>
@@ -167,7 +169,7 @@ async function handleLogIn(): Promise<void> {
   try {
     const result = await authStore.login({ email: form.email, password: form.password })
     if (result.success) {
-      router.push('/')
+      router.push(authStore.landingPath)
     } else {
       fieldErrors.general = result.error
       triggerShake('form')

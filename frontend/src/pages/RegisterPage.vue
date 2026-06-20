@@ -16,6 +16,7 @@
       @animationend="isEmailShaking = false"
     >
       <input
+        autocomplete="new-password"
         type="email"
         v-model="form.email"
         @input="fieldErrors.email = ''"
@@ -35,6 +36,7 @@
       @animationend="isPassShaking = false"
     >
       <input
+        autocomplete="new-password"
         :type="showPassword ? 'text' : 'password'"
         v-model="form.password"
         @blur="validatePass(form.password)"
@@ -58,6 +60,7 @@
       @animationend="isRepeatShaking = false"
     >
       <input
+        autocomplete="new-password"
         :type="showPasswordRepeat ? 'text' : 'password'"
         v-model="form.password_repeat"
         @blur="validateRepeat(form.password, form.password_repeat)"
@@ -235,7 +238,7 @@ async function handleSignUp(): Promise<void> {
     const result = await authStore.register({ email: form.email, password: form.password })
     if (result.success) {
       await authStore.fetchUserData()
-      router.push('/')
+      router.push(authStore.landingPath)
     } else {
       fieldErrors.general = result.error
       triggerShake('form')

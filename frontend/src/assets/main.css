@@ -2,6 +2,12 @@ body {
   margin: 0px
 }
 
+/* Edge/IE's own password reveal icon conflicts with our custom eye_btn toggle */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
 @font-face {
   font-family: 'Nagel';
   font-style: normal;

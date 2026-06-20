@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import taskService from '@/services/api/task_service.ts'
 import authService from '@/services/api/auth_service.ts'
+import { buildDownloadUrl } from '@/services/api/config.ts'
 import type { Submission, UserTask } from '@/types/tasks.ts'
 
 const useTasksStore = defineStore('tasks', {
@@ -55,7 +56,7 @@ const useTasksStore = defineStore('tasks', {
           task_id: s.task_id,
           user_email: me.email,
           content: s.content,
-          file: s.file ? { name: s.file, url: s.file } : null,
+          file: s.file ? { name: s.file, url: buildDownloadUrl(s.file) } : null,
           status: s.status,
           admin_comment: s.comment,
           submitted_at: '',
@@ -79,7 +80,7 @@ const useTasksStore = defineStore('tasks', {
               task_id: s.task_id,
               user_email: user.email,
               content: s.content,
-              file: s.file ? { name: s.file, url: s.file } : null,
+              file: s.file ? { name: s.file, url: buildDownloadUrl(s.file) } : null,
               status: s.status,
               admin_comment: s.comment,
               submitted_at: '',
@@ -91,8 +92,9 @@ const useTasksStore = defineStore('tasks', {
       }
     },
 
-    // task_id omitted means "create" — returns the real backend id.
-    async createTask(data: {
+    // task_id omitted creates a new task, present edits the matching one in place.
+    async saveTask(data: {
+      task_id?: string
       title: string
       description: string
       deadline: string
@@ -101,7 +103,24 @@ const useTasksStore = defineStore('tasks', {
     }) {
       try {
         const { task_id } = await taskService.updateTask(data)
-        this.myTasks.push({ id: task_id, ...data, status: 'available' })
+        const existing = this.myTasks.find((t) => t.id === task_id)
+        if (existing) {
+          existing.title = data.title
+          existing.description = data.description
+          existing.deadline = data.deadline
+          existing.exp = data.exp
+          existing.money = data.money
+        } else {
+          this.myTasks.push({
+            id: task_id,
+            title: data.title,
+            description: data.description,
+            deadline: data.deadline,
+            exp: data.exp,
+            money: data.money,
+            status: 'available',
+          })
+        }
         return { success: true as const }
       } catch (error: any) {
         return { success: false as const, error: error.message }

@@ -6,37 +6,26 @@
         <p class="page_subtitle">Создание заданий и проверка ответов участников</p>
       </div>
 
-      <!-- create task -->
+      <!-- tasks -->
       <div class="card">
-        <span class="card_title">Создать задание</span>
-        <form class="create_form" @submit.prevent="handleCreate">
-          <div class="form_field">
-            <label class="form_label">Название</label>
-            <input v-model="form.title" class="form_input" required />
-          </div>
-          <div class="form_field">
-            <label class="form_label">Описание</label>
-            <textarea v-model="form.description" class="form_input" rows="3" required></textarea>
-          </div>
-          <div class="form_row">
-            <div class="form_field">
-              <label class="form_label">Дедлайн</label>
-              <input v-model="form.deadline" type="datetime-local" class="form_input" required />
-            </div>
-            <div class="form_field">
-              <label class="form_label">Баллы</label>
-              <input v-model.number="form.exp" type="number" min="1" class="form_input" required />
-            </div>
-          </div>
-          <button type="submit" class="submit_btn">Создать задание</button>
-          <p v-if="createError" class="create_error">{{ createError }}</p>
-        </form>
+        <div class="card_header">
+          <span class="card_title">Задания</span>
+          <button type="button" class="create_btn" @click="router.push('/moderator/tasks/create')">
+            Создать задание
+          </button>
+        </div>
 
         <div v-if="availableTasks.length" class="existing_list">
-          <div v-for="item in availableTasks" :key="item.id" class="existing_item">
+          <button
+            v-for="item in availableTasks"
+            :key="item.id"
+            type="button"
+            class="existing_item"
+            @click="router.push(`/moderator/tasks/${item.id}/edit`)"
+          >
             <span class="existing_title">{{ item.title }}</span>
             <span class="existing_deadline">{{ formatDate(item.deadline) }}</span>
-          </div>
+          </button>
         </div>
         <div v-else class="empty_state">Нет доступных для пользователей заданий</div>
       </div>
@@ -66,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
@@ -80,30 +69,6 @@ onMounted(() => {
   tasksStore.fetchMyTasks()
   tasksStore.fetchPendingReview()
 })
-
-const form = reactive({
-  title: '',
-  description: '',
-  deadline: '',
-  exp: 10,
-  // not shown in the create form yet — see types/tasks.ts for why the field still exists
-  money: 0,
-})
-
-const createError = ref('')
-
-async function handleCreate(): Promise<void> {
-  createError.value = ''
-  const result = await tasksStore.createTask({ ...form })
-  if (!result.success) {
-    createError.value = 'Не удалось создать задание'
-    return
-  }
-  form.title = ''
-  form.description = ''
-  form.deadline = ''
-  form.exp = 10
-}
 
 // A moderator never submits, so every task they fetch shows up here regardless of status.
 const availableTasks = computed(() => tasksStore.myTasks)
@@ -176,58 +141,15 @@ main {
   color: rgb(65, 65, 65);
 }
 
-/* create form */
-
-.create_form {
+.card_header {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.form_row {
-  display: flex;
-  gap: 14px;
-}
-
-.form_row .form_field {
-  flex: 1;
-}
-
-.form_field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form_label {
-  font-family: Nagel;
-  font-size: 13px;
-  color: rgb(150, 150, 150);
-}
-
-.form_input {
+.create_btn {
   appearance: none;
-  box-sizing: border-box;
-  width: 100%;
-  border: thin solid rgb(210, 208, 220);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-family: Nagel;
-  font-size: 14px;
-  color: rgb(65, 65, 65);
-  background-color: white;
-  outline: none;
-  resize: vertical;
-  transition: 0.2s border-color;
-}
-
-.form_input:focus {
-  border-color: rgb(160, 125, 180);
-}
-
-.submit_btn {
-  appearance: none;
-  align-self: flex-start;
+  flex-shrink: 0;
   border: none;
   border-radius: 10px;
   padding: 10px 22px;
@@ -239,15 +161,8 @@ main {
   transition: 0.2s background-color;
 }
 
-.submit_btn:hover {
+.create_btn:hover {
   background-color: rgb(140, 105, 160);
-}
-
-.create_error {
-  font-family: Nagel;
-  font-size: 13px;
-  color: rgb(204, 63, 75);
-  margin: 0;
 }
 
 /* existing tasks list */
@@ -256,11 +171,13 @@ main {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-top: 8px;
-  border-top: thin solid rgb(230, 228, 240);
 }
 
 .existing_item {
+  appearance: none;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -268,6 +185,13 @@ main {
   padding: 10px 14px;
   border-radius: 10px;
   background-color: rgb(244, 243, 250);
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s background-color;
+}
+
+.existing_item:hover {
+  background-color: rgb(235, 230, 245);
 }
 
 .existing_title {
@@ -362,8 +286,10 @@ main {
     padding-top: 70px;
   }
 
-  .form_row {
+  .card_header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .review_item {

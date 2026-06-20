@@ -1,5 +1,6 @@
 import axios from 'axios'
 import authService from '@/services/api/auth_service.ts'
+import { isExpiredAccessTokenError } from '@/services/api/token_error.ts'
 import type {
   ChangeSubmissionRequest,
   GetTasksFilters,
@@ -30,13 +31,13 @@ apiClient.interceptors.request.use((config) => {
 })
 
 // authService.refresh() shares its in-flight promise with auth_service's own interceptor,
-// so a 401 here and a 401 over there at the same time still only refresh once.
+// so an expired-token error here and one over there at the same time still only refresh once.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const config = error.config
 
-    if (error.response?.status === 401 && !config._retry) {
+    if (isExpiredAccessTokenError(error) && !config._retry) {
       config._retry = true
       try {
         const { access_token } = await authService.refresh()

@@ -11,8 +11,8 @@
 
       <!-- main grid -->
       <div class="tasks_grid">
-        <!-- left column -->
-        <div class="col_left">
+        <!-- top row: the two anchor cards keep a fixed wide/narrow split -->
+        <div class="grid_top">
           <!-- active assignments -->
           <div class="card">
             <div class="card_header">
@@ -44,32 +44,6 @@
             </button>
           </div>
 
-          <!-- recent grades -->
-          <div class="card">
-            <div class="card_header">
-              <div>
-                <span class="card_title">Последние выставленные баллы</span>
-                <p class="card_subtitle">Недавно проверенные задания</p>
-              </div>
-            </div>
-            <div v-if="recentCompleted.length" class="grades_list">
-              <div v-for="item in recentCompleted" :key="item.id" class="grade_item">
-                <div class="grade_main">
-                  <div class="grade_title">{{ item.title }}</div>
-                  <div class="grade_date">{{ formatDate(item.deadline) }}</div>
-                </div>
-                <div class="points_badge">+{{ item.exp }}</div>
-              </div>
-            </div>
-            <div v-else class="empty_state">Оценок пока нет</div>
-            <button type="button" class="view_all_btn" @click="router.push('/profile')">
-              Все выполненные
-            </button>
-          </div>
-        </div>
-
-        <!-- right column -->
-        <div class="col_right">
           <!-- progress -->
           <div class="card">
             <div class="card_header">
@@ -90,44 +64,73 @@
               <div class="progress_fill" :style="{ width: animatedProgress + '%' }"></div>
             </div>
           </div>
+        </div>
 
-          <!-- pending review -->
-          <div class="card">
+        <!-- bottom row: recent grades stretches (via grid stretch) to match the
+             combined height of the pending+rejected column next to it -->
+        <div class="grid_bottom">
+          <!-- recent grades -->
+          <div class="card grades_card">
             <div class="card_header">
               <div>
-                <span class="card_title">Ожидают проверки</span>
-                <p class="card_subtitle">Работы на проверке</p>
+                <span class="card_title">Последние выставленные баллы</span>
+                <p class="card_subtitle">Недавно проверенные задания</p>
               </div>
             </div>
-            <div v-if="pendingTasks.length" class="pending_list">
-              <div v-for="item in pendingTasks" :key="item.id" class="pending_item">
-                <div class="pending_title">{{ item.title }}</div>
-                <span class="status_chip chip_submitted">Проверяется</span>
+            <div v-if="recentCompleted.length" class="grades_list">
+              <div v-for="item in recentCompleted" :key="item.id" class="grade_item">
+                <div class="grade_main">
+                  <div class="grade_title">{{ item.title }}</div>
+                  <div class="grade_date">{{ formatDate(item.deadline) }}</div>
+                </div>
+                <div class="points_badge">+{{ item.exp }}</div>
               </div>
             </div>
-            <div v-else class="ok_state">Все работы проверены</div>
+            <div v-else class="empty_state">Оценок пока нет</div>
+            <button type="button" class="view_all_btn grades_footer_btn" @click="router.push('/profile')">
+              Все выполненные
+            </button>
           </div>
 
-          <!-- rejected -->
-          <div class="card">
-            <div class="card_header">
-              <div>
-                <span class="card_title">Отклонённые</span>
-                <p class="card_subtitle">Можно исправить и отправить повторно</p>
+          <div class="grid_bottom_right">
+            <!-- pending review -->
+            <div class="card">
+              <div class="card_header">
+                <div>
+                  <span class="card_title">Ожидают проверки</span>
+                  <p class="card_subtitle">Работы на проверке</p>
+                </div>
               </div>
-            </div>
-            <div v-if="rejectedTasks.length" class="pending_list">
-              <div
-                v-for="item in rejectedTasks"
-                :key="item.id"
-                class="rejected_item"
-                @click="router.push(`/tasks/${item.id}`)"
-              >
-                <div class="pending_title">{{ item.title }}</div>
-                <span class="status_chip chip_rejected">Отклонено</span>
+              <div v-if="pendingTasks.length" class="pending_list">
+                <div v-for="item in pendingTasks" :key="item.id" class="pending_item">
+                  <div class="pending_title">{{ item.title }}</div>
+                  <span class="status_chip chip_submitted">Проверяется</span>
+                </div>
               </div>
+              <div v-else class="ok_state">Все работы проверены</div>
             </div>
-            <div v-else class="ok_state">Отклонённых заданий нет</div>
+
+            <!-- rejected -->
+            <div class="card">
+              <div class="card_header">
+                <div>
+                  <span class="card_title">Отклонённые</span>
+                  <p class="card_subtitle">Можно исправить и отправить повторно</p>
+                </div>
+              </div>
+              <div v-if="rejectedTasks.length" class="pending_list">
+                <div
+                  v-for="item in rejectedTasks"
+                  :key="item.id"
+                  class="rejected_item"
+                  @click="router.push(`/tasks/${item.id}`)"
+                >
+                  <div class="pending_title">{{ item.title }}</div>
+                  <span class="status_chip chip_rejected">Отклонено</span>
+                </div>
+              </div>
+              <div v-else class="ok_state">Отклонённых заданий нет</div>
+            </div>
           </div>
         </div>
       </div>
@@ -152,7 +155,7 @@
             <select v-model="statusFilter" class="filter_input">
               <option value="">Все статусы</option>
               <option value="available">Доступно</option>
-              <option value="pending">Сдано</option>
+              <option value="pending">Проверяется</option>
               <option value="accepted">Проверено</option>
               <option value="rejected">Отклонено</option>
             </select>
@@ -231,7 +234,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { formatDateShort as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
+import { formatDateShort as formatDate, parseDeadline, statusChip, statusLabel } from '@/utils/tasks.ts'
 
 defineOptions({ name: 'TasksPage' })
 
@@ -247,13 +250,26 @@ const statusFilter = ref('')
 const currentPage = ref(1)
 const PAGE_SIZE = 10
 
+// <input type="date"> gives a bare "YYYY-MM-DD" string, which `new Date()` parses as
+// UTC midnight rather than local midnight — a day boundary computed that way silently
+// drifts by the local UTC offset. Parsing the numbers by hand and building the Date from
+// local components keeps "until/from this day" meaning the full Vladivostok-local day.
+function parseDateBoundary(dateStr: string, endOfDay: boolean): Date {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return endOfDay
+    ? new Date(year!, month! - 1, day!, 23, 59, 59, 999)
+    : new Date(year!, month! - 1, day!, 0, 0, 0, 0)
+}
+
 const filteredTasks = computed(() =>
   myTasks.value.filter((t) => {
     if (searchQuery.value && !t.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
       return false
     if (statusFilter.value && t.status !== statusFilter.value) return false
-    if (deadlineBefore.value && new Date(t.deadline) > new Date(deadlineBefore.value)) return false
-    if (deadlineAfter.value && new Date(t.deadline) < new Date(deadlineAfter.value)) return false
+    if (deadlineBefore.value && parseDeadline(t.deadline) > parseDateBoundary(deadlineBefore.value, true))
+      return false
+    if (deadlineAfter.value && parseDeadline(t.deadline) < parseDateBoundary(deadlineAfter.value, false))
+      return false
     return true
   }),
 )
@@ -371,13 +387,36 @@ main {
 /* main grid */
 
 .tasks_grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grid_top {
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 24px;
 }
 
-.col_left,
-.col_right {
+/* Grid's default align-items: stretch makes the left card match the height
+   of the right column (pending + rejected stacked), so it grows down to the
+   bottom of "Отклонённые" instead of leaving empty space below itself. */
+.grid_bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grades_card {
+  display: flex;
+  flex-direction: column;
+}
+
+.grades_footer_btn {
+  margin-top: auto;
+}
+
+.grid_bottom_right {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -853,7 +892,11 @@ main {
     width: 100%;
   }
 
-  .tasks_grid {
+  .grid_top {
+    grid-template-columns: 1fr;
+  }
+
+  .grid_bottom {
     grid-template-columns: 1fr;
   }
 }
