@@ -11,9 +11,9 @@ export interface EmailResponse {
   email: string
 }
 
-// GET /api/auth/users — backend only returns email for now, an id is planned later
+// GET /api/auth/users — just the id list; full data comes from GET /api/auth/user per id
 export interface GetUsersResponse {
-  email: string
+  user_id: string
 }
 
 export type UserRole = 'admin' | 'moderator' | 'member'

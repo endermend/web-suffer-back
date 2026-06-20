@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { useAuthStore } from '@/stores/auth_store.ts'
@@ -112,12 +112,14 @@ const tasksStore = useTasksStore()
 const authStore = useAuthStore()
 
 const taskId = route.params.id as string
-const userEmail = computed(() => authStore.userEmail ?? '')
 
-const task = computed(() => tasksStore.tasks.find((t) => t.id === taskId))
-// The submission is a separate entity now — Task itself has no status. "Current" picks
-// the user's most relevant attempt for this task (see store getter for the priority rule).
-const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId, userEmail.value))
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+  tasksStore.fetchMySubmissions()
+})
+
+const task = computed(() => tasksStore.myTasks.find((t) => t.id === taskId))
+const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId))
 const status = computed(() => currentSubmission.value?.status ?? 'available')
 const isEditable = computed(
   () =>
@@ -127,7 +129,10 @@ const isEditable = computed(
 // Pre-fill with the previous attempt's text when resubmitting after a rejection, so the
 // user isn't retyping from scratch. The previous file can't be carried over the same way
 // (no way to turn a stored URL back into a File object for re-upload), so that starts empty.
-const answerInput = ref(currentSubmission.value?.content ?? '')
+const answerInput = ref('')
+watch(currentSubmission, (sub) => {
+  if (sub) answerInput.value = sub.content
+})
 const selectedFile = ref<File | null>(null)
 const submitError = ref('')
 
@@ -142,7 +147,6 @@ async function handleSubmit(): Promise<void> {
 
   const result = await tasksStore.createSubmission(
     task.value.id,
-    userEmail.value,
     answerInput.value,
     selectedFile.value,
   )
@@ -190,7 +194,7 @@ main {
 .back_icon {
   width: 24px;
   height: 24px;
-  transform: rotate(90deg);
+  transform: rotate(180deg);
 }
 
 /* hero */

@@ -27,7 +27,7 @@
               <span class="col_points">Очки</span>
             </div>
             <div
-              v-for="(entry, index) in sortedLeaderboard"
+              v-for="(entry, index) in leaderboard"
               :key="entry.email"
               class="leaderboard_row"
             >
@@ -38,7 +38,7 @@
                 <span v-else class="rank_plain">{{ index + 1 }}</span>
               </span>
               <span class="col_name">{{ entry.email }}</span>
-              <span class="col_points">{{ entry.points }}</span>
+              <span class="col_points">{{ entry.exp }}</span>
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
@@ -57,15 +57,22 @@ import beachImg from '@/assets/images/beach.jpg'
 import starfishImg from '@/assets/images/starfish.jpg'
 import grissomImg from '@/assets/images/grissom.png'
 import surpriseImg from '@/assets/images/surprise.gif'
-import { useUsersStore } from '@/stores/users_store.ts'
+import taskService from '@/services/api/task_service.ts'
+import authService from '@/services/api/auth_service.ts'
 import MedalIcon from '@/assets/icons/medal.svg'
 
 defineOptions({ name: 'DashboardPage' })
 
-const usersStore = useUsersStore()
+const leaderboard = ref<{ email: string; exp: number }[]>([])
 
-onMounted(() => {
-  usersStore.fetchUsers()
+onMounted(async () => {
+  const topUsers = await taskService.getTopUsers(5)
+  leaderboard.value = await Promise.all(
+    topUsers.map(async (u) => {
+      const user = await authService.getUser(u.user_id)
+      return { email: user.email, exp: u.exp }
+    }),
+  )
 })
 
 const modules = [Pagination, Autoplay]
@@ -93,8 +100,6 @@ const slides = ref([
     title: 'Ой не то видео простите',
   },
 ])
-
-const sortedLeaderboard = computed(() => usersStore.sortedByPoints.slice(0, 5))
 </script>
 
 <style scoped>

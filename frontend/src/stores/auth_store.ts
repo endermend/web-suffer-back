@@ -52,7 +52,7 @@ const useAuthStore = defineStore('auth', {
         const tokens = await authService.login({ email, password })
         this.setAccessToken(tokens)
 
-        await this.fetchUserEmail()
+        await this.fetchUserData()
 
         return { success: true, tokens }
       } catch (error: any) {
@@ -70,13 +70,27 @@ const useAuthStore = defineStore('auth', {
       localStorage.setItem('access_token', tokens.access_token)
     },
 
-    async fetchUserEmail() {
+    async fetchUserData() {
       try {
-        const data = await authService.getEmail()
+        const data = await authService.getUser() // this user
+
         this.userEmail = data.email
         localStorage.setItem('user_email', data.email)
+
+        let role: UserRole
+        if (data.role === 'admin' || data.role === 'moderator') {
+          role = data.role
+        } else {
+          role = 'member'
+        }
+        this.role = role
+        localStorage.setItem('role', role)
+
+        // this.userId = data.user_id;
       } catch (error) {
-        console.error('Failed to fetch email:', error)
+        console.error('Failed to fetch user data:', error)
+        // token invalid
+        this.logout()
       }
     },
 
@@ -87,12 +101,6 @@ const useAuthStore = defineStore('auth', {
       localStorage.removeItem('access_token')
       localStorage.removeItem('user_email')
       localStorage.removeItem('role')
-    },
-
-    // test-only role switch, triggered by the role dropdown in the profile
-    setRole(role: UserRole) {
-      this.role = role
-      localStorage.setItem('role', this.role)
     },
   },
 })

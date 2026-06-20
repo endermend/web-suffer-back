@@ -53,12 +53,12 @@
               </div>
             </div>
             <div v-if="recentCompleted.length" class="grades_list">
-              <div v-for="item in recentCompleted" :key="item.submission.id" class="grade_item">
+              <div v-for="item in recentCompleted" :key="item.id" class="grade_item">
                 <div class="grade_main">
-                  <div class="grade_title">{{ item.task.title }}</div>
-                  <div class="grade_date">{{ formatDate(item.submission.submitted_at) }}</div>
+                  <div class="grade_title">{{ item.title }}</div>
+                  <div class="grade_date">{{ formatDate(item.deadline) }}</div>
                 </div>
-                <div class="points_badge">+{{ item.task.exp }}</div>
+                <div class="points_badge">+{{ item.exp }}</div>
               </div>
             </div>
             <div v-else class="empty_state">Оценок пока нет</div>
@@ -231,20 +231,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateShort as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
 
 defineOptions({ name: 'TasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
-const authStore = useAuthStore()
 
-// Task no longer carries a status by itself — it's derived per user from submissions,
-// so every list on this page is built from this one joined view (mirrors the backend's
-// per-user task list endpoint) instead of reading tasksStore.tasks directly.
-const userEmail = computed(() => authStore.userEmail ?? '')
-const myTasks = computed(() => tasksStore.userTasks(userEmail.value))
+const myTasks = computed(() => tasksStore.myTasks)
 
 const searchQuery = ref('')
 const deadlineBefore = ref('')
@@ -277,10 +271,8 @@ const activeTasks = computed(() =>
 const pendingTasks = computed(() => myTasks.value.filter((t) => t.status === 'pending'))
 const rejectedTasks = computed(() => myTasks.value.filter((t) => t.status === 'rejected'))
 
-// Joined with the actual submission so we have a real submitted_at to sort/show by —
-// UserTask alone doesn't carry it (see the store getter's comment for why).
 const recentCompleted = computed(() =>
-  tasksStore.acceptedSubmissionsWithTask(userEmail.value).slice(0, 3),
+  myTasks.value.filter((t) => t.status === 'accepted').slice(0, 3),
 )
 
 const totalCount = computed(
@@ -296,7 +288,9 @@ const progress = computed(() =>
 const animatedProgress = ref(0)
 const PROGRESS_FILL_DURATION = 600
 
-onMounted(() => {
+onMounted(async () => {
+  await tasksStore.fetchMyTasks()
+
   const target = progress.value
   const start = performance.now()
 

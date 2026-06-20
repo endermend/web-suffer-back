@@ -98,3 +98,33 @@ export interface TaskStatisticsResponse {
   task_all: number
   task_status: Partial<Record<UserTaskStatus, number>> | null
 }
+
+// GET /api/task/tasks — the real per-user task list, status already resolved server-side.
+export type TaskStatusFilter = 'available' | 'pending' | 'accepted'
+export type TaskOrderBy = 'title' | 'deadline' | 'status' | 'last_submission'
+
+export interface GetTasksFilters {
+  limit?: number
+  offset?: number
+  deadlineFrom?: string
+  deadlineTill?: string
+  status?: TaskStatusFilter
+  orderBy?: TaskOrderBy
+}
+
+export interface UserTaskApiResponse {
+  task_id: string
+  title: string
+  description: string
+  deadline: string
+  exp: number
+  money: number
+  status: UserTaskStatus
+}
+
+// GET /api/task/top-users
+export interface TopUserApiResponse {
+  user_id: string
+  exp: number
+  money: number
+}

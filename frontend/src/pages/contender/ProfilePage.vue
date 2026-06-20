@@ -28,12 +28,12 @@
           </div>
         </div>
         <div v-if="completedTasks.length" class="grades_list">
-          <div v-for="item in completedTasks" :key="item.submission.id" class="grade_item">
+          <div v-for="item in completedTasks" :key="item.id" class="grade_item">
             <div class="grade_main">
-              <div class="grade_title">{{ item.task.title }}</div>
-              <div class="grade_date">{{ formatDate(item.submission.submitted_at) }}</div>
+              <div class="grade_title">{{ item.title }}</div>
+              <div class="grade_date">{{ formatDate(item.deadline) }}</div>
             </div>
-            <div class="points_badge">+{{ item.task.exp }}</div>
+            <div class="points_badge">+{{ item.exp }}</div>
           </div>
         </div>
         <div v-else class="empty_state">Выполненных заданий пока нет</div>
@@ -46,21 +46,22 @@
 import { computed, onMounted } from 'vue'
 import ProfileHero from '@/components/profile/ProfileHero.vue'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { useAuthStore } from '@/stores/auth_store.ts'
 
 defineOptions({ name: 'ProfilePage' })
 
 const tasksStore = useTasksStore()
-const authStore = useAuthStore()
 
-// Already sorted newest-first by the store getter (joins accepted submissions with their task).
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+})
+
 const completedTasks = computed(function () {
-  return tasksStore.acceptedSubmissionsWithTask(authStore.userEmail ?? '')
+  return tasksStore.myTasks.filter((t) => t.status === 'accepted')
 })
 
 const totalPoints = computed(function () {
   return completedTasks.value.reduce(function (sum, item) {
-    return sum + item.task.exp
+    return sum + item.exp
   }, 0)
 })
 

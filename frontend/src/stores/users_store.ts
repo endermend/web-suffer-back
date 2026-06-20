@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import authService from '@/services/api/auth_service.ts'
+import type { ApiUserRole, ApiUserStatus } from '@/types/auth.ts'
 import type { UserManagement } from '@/types/users.ts'
-import type { UserRole } from '@/types/auth.ts'
 
 const useUsersStore = defineStore('users', {
   state: () => ({
@@ -9,59 +9,61 @@ const useUsersStore = defineStore('users', {
     loading: false,
   }),
 
-  getters: {
-    sortedByPoints: (state) =>
-      [...state.users]
-        .filter((u) => u.role === 'member')
-        .sort((a, b) => b.points - a.points),
-  },
-
   actions: {
-    // GET /api/auth/users only returns { email } for now — role/points/banned have no
-    // backing endpoint yet, so existing local state for a known email is preserved across
-    // refetches. `id` is synthesized from list position until the backend adds a real one.
+    // GET /api/auth/users only returns ids — full profile (email/role/status) per id
+    // comes from GET /api/auth/user.
     async fetchUsers() {
       this.loading = true
 
       try {
-        const apiUsers = await authService.getUsers()
-        this.users = apiUsers.map((apiUser, index) => {
-          const existing = this.users.find((u) => u.email === apiUser.email)
-          return (
-            existing ?? {
-              id: index + 1,
-              email: apiUser.email,
-              points: 0,
-              role: 'member',
-              banned: false,
+        const ids = await authService.getUsers()
+        this.users = await Promise.all(
+          ids.map(async ({ user_id }) => {
+            const user = await authService.getUser(user_id)
+            return {
+              id: user.user_id,
+              email: user.email,
+              role: user.role,
+              status: user.status,
             }
-          )
-        })
+          }),
+        )
       } finally {
         this.loading = false
       }
     },
 
-    // TODO: replace with API call
-    toggleBan(id: number) {
-      const user = this.users.find((u) => u.id === id)
-      if (user) user.banned = !user.banned
+    // GET /api/auth/users only ever lists role='user' accounts — promoting someone
+    // out of that role makes them drop out of this page, so drop them locally too
+    // instead of leaving a stale row that only vanishes on the next reload.
+    async setRole(id: string, role: ApiUserRole) {
+      await authService.updateUser({ user_id: id, role })
+      if (role === 'user') {
+        const user = this.users.find((u) => u.id === id)
+        if (user) user.role = role
+      } else {
+        this.users = this.users.filter((u) => u.id !== id)
+      }
     },
 
-    // TODO: replace with API call
-    updateEmail(id: number, email: string) {
+    async setStatus(id: string, status: ApiUserStatus) {
+      await authService.updateUser({ user_id: id, status })
+      const user = this.users.find((u) => u.id === id)
+      if (user) user.status = status
+    },
+
+    async updateEmail(id: string, email: string) {
+      await authService.updateUser({ user_id: id, email })
       const user = this.users.find((u) => u.id === id)
       if (user) user.email = email
     },
 
-    // TODO: replace with API call
-    setUserRole(id: number, role: UserRole) {
-      const user = this.users.find((u) => u.id === id)
-      if (user) user.role = role
+    async updatePassword(id: string, newPassword: string) {
+      await authService.updateUser({ user_id: id, new_password: newPassword })
     },
 
-    // TODO: replace with API call
-    deleteUser(id: number) {
+    async deleteUser(id: string) {
+      await authService.updateUser({ user_id: id, status: 'deleted' })
       this.users = this.users.filter((u) => u.id !== id)
     },
   },

@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
@@ -75,6 +75,11 @@ defineOptions({ name: 'ManageTasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
+
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+  tasksStore.fetchPendingReview()
+})
 
 const form = reactive({
   title: '',
@@ -100,15 +105,15 @@ async function handleCreate(): Promise<void> {
   form.exp = 10
 }
 
-// Task templates have no status of their own anymore, so every one of them belongs here.
-const availableTasks = computed(() => tasksStore.tasks)
+// A moderator never submits, so every task they fetch shows up here regardless of status.
+const availableTasks = computed(() => tasksStore.myTasks)
 
-// Submissions are their own entities now (one task can have several pending submissions,
-// one per user), so each pending row is joined with its task for display.
+// The submissions endpoint doesn't include the task title, so each pending row is
+// cross-referenced against the task list fetched above.
 const pendingSubmissions = computed(() =>
   tasksStore.pendingSubmissions.map((submission) => ({
     submission,
-    task: tasksStore.tasks.find((t) => t.id === submission.task_id),
+    task: tasksStore.myTasks.find((t) => t.id === submission.task_id),
   })),
 )
 </script>

@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import BackArrowIcon from '@/assets/icons/backarrow.svg'
@@ -70,9 +70,14 @@ const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
 
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+  tasksStore.fetchPendingReview()
+})
+
 const submissionId = route.params.id as string
-const submission = computed(() => tasksStore.submissions.find((s) => s.id === submissionId))
-const task = computed(() => tasksStore.tasks.find((t) => t.id === submission.value?.task_id))
+const submission = computed(() => tasksStore.pendingReview.find((s) => s.id === submissionId))
+const task = computed(() => tasksStore.myTasks.find((t) => t.id === submission.value?.task_id))
 
 const comment = ref('')
 const reviewError = ref('')

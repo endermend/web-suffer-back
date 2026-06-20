@@ -234,7 +234,7 @@ async function handleSignUp(): Promise<void> {
   try {
     const result = await authStore.register({ email: form.email, password: form.password })
     if (result.success) {
-      await authStore.fetchUserEmail()
+      await authStore.fetchUserData()
       router.push('/')
     } else {
       fieldErrors.general = result.error
@@ -261,7 +261,7 @@ button {
   flex-direction: column;
   background-color: white;
   padding: 24px;
-  margin-top: 80px;
+  margin-top: 200px;
   margin-bottom: 40px;
   border-radius: 16px;
   font-family: Nagel;
