@@ -1,6 +1,6 @@
 from typing import Literal, override
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.user import UserT
@@ -57,9 +57,9 @@ class UserTRepository(IUserTRepository):
         """
         stmt = select(UserTORMModel)
         if order_by == "exp":
-            stmt = stmt.order_by(UserTORMModel.exp)
+            stmt = stmt.order_by(desc(UserTORMModel.exp))
         elif order_by == "money":
-            stmt = stmt.order_by(UserTORMModel.money)
+            stmt = stmt.order_by(desc(UserTORMModel.money))
 
         stmt = stmt.limit(amount)
         result = await self._session.execute(stmt)
