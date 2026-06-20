@@ -44,3 +44,13 @@ class IUserRepository(Protocol):
             Список пользователей или пустой список.
 
         """  # noqa: RUF002
+
+    @abstractmethod
+    async def get_users_by_id(self, users_id: list[UserID]) -> list[User]:
+        """
+        Получения списка User по списку id.
+
+        Returns:
+            Список пользователей.
+
+        """

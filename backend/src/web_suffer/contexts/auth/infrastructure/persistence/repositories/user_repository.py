@@ -1,6 +1,6 @@
 from typing import override
 
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.auth.domain.entities import User
@@ -86,6 +86,28 @@ class UserRepository(IUserRepository):
 
         """  # noqa: RUF002
         stmt = select(UserORMModel)
+        result = await self._session.execute(stmt)
+        users_orm = result.scalars()
+        return [self._mapper.to_domain(orm=user_orm) for user_orm in users_orm]
+
+    @override
+    async def get_users_by_id(self, users_id: list[UserID]) -> list[User]:
+        """
+        Получения списка User по списку id.
+
+        Returns:
+            Список пользователей.
+
+        """
+        if not users_id:
+            return []
+
+        ids_list = [user_id.value for user_id in users_id]
+
+        order_by_case = case({id: index for index, id in enumerate(ids_list)}, value=UserORMModel.id)  # noqa: A001
+
+        stmt = select(UserORMModel).where(UserORMModel.id.in_(ids_list)).order_by(order_by_case)
+
         result = await self._session.execute(stmt)
         users_orm = result.scalars()
         return [self._mapper.to_domain(orm=user_orm) for user_orm in users_orm]

@@ -7,6 +7,7 @@ from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, File, Form, Query, UploadFile, status
 
+from web_suffer.contexts.auth.application.use_cases.get_users_by_id import GetUsersByIDUseCase
 from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     ChangeSubmissionDTO,
     CreateSubmissionDTO,
@@ -34,10 +35,12 @@ from web_suffer.presentation.api.schemas.task.submission import SubmissionRespon
 from web_suffer.presentation.api.schemas.task.task import TaskResponce
 from web_suffer.presentation.api.schemas.task.tasks import UserTaskResponce
 from web_suffer.presentation.api.schemas.task.tasks_statistics import TaskStatisticsResponce
+from web_suffer.presentation.api.schemas.task.top_users import TopUserResponce
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
 from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
 from web_suffer.presentation.api.schemas.task.user import UserResponce
 from web_suffer.shared.application.dtos.access_token_dto import PublicAccessTokenDTO
+from web_suffer.shared.application.dtos.user_id_dto import UserIDDTO
 
 router = APIRouter(prefix="/task", tags=["Task"])
 
@@ -388,28 +391,34 @@ async def user(
 )
 @inject
 async def top_users(
-    use_case: FromDishka[GetTopUsersUseCase],
-    limit: Annotated[int, Query(description="ID пользователя")] = 5,
-) -> list[UserResponce]:
+    top_users_use_case: FromDishka[GetTopUsersUseCase],
+    users_info_use_case: FromDishka[GetUsersByIDUseCase],
+    limit: Annotated[int, Query(description="Число записей", ge=1, le=20)] = 5,
+) -> list[TopUserResponce]:
     """
     Эндпоинт получения информации о пользователе.
 
     Если ID не указан, возвращает информацию о пользователе по access_token.
 
     Returns:
-        UserResponce
+        TopUserResponce
 
     """  # noqa: RUF002
-    users = await use_case.execute(
+    users_tasks = await top_users_use_case.execute(
         input_dto=UserTTOPDTO(
             amount=limit,
         ),
     )
+
+    users_auth = await users_info_use_case.execute(
+        input_dto=[UserIDDTO(user.user_id) for user in users_tasks],
+    )
+
     return [
-        UserResponce(
-            user_id=user.user_id,
-            exp=user.exp,
-            money=user.money,
+        TopUserResponce(
+            user_email=userA.email,
+            exp=userT.exp,
+            money=userT.money,
         )
-        for user in users
+        for userA, userT in zip(users_auth, users_tasks, strict=True)
     ]
