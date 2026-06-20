@@ -2,14 +2,17 @@ import axios from 'axios'
 import authService from '@/services/api/auth_service.ts'
 import type {
   ChangeSubmissionRequest,
+  GetTasksFilters,
   SubmissionApiResponse,
   SubmissionOrderBy,
   SubmissionStatus,
   TaskApiResponse,
   TaskStatisticsResponse,
+  TopUserApiResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
   UpdateUserExpRequest,
+  UserTaskApiResponse,
 } from '@/types/tasks.ts'
 
 const apiClient = axios.create({
@@ -191,6 +194,42 @@ class TaskService {
     } catch (error: any) {
       if (error.response) {
         throw new Error('Не удалось получить статистику заданий')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  // the actual per-user task list — status is already resolved server-side
+  async getTasks(filters?: GetTasksFilters): Promise<UserTaskApiResponse[]> {
+    try {
+      const response = await apiClient.get<UserTaskApiResponse[]>('/api/task/tasks', {
+        params: {
+          limit: filters?.limit,
+          offset: filters?.offset,
+          deadline_from: filters?.deadlineFrom,
+          deadline_till: filters?.deadlineTill,
+          status: filters?.status,
+          order_by: filters?.orderBy,
+        },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить список заданий')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getTopUsers(limit?: number): Promise<TopUserApiResponse[]> {
+    try {
+      const response = await apiClient.get<TopUserApiResponse[]>('/api/task/top-users', {
+        params: { limit },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить таблицу лидеров')
       }
       throw new Error('Ошибка соединения с сервером')
     }

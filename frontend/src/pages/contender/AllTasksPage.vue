@@ -40,11 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBreakpoints } from '@vueuse/core'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateShort as formatDate } from '@/utils/tasks.ts'
 import type { UserTask } from '@/types/tasks.ts'
 import BackArrowIcon from '@/assets/icons/backarrow.svg'
@@ -53,11 +52,12 @@ defineOptions({ name: 'AllTasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
-const authStore = useAuthStore()
 
-const availableTasks = computed(() =>
-  tasksStore.userTasks(authStore.userEmail ?? '').filter((t) => t.status === 'available'),
-)
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+})
+
+const availableTasks = computed(() => tasksStore.myTasks.filter((t) => t.status === 'available'))
 
 const breakpoints = useBreakpoints({ mobile: 0, tablet: 540, desktop: 1050 })
 const isDesktop = breakpoints.greater('desktop')

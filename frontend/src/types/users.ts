@@ -1,12 +1,11 @@
-import type { UserRole } from '@/types/auth.ts'
+import type { ApiUserRole, ApiUserStatus } from '@/types/auth.ts'
 
 export interface User {
-  id: number
+  id: string
   email: string
-  points: number
-  role: UserRole
+  role: ApiUserRole
 }
 
 export interface UserManagement extends User {
-  banned: boolean
+  status: ApiUserStatus
 }
