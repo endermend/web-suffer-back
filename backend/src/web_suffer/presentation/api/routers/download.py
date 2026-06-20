@@ -29,7 +29,7 @@ def is_safe_path(path: Path, base_dir: Path) -> bool:
 @router.get(
     "/{filename}",
     status_code=status.HTTP_200_OK,
-    summary="Получение информации о пользователе по ID.",
+    summary="Получение файла по названию.",
 )
 async def download(filename: str) -> FileResponse:
     """

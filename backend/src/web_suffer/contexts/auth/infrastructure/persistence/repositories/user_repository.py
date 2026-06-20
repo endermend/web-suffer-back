@@ -72,7 +72,7 @@ class UserRepository(IUserRepository):
             Пользователь, если пользователь с таким ID существует, иначе None.
 
         """  # noqa: RUF002
-        stmt = select(UserORMModel).where(UserORMModel.id == user_id.value)
+        stmt = select(UserORMModel)
         result = await self._session.execute(stmt)
         user_orm = result.scalar()
         if user_orm is None:
