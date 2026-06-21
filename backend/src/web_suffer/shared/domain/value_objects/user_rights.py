@@ -41,7 +41,7 @@ class UserRights:
     )
     CHANGE_SELF: Final = UserRight(
         roles={UserRole.USER, UserRole.MODERATOR},
-        statuses={{UserStatus.DELETED, UserStatus.ACTIVE},
+        statuses={UserStatus.DELETED, UserStatus.ACTIVE},
     )
 
     UPDATE_TASK: Final = UserRight(
