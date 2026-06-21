@@ -26,16 +26,13 @@
               </select>
             </div>
 
-            <div class="user_actions">
+            <div v-if="user.role !== 'admin'" class="user_actions">
               <button class="action_btn" @click="toggleBan(user)">
                 {{ user.status === 'banned' ? 'Разбанить' : 'Забанить' }}
               </button>
               <button class="action_btn" @click="startEdit(user, 'email')">Сменить почту</button>
               <button class="action_btn" @click="startEdit(user, 'password')">
                 Сменить пароль
-              </button>
-              <button class="action_btn action_btn_danger" @click="deleteUser(user)">
-                Удалить
               </button>
             </div>
 
@@ -89,10 +86,6 @@ function toggleBan(user: UserManagement): void {
 function changeRole(user: UserManagement, event: Event): void {
   const role = (event.target as HTMLSelectElement).value as ApiUserRole
   usersStore.setRole(user.id, role)
-}
-
-function deleteUser(user: UserManagement): void {
-  usersStore.deleteUser(user.id)
 }
 
 const editingUserId = ref<string | null>(null)
@@ -166,7 +159,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -289,15 +282,6 @@ main {
 
 .action_btn_primary:hover {
   background-color: rgb(140, 105, 160);
-}
-
-.action_btn_danger {
-  color: rgb(204, 63, 75);
-  border-color: rgb(204, 63, 75);
-}
-
-.action_btn_danger:hover {
-  background-color: rgba(204, 63, 75, 0.1);
 }
 
 /* edit panel */

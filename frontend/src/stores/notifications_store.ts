@@ -12,10 +12,10 @@ let pollHandle: ReturnType<typeof setInterval> | null = null
 
 // Diff snapshots from the previous poll. Kept as module-level state rather than
 // store state since nothing in the UI reads them — only the notifications they produce.
-let myUserId: string | null = null
+let myEmail: string | null = null
 let prevSubmissions: Map<string, { status: string; taskId: string }> | null = null
 let prevRank: number | null = null
-let prevAboveUserId: string | null = null
+let prevAboveEmail: string | null = null
 
 const POLL_INTERVAL_MS = 20000
 
@@ -51,16 +51,15 @@ const useNotificationsStore = defineStore('notifications', {
         clearInterval(pollHandle)
         pollHandle = null
       }
-      myUserId = null
+      myEmail = null
       prevSubmissions = null
       prevRank = null
-      prevAboveUserId = null
+      prevAboveEmail = null
     },
 
     async checkSubmissions() {
       try {
         const me = await authService.getUser()
-        myUserId = me.user_id
         const [tasks, submissions] = await Promise.all([
           taskService.getTasks({ limit: 100 }),
           taskService.getSubmissions({ userId: me.user_id }),
@@ -88,24 +87,24 @@ const useNotificationsStore = defineStore('notifications', {
 
     async checkLeaderboard() {
       try {
-        if (!myUserId) {
+        if (!myEmail) {
           const me = await authService.getUser()
-          myUserId = me.user_id
+          myEmail = me.email
         }
-        const topUsers = await taskService.getTopUsers(9999)
+        // /api/task/top-users now returns the email directly, so no per-row lookup is needed
+        const topUsers = await taskService.getTopUsers(20)
         const sorted = [...topUsers].sort((a, b) => b.exp - a.exp)
-        const myIndex = sorted.findIndex((u) => u.user_id === myUserId)
+        const myIndex = sorted.findIndex((u) => u.user_email === myEmail)
         if (myIndex === -1) return
 
-        const aboveUserId = myIndex > 0 ? (sorted[myIndex - 1]?.user_id ?? null) : null
+        const aboveEmail = myIndex > 0 ? (sorted[myIndex - 1]?.user_email ?? null) : null
 
-        if (prevRank !== null && myIndex < prevRank && prevAboveUserId) {
-          const overtaken = await authService.getUser(prevAboveUserId)
-          this.push(`Вы обогнали пользователя ${overtaken.email}.`)
+        if (prevRank !== null && myIndex < prevRank && prevAboveEmail) {
+          this.push(`Вы обогнали пользователя ${prevAboveEmail}.`)
         }
 
         prevRank = myIndex
-        prevAboveUserId = aboveUserId
+        prevAboveEmail = aboveEmail
       } catch {
         // same as above — best-effort, retried on the next tick
       }

@@ -128,7 +128,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
   display: flex;
   flex-direction: column;

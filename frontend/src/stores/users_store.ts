@@ -33,17 +33,10 @@ const useUsersStore = defineStore('users', {
       }
     },
 
-    // GET /api/auth/users only ever lists role='user' accounts — promoting someone
-    // out of that role makes them drop out of this page, so drop them locally too
-    // instead of leaving a stale row that only vanishes on the next reload.
     async setRole(id: string, role: ApiUserRole) {
       await authService.updateUser({ user_id: id, role })
-      if (role === 'user') {
-        const user = this.users.find((u) => u.id === id)
-        if (user) user.role = role
-      } else {
-        this.users = this.users.filter((u) => u.id !== id)
-      }
+      const user = this.users.find((u) => u.id === id)
+      if (user) user.role = role
     },
 
     async setStatus(id: string, status: ApiUserStatus) {
@@ -60,11 +53,6 @@ const useUsersStore = defineStore('users', {
 
     async updatePassword(id: string, newPassword: string) {
       await authService.updateUser({ user_id: id, new_password: newPassword })
-    },
-
-    async deleteUser(id: string) {
-      await authService.updateUser({ user_id: id, status: 'deleted' })
-      this.users = this.users.filter((u) => u.id !== id)
     },
   },
 })
