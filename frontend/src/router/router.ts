@@ -16,6 +16,7 @@ import ModeratorProfilePage from '@/pages/moderator/ModeratorProfilePage.vue'
 import UsersPage from '@/pages/admin/UsersPage.vue'
 import NotFoundPage from '@/pages/NotFoundPage.vue'
 import ForbiddenPage from '@/pages/ForbiddenPage.vue'
+import BannedPage from '@/pages/BannedPage.vue'
 
 // `roles` restricts a route to the listed roles. Admin bypasses this check (can
 // factually visit any page) unless `adminBypass: false` is set explicitly — used
@@ -82,8 +83,9 @@ const router = createRouter({
     },
     { path: '/login', component: LoginPage, meta: { layout: 'auth', public: true } },
     { path: '/register', component: RegisterPage, meta: { layout: 'auth', public: true } },
+    { path: '/banned', component: BannedPage, meta: { layout: 'auth', public: true } },
     { path: '/403', component: ForbiddenPage, meta: { layout: 'auth' } },
-    { path: NOT_FOUND_PATH, component: NotFoundPage, meta: { layout: 'auth' } },
+    { path: NOT_FOUND_PATH, name: 'not-found', component: NotFoundPage, meta: { layout: 'auth' } },
   ],
 })
 

@@ -122,7 +122,7 @@ main {
 .banners {
   height: 600px;
   margin-block: 30px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -178,7 +178,7 @@ main {
 .leaderboard_card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
 }
 

@@ -32,8 +32,7 @@
                   <div class="assignment_title">{{ item.title }}</div>
                 </div>
                 <div class="assignment_side">
-                  <div class="deadline_label">Дедлайн</div>
-                  <div class="deadline_date">{{ formatDate(item.deadline) }}</div>
+                  <div class="deadline_date">Дедлайн {{ formatDate(item.deadline) }}</div>
                   <div class="points_label">{{ item.exp }} баллов</div>
                 </div>
               </div>
@@ -45,7 +44,7 @@
           </div>
 
           <!-- progress -->
-          <div class="card">
+          <div class="card_progress">
             <div class="card_header">
               <div>
                 <span class="card_title">Правильность</span>
@@ -66,8 +65,6 @@
           </div>
         </div>
 
-        <!-- bottom row: recent grades stretches (via grid stretch) to match the
-             combined height of the pending+rejected column next to it -->
         <div class="grid_bottom">
           <!-- recent grades -->
           <div class="card grades_card">
@@ -87,7 +84,11 @@
               </div>
             </div>
             <div v-else class="empty_state">Оценок пока нет</div>
-            <button type="button" class="view_all_btn grades_footer_btn" @click="router.push('/profile')">
+            <button
+              type="button"
+              class="view_all_btn grades_footer_btn"
+              @click="router.push('/profile')"
+            >
               Все выполненные
             </button>
           </div>
@@ -234,14 +235,24 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { formatDateShort as formatDate, parseDeadline, statusChip, statusLabel } from '@/utils/tasks.ts'
+import {
+  formatDateShort as formatDate,
+  parseDeadline,
+  isExpired,
+  statusChip,
+  statusLabel,
+} from '@/utils/tasks.ts'
 
 defineOptions({ name: 'TasksPage' })
 
 const router = useRouter()
 const tasksStore = useTasksStore()
 
-const myTasks = computed(() => tasksStore.myTasks)
+// an available task past its deadline was never acted on and can no longer be —
+// it's effectively gone, so it's filtered out here rather than left to show as actionable
+const myTasks = computed(() =>
+  tasksStore.myTasks.filter((t) => t.status !== 'available' || !isExpired(t.deadline)),
+)
 
 const searchQuery = ref('')
 const deadlineBefore = ref('')
@@ -266,9 +277,15 @@ const filteredTasks = computed(() =>
     if (searchQuery.value && !t.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
       return false
     if (statusFilter.value && t.status !== statusFilter.value) return false
-    if (deadlineBefore.value && parseDeadline(t.deadline) > parseDateBoundary(deadlineBefore.value, true))
+    if (
+      deadlineBefore.value &&
+      parseDeadline(t.deadline) > parseDateBoundary(deadlineBefore.value, true)
+    )
       return false
-    if (deadlineAfter.value && parseDeadline(t.deadline) < parseDateBoundary(deadlineAfter.value, false))
+    if (
+      deadlineAfter.value &&
+      parseDeadline(t.deadline) < parseDateBoundary(deadlineAfter.value, false)
+    )
       return false
     return true
   }),
@@ -425,6 +442,15 @@ main {
 /* cards */
 
 .card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+.card_progress {
+  display: flex;
+  flex-direction: column;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import authService from '@/services/api/auth_service.ts'
-import type { AuthCredentials, AuthToken, UserRole } from '@/types/auth.ts'
+import type { ApiUserStatus, AuthCredentials, AuthToken, UserRole } from '@/types/auth.ts'
 
 const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -9,6 +9,7 @@ const useAuthStore = defineStore('auth', {
     userEmail: localStorage.getItem('user_email') || null,
     // TODO: replace with role from API once roles exist on the backend
     role: (localStorage.getItem('role') as UserRole) || 'member',
+    userStatus: (localStorage.getItem('user_status') as ApiUserStatus) || 'active',
     loading: false,
     error: null,
   }),
@@ -61,10 +62,15 @@ const useAuthStore = defineStore('auth', {
 
         await this.fetchUserData()
 
+        if (this.userStatus === 'banned') {
+          await this.logout()
+          return { success: false, banned: true, error: 'Этот аккаунт временно заблокирован' }
+        }
+
         return { success: true, tokens }
       } catch (error: any) {
         this.error = error.message
-        return { success: false, error: error.message }
+        return { success: false, banned: false, error: error.message }
       } finally {
         this.loading = false
       }
@@ -89,6 +95,9 @@ const useAuthStore = defineStore('auth', {
       this.userEmail = data.email
       localStorage.setItem('user_email', data.email)
 
+      this.userStatus = data.status
+      localStorage.setItem('user_status', data.status)
+
       let role: UserRole
       if (data.role === 'admin' || data.role === 'moderator') {
         role = data.role
@@ -103,9 +112,11 @@ const useAuthStore = defineStore('auth', {
       this.accessToken = null
       this.userEmail = null
       this.role = 'member'
+      this.userStatus = 'active'
       localStorage.removeItem('access_token')
       localStorage.removeItem('user_email')
       localStorage.removeItem('role')
+      localStorage.removeItem('user_status')
     },
   },
 })

@@ -20,7 +20,11 @@
           <div class="points_pill">{{ task.exp }} баллов</div>
         </div>
 
-        <div v-if="status === 'rejected'" class="rejected_note">
+        <div v-if="isDeletedAccount" class="deleted_note">
+          Восстановите аккаунт перед отправкой
+        </div>
+
+        <div v-else-if="status === 'rejected'" class="rejected_note">
           Задание отклонено администратором. Вы можете изменить ответ и отправить его повторно.
         </div>
 
@@ -101,7 +105,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { useAuthStore } from '@/stores/auth_store.ts'
-import { formatDateLong as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
+import { formatDateLong as formatDate, isExpired, statusChip, statusLabel } from '@/utils/tasks.ts'
 import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
 defineOptions({ name: 'TaskDetailPage' })
@@ -113,17 +117,28 @@ const authStore = useAuthStore()
 
 const taskId = route.params.id as string
 
-onMounted(() => {
-  tasksStore.fetchMyTasks()
-  tasksStore.fetchMySubmissions()
+onMounted(async () => {
+  await Promise.all([tasksStore.fetchMyTasks(), tasksStore.fetchMySubmissions()])
+
+  // a task can still be in the cached list with status "available" after its deadline
+  // passed (the list just hasn't been refetched yet) — treat it as gone, same as a
+  // task that was never assigned to this user at all
+  if (!task.value || (status.value === 'available' && isExpired(task.value.deadline))) {
+    router.replace({ name: 'not-found' })
+  }
 })
 
 const task = computed(() => tasksStore.myTasks.find((t) => t.id === taskId))
 const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId))
 const status = computed(() => currentSubmission.value?.status ?? 'available')
+const isDeletedAccount = computed(
+  () => authStore.role === 'member' && authStore.userStatus === 'deleted',
+)
 const isEditable = computed(
   () =>
-    authStore.role === 'member' && (status.value === 'available' || status.value === 'rejected'),
+    authStore.role === 'member' &&
+    !isDeletedAccount.value &&
+    (status.value === 'available' || status.value === 'rejected'),
 )
 
 // Pre-fill with the previous attempt's text when resubmitting after a rejection, so the
@@ -414,6 +429,17 @@ main {
 /* rejected note */
 
 .rejected_note {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: rgba(204, 63, 75, 0.08);
+  font-family: Nagel;
+  font-size: 14px;
+  color: rgb(204, 63, 75);
+}
+
+/* deleted account note */
+
+.deleted_note {
   padding: 14px 18px;
   border-radius: 12px;
   background-color: rgba(204, 63, 75, 0.08);

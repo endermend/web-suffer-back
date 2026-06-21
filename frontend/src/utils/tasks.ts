@@ -52,6 +52,10 @@ function toDatetimeLocalInput(iso: string): string {
 
 // CSS class names keep their old wording (chip_graded etc.) — they're purely visual
 // and already used across several components' <style> blocks, no need to churn those.
+function isExpired(deadline: string): boolean {
+  return parseDeadline(deadline) < new Date()
+}
+
 function statusChip(status: UserTaskStatus): string {
   if (status === 'accepted') return 'chip_graded'
   if (status === 'pending') return 'chip_submitted'
@@ -66,4 +70,12 @@ function statusLabel(status: UserTaskStatus): string {
   return 'Доступно'
 }
 
-export { formatDateShort, formatDateLong, toDatetimeLocalInput, parseDeadline, statusChip, statusLabel }
+export {
+  formatDateShort,
+  formatDateLong,
+  toDatetimeLocalInput,
+  parseDeadline,
+  isExpired,
+  statusChip,
+  statusLabel,
+}

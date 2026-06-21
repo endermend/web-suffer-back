@@ -170,6 +170,8 @@ async function handleLogIn(): Promise<void> {
     const result = await authStore.login({ email: form.email, password: form.password })
     if (result.success) {
       router.push(authStore.landingPath)
+    } else if (result.banned) {
+      router.push('/banned')
     } else {
       fieldErrors.general = result.error
       triggerShake('form')

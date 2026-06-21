@@ -44,7 +44,7 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBreakpoints } from '@vueuse/core'
 import { useTasksStore } from '@/stores/tasks_store.ts'
-import { formatDateShort as formatDate } from '@/utils/tasks.ts'
+import { formatDateShort as formatDate, isExpired } from '@/utils/tasks.ts'
 import type { UserTask } from '@/types/tasks.ts'
 import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
@@ -57,7 +57,9 @@ onMounted(() => {
   tasksStore.fetchMyTasks()
 })
 
-const availableTasks = computed(() => tasksStore.myTasks.filter((t) => t.status === 'available'))
+const availableTasks = computed(() =>
+  tasksStore.myTasks.filter((t) => t.status === 'available' && !isExpired(t.deadline)),
+)
 
 const breakpoints = useBreakpoints({ mobile: 0, tablet: 540, desktop: 1050 })
 const isDesktop = breakpoints.greater('desktop')
@@ -104,7 +106,7 @@ main {
   background-color: white;
   border-radius: 16px;
   margin-top: 32px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
 }
 
 .back_btn {
@@ -149,7 +151,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
 }
 

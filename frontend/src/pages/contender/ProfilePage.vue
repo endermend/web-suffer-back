@@ -104,7 +104,7 @@ main {
 .card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding-block: 24px;
   padding-inline: 24px;
 }
@@ -112,7 +112,7 @@ main {
 .card_assignments {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding-block: 24px;
   padding-inline: 24px;
 }
@@ -128,7 +128,7 @@ main {
 .stat_card {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
