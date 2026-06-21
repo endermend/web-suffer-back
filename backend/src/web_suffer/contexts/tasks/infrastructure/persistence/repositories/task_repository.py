@@ -143,17 +143,21 @@ class TaskRepository(ITaskRepository):
         )
 
         if status == "available":
-            stmt = stmt.where(
-                or_(
-                    ~func.exists().where(
-                        and_(
-                            SubmissionORMModel.user_id == user_id.value,
-                            SubmissionORMModel.task_id == TaskORMModel.id,
-                        ),
-                    ),
-                    status_stmt == "rejected",
+            exists_subquery = select(
+                SubmissionORMModel.id,
+            ).where(
+                and_(
+                    SubmissionORMModel.user_id == user_id.value,
+                    SubmissionORMModel.task_id == TaskORMModel.id,
                 ),
-            )
+            ).exists()
+
+            stmt = stmt.where(
+        or_(
+            ~exists_subquery,
+            status_stmt == "rejected",
+        ),
+    )
         elif status == "pending":
             stmt = stmt.where(status_stmt == "pending")
         elif status == "accepted":

@@ -13,6 +13,10 @@ class UserRights:
         statuses=UserRight.ALL,
     )
 
+    DELETE_ACCOUNT: Final = UserRight(
+        roles=UserRight.ALL,
+        statuses={UserStatus.ACTIVE},
+    )
     RESTORE_ACCOUNT: Final = UserRight(
         roles=UserRight.ALL,
         statuses={UserStatus.DELETED},
@@ -37,7 +41,7 @@ class UserRights:
     )
     CHANGE_SELF: Final = UserRight(
         roles={UserRole.USER, UserRole.MODERATOR},
-        statuses={UserStatus.ACTIVE},
+        statuses={{UserStatus.DELETED, UserStatus.ACTIVE},
     )
 
     UPDATE_TASK: Final = UserRight(

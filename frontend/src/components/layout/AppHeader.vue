@@ -10,13 +10,13 @@
 
         <div class="account_main">
           <template v-if="!isAuthenticated">
-            <div @click="router.push('/login')">
+            <div class="all_icon" @click="router.push('/login')">
               <PersonIcon />
             </div>
           </template>
 
           <template v-else>
-            <div ref="bellIconRef" @click="toggleNotifications">
+            <div ref="bellIconRef" class="all_icon" @click="toggleNotifications">
               <BellIcon />
             </div>
 
@@ -24,7 +24,10 @@
               <span class="logout_text">Выход</span>
             </div>
 
-            <span @click="router.push(profileLink)" class="user_email">{{ userEmail }}</span>
+            <div v-if="isCompact" class="all_icon" @click="router.push(accountLink)">
+              <PersonIcon />
+            </div>
+            <span v-else @click="router.push(accountLink)" class="user_email">{{ userEmail }}</span>
           </template>
         </div>
       </div>
@@ -49,10 +52,18 @@
       class="notifications_panel"
       :style="notificationsPanelStyle"
     >
-      <div v-if="notifications.length === 0" class="notifications_empty">Нет уведомлений</div>
-      <div v-for="notification in notifications" :key="notification.id" class="notification_item">
-        {{ notification.message }}
+      <div v-if="notificationsStore.toasts.length === 0" class="notifications_empty">
+        Нет уведомлений
       </div>
+      <transition-group v-else name="notification" tag="div" class="notifications_list">
+        <div
+          v-for="notification in notificationsStore.toasts"
+          :key="notification.id"
+          class="notification_item"
+        >
+          {{ notification.message }}
+        </div>
+      </transition-group>
     </div>
 
     <!-- lower header -->
@@ -74,10 +85,10 @@
           >Задания</RouterLink
         >
         <RouterLink
-          to="/admin/tasks"
+          to="/moderator/tasks"
           v-if="authStore.role === 'moderator' && isAuthenticated"
-          @click="toggleNavJump('/admin/tasks')"
-          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @click="toggleNavJump('/moderator/tasks')"
+          :class="{ jump: jumpingPath === '/moderator/tasks' }"
           @animationend="jumpingPath = null"
           >Управление заданиями</RouterLink
         >
@@ -91,7 +102,7 @@
         >
         <RouterLink
           :to="profileLink"
-          v-if="isAuthenticated"
+          v-if="isAuthenticated && authStore.role !== 'admin'"
           @click="toggleNavJump(profileLink)"
           :class="{ jump: jumpingPath === profileLink }"
           @animationend="jumpingPath = null"
@@ -119,16 +130,16 @@
           >Задания</RouterLink
         >
         <RouterLink
-          to="/admin/tasks"
+          to="/moderator/tasks"
           v-if="authStore.role === 'moderator' && isAuthenticated"
-          @click="toggleNavJump('/admin/tasks')"
-          :class="{ jump: jumpingPath === '/admin/tasks' }"
+          @click="toggleNavJump('/moderator/tasks')"
+          :class="{ jump: jumpingPath === '/moderator/tasks' }"
           @animationend="jumpingPath = null"
           >Управление заданиями</RouterLink
         >
         <RouterLink
           :to="profileLink"
-          v-if="isAuthenticated"
+          v-if="isAuthenticated && authStore.role !== 'admin'"
           @click="toggleNavJump(profileLink)"
           :class="{ jump: jumpingPath === profileLink }"
           @animationend="jumpingPath = null"
@@ -151,16 +162,23 @@
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store.ts'
+import { useNotificationsStore } from '@/stores/notifications_store.ts'
 import { useBreakpoints, onClickOutside } from '@vueuse/core'
 import PersonIcon from '@/assets/icons/person.svg'
 import BellIcon from '@/assets/icons/bell.svg'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationsStore = useNotificationsStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const userEmail = computed(() => authStore.userEmail)
-const profileLink = computed(() =>
-  authStore.role === 'admin' || authStore.role === 'moderator' ? '/admin/profile' : '/profile',
+// admin has no profile page — clicking the email takes them to their landing page instead
+const profileLink = computed(() => {
+  if (authStore.role === 'moderator') return '/moderator/profile'
+  return '/profile'
+})
+const accountLink = computed(() =>
+  authStore.role === 'admin' ? authStore.landingPath : profileLink.value,
 )
 
 // anims
@@ -176,6 +194,7 @@ async function toggleNavJump(path: string) {
 
 const breakpoints = useBreakpoints({
   mobile: 0,
+  compact: 500,
   tablet: 540,
   desktop: 1050,
 })
@@ -183,6 +202,7 @@ const breakpoints = useBreakpoints({
 const isDesktop = breakpoints.greater('desktop')
 const isTablet = breakpoints.between('tablet', 'desktop')
 const isMobile = breakpoints.smaller('tablet')
+const isCompact = breakpoints.smaller('compact')
 
 const notificationsPanelRef = ref<HTMLDivElement | null>(null)
 const logoutConfirmPanelRef = ref<HTMLDivElement | null>(null)
@@ -201,7 +221,6 @@ function clampPanelLeft(left: number, panelWidth: number): number {
 const bellIconRef = ref<HTMLDivElement | null>(null)
 const isNotificationsOpen = ref(false)
 const bellCoords = ref({ top: 0, left: 0 })
-const notifications = ref<Array<{ id: number; message: string }>>([])
 const NOTIFICATIONS_PANEL_WIDTH = 250
 
 function toggleNotifications(): void {
@@ -331,11 +350,27 @@ header {
   text-align: center;
 }
 
+.notifications_list {
+  display: flex;
+  flex-direction: column;
+}
+
 .notification_item {
   user-select: none;
   padding: 12px 16px;
   font-family: Nagel;
   border-bottom: thin solid rgb(230, 230, 230);
+}
+
+.notification-enter-active,
+.notification-leave-active {
+  transition: 0.3s all;
+}
+
+.notification-enter-from,
+.notification-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
 }
 
 /* upper header */
@@ -358,6 +393,7 @@ header {
 /* logo */
 
 .logo_main {
+  min-width: 230px;
   display: flex;
   align-items: center;
   padding-inline: 10px;
@@ -383,6 +419,7 @@ header {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
+  min-width: 0;
 }
 
 .account_main div {
@@ -393,16 +430,16 @@ header {
   align-items: center;
 }
 
-.account_main div svg {
+.all_icon {
   color: white;
-  width: 100%;
+  /* width: 100%; */
   height: 100%;
   cursor: pointer;
-  min-width: 32px;
+  min-width: 48px;
   transition: 0.2s transform;
 }
 
-.account_main div svg:hover {
+.all_icon:hover {
   transform: scale(1.1);
 }
 
@@ -426,14 +463,19 @@ header {
 }
 
 .user_email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   user-select: none;
   color: white;
   font-size: 20px;
   font-family: Nagel;
   cursor: pointer;
   margin-inline: 8px;
-  white-space: nowrap;
-  display: inline-block;
+
+  flex: 1 1 auto;
+  min-width: 0px;
   transition: 0.2s transform;
 }
 
@@ -541,12 +583,16 @@ header {
     box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
   }
 
-  .logo_main span {
-    font-size: 4vw;
+  .header_upper_contents {
+    width: 100%;
   }
 
-  .user_email {
-    font-size: 4vw;
+  .logo_main span {
+    font-size: 19px;
+  }
+
+  .logo_main {
+    min-width: 200px;
   }
 }
 </style>

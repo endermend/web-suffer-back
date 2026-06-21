@@ -6,7 +6,7 @@ from web_suffer.shared.domain.value_objects.user_role import UserRole
 from web_suffer.shared.domain.value_objects.user_status import UserStatus
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(frozen=True, unsafe_hash=False)
 class UserRight(BaseValueObject):
     """Право пользователей."""
 
@@ -45,3 +45,6 @@ class UserRight(BaseValueObject):
     @override
     def _get_equality_components(self) -> tuple[Any, ...]:
         return (self.roles, self.statuses)
+
+    def __hash__(self) -> int:  # noqa: D105
+        return BaseValueObject.__hash__(self)

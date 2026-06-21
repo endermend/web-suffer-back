@@ -1,37 +1,46 @@
 import shutil
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, File, Form, Query, UploadFile, status
 
+from web_suffer.contexts.auth.application.use_cases.get_users_by_id import GetUsersByIDUseCase
 from web_suffer.contexts.tasks.application.dtos.submission_dto import (
     ChangeSubmissionDTO,
     CreateSubmissionDTO,
     SubmissionRangesDTO,
     SubmissionTokenIDDTO,
 )
-from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO
-from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO
+from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO, UsersTasksRangeDTO
+from web_suffer.contexts.tasks.application.dtos.usert_dto import UpdateUserTDTO, UserTIDDTO, UserTTOPDTO
 from web_suffer.contexts.tasks.application.use_cases.change_submission import ChangeSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.create_submission import CreateSubmissionUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submission_by_id import GetSubmissionByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_submissions import GetSubmissionsUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_task_by_id import GetTaskByIDUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_tasks import GetTasksUseCase
 from web_suffer.contexts.tasks.application.use_cases.get_tasks_statistics import GetTasksStatisticsUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_top_users import GetTopUsersUseCase
+from web_suffer.contexts.tasks.application.use_cases.get_user_by_id import GetUserByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
-from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus, TaskOrderBy, TaskStatusFilter
 from web_suffer.infrastructure.constants import UPLOAD_DIR
 from web_suffer.presentation.api.routers.utils import CredentialsType, OptionalCredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
 from web_suffer.presentation.api.schemas.task.submission import SubmissionResponce
 from web_suffer.presentation.api.schemas.task.task import TaskResponce
+from web_suffer.presentation.api.schemas.task.tasks import UserTaskResponce
 from web_suffer.presentation.api.schemas.task.tasks_statistics import TaskStatisticsResponce
+from web_suffer.presentation.api.schemas.task.top_users import TopUserResponce
 from web_suffer.presentation.api.schemas.task.update_task import UpdateTaskRequest, UpdateTaskResponse
 from web_suffer.presentation.api.schemas.task.update_user import UpdateUserRequest
+from web_suffer.presentation.api.schemas.task.user import UserResponce
 from web_suffer.shared.application.dtos.access_token_dto import PublicAccessTokenDTO
+from web_suffer.shared.application.dtos.user_id_dto import UserIDDTO
 
 router = APIRouter(prefix="/task", tags=["Task"])
 
@@ -240,7 +249,7 @@ async def task(
     use_case: FromDishka[GetTaskByIDUseCase],
 ) -> TaskResponce:
     """
-    Эндпоинт получения задания.
+    Эндпоинт получения описания задания.
 
     Returns:
         TaskResponce
@@ -272,14 +281,14 @@ async def tasks_statistics(
     credentials: OptionalCredentialsType = None,
 ) -> TaskStatisticsResponce:
     """
-    Эндпоинт получения задания.
+    Эндпоинт получения статистики о заданиях.
 
     Если access_token не указан, возвращает только общее число доступных задач.
 
     Returns:
         TaskStatisticsResponce
 
-    """
+    """  # noqa: RUF002
     access_token = credentials.credentials if credentials is not None else None
     output_dto = await use_case.execute(
         input_dto=PublicAccessTokenDTO(
@@ -290,3 +299,126 @@ async def tasks_statistics(
         task_all=output_dto.tasks_all,
         task_status=output_dto.tasks_status,
     )
+
+
+@router.get(
+    "/tasks",
+    status_code=status.HTTP_200_OK,
+    summary="Получение заданий пользователя по фильтру",
+)
+@inject
+async def tasks(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetTasksUseCase],
+    limit: Annotated[int, Query(description="Предел записей", le=100, ge=1)] = 20,
+    offset: Annotated[int, Query(description="Отступ от начала")] = 0,
+    deadline_from: Annotated[datetime | None, Query(description="Дедлайн от")] = None,
+    deadline_till: Annotated[datetime | None, Query(description="Дедлайн до")] = None,
+    status: Annotated[TaskStatusFilter | None, Query(description="Статус задания")] = None,
+    order_by: Annotated[TaskOrderBy | None, Query(description="Порядок сортировки")] = None,
+) -> list[UserTaskResponce]:
+    """
+    Эндпоинт получения списка заданий.
+
+    Returns:
+        list[UserTaskResponce]
+
+    """
+    access_token = credentials.credentials if credentials is not None else None
+    tasks = await use_case.execute(
+        input_dto=UsersTasksRangeDTO(
+            access_token=access_token,
+            deadline_from=deadline_from,
+            deadline_till=deadline_till,
+            status=status,
+            order_by=order_by,
+            limit=limit,
+            offset=offset,
+        ),
+    )
+    return [
+        UserTaskResponce(
+            task_id=task.task_id,
+            title=task.title,
+            description=task.description,
+            deadline=task.deadline,
+            exp=task.exp,
+            money=task.money,
+            status=task.status,
+        )
+        for task in tasks
+    ]
+
+
+@router.get(
+    "/user",
+    status_code=status.HTTP_200_OK,
+    summary="Получение информации о пользователе по ID.",
+)
+@inject
+async def user(
+    credentials: CredentialsType,
+    use_case: FromDishka[GetUserByIDUseCase],
+    user_id: Annotated[uuid.UUID | None, Query(description="ID пользователя")] = None,
+) -> UserResponce:
+    """
+    Эндпоинт получения информации о пользователе.
+
+    Если ID не указан, возвращает информацию о пользователе по access_token.
+
+    Returns:
+        UserResponce
+
+    """  # noqa: RUF002
+    access_token = credentials.credentials if credentials is not None else None
+    user = await use_case.execute(
+        input_dto=UserTIDDTO(
+            access_token=access_token,
+            user_id=user_id,
+        ),
+    )
+    return UserResponce(
+        user_id=user.user_id,
+        exp=user.exp,
+        money=user.money,
+    )
+
+
+@router.get(
+    "/top-users",
+    status_code=status.HTTP_200_OK,
+    summary="Получение топа пользователей по опыту.",
+)
+@inject
+async def top_users(
+    top_users_use_case: FromDishka[GetTopUsersUseCase],
+    users_info_use_case: FromDishka[GetUsersByIDUseCase],
+    limit: Annotated[int, Query(description="Число записей", ge=1, le=20)] = 5,
+) -> list[TopUserResponce]:
+    """
+    Эндпоинт получения информации о пользователе.
+
+    Если ID не указан, возвращает информацию о пользователе по access_token.
+
+    Returns:
+        TopUserResponce
+
+    """  # noqa: RUF002
+    users_tasks = await top_users_use_case.execute(
+        input_dto=UserTTOPDTO(
+            amount=limit,
+        ),
+    )
+
+    users_auth = await users_info_use_case.execute(
+        input_dto=[UserIDDTO(user.user_id) for user in users_tasks],
+    )
+
+    return [
+        TopUserResponce(
+            user_email=userA.email,
+            exp=userT.exp,
+            money=userT.money,
+        )
+        for userA, userT in zip(users_auth, users_tasks, strict=True)
+    ]

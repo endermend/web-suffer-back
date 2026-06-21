@@ -26,6 +26,15 @@ RUN groupadd --system --gid 10000 nonroot \
 
 COPY --from=builder --chown=nonroot:nonroot /app /app
 
+RUN mkdir -p /files && \
+    chown -R nonroot:nonroot /files && \
+    chmod 755 /files
+
+ENV PYTHONPATH="/app/src" \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    UPLOAD_DIR="/files"
+
 ENV PYTHONPATH="/app/src" \
     PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1

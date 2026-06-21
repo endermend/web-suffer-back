@@ -1,8 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
-      <button type="button" class="back_btn" @click="router.back()">← Назад</button>
-
+    <div class="main_contents page_enter">
       <div v-if="!task" class="card">
         <div class="empty_state">Задание не найдено</div>
       </div>
@@ -10,7 +8,10 @@
       <template v-else>
         <!-- hero -->
         <div class="page_hero">
-          <div>
+          <button type="button" class="back_btn" @click="router.back()">
+            <BackArrowIcon class="back_icon" />
+          </button>
+          <div class="hero_title_group">
             <h1 class="page_title">{{ task.title }}</h1>
             <span class="status_chip" :class="statusChip(status)">
               {{ statusLabel(status) }}
@@ -96,11 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
 import { useAuthStore } from '@/stores/auth_store.ts'
 import { formatDateLong as formatDate, statusChip, statusLabel } from '@/utils/tasks.ts'
+import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
 defineOptions({ name: 'TaskDetailPage' })
 
@@ -110,23 +112,27 @@ const tasksStore = useTasksStore()
 const authStore = useAuthStore()
 
 const taskId = route.params.id as string
-const userEmail = computed(() => authStore.userEmail ?? '')
 
-const task = computed(() => tasksStore.tasks.find((t) => t.id === taskId))
-// The submission is a separate entity now — Task itself has no status. "Current" picks
-// the user's most relevant attempt for this task (see store getter for the priority rule).
-const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId, userEmail.value))
+onMounted(() => {
+  tasksStore.fetchMyTasks()
+  tasksStore.fetchMySubmissions()
+})
+
+const task = computed(() => tasksStore.myTasks.find((t) => t.id === taskId))
+const currentSubmission = computed(() => tasksStore.mySubmissionForTask(taskId))
 const status = computed(() => currentSubmission.value?.status ?? 'available')
 const isEditable = computed(
   () =>
-    authStore.role === 'member' &&
-    (status.value === 'available' || status.value === 'rejected'),
+    authStore.role === 'member' && (status.value === 'available' || status.value === 'rejected'),
 )
 
 // Pre-fill with the previous attempt's text when resubmitting after a rejection, so the
 // user isn't retyping from scratch. The previous file can't be carried over the same way
 // (no way to turn a stored URL back into a File object for re-upload), so that starts empty.
-const answerInput = ref(currentSubmission.value?.content ?? '')
+const answerInput = ref('')
+watch(currentSubmission, (sub) => {
+  if (sub) answerInput.value = sub.content
+})
 const selectedFile = ref<File | null>(null)
 const submitError = ref('')
 
@@ -141,10 +147,12 @@ async function handleSubmit(): Promise<void> {
 
   const result = await tasksStore.createSubmission(
     task.value.id,
-    userEmail.value,
     answerInput.value,
     selectedFile.value,
   )
+
+  router.push('/tasks')
+
   if (!result.success) submitError.value = result.error
 }
 </script>
@@ -171,30 +179,41 @@ main {
 
 .back_btn {
   appearance: none;
-  align-self: flex-start;
+  flex-shrink: 0;
   border: none;
   background: none;
   padding: 0;
-  font-family: Nagel;
-  font-size: 14px;
-  color: rgb(160, 125, 180);
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  color: rgb(160, 125, 180);
+  transition: color 0.2s;
 }
 
 .back_btn:hover {
-  text-decoration: underline;
+  color: rgb(140, 105, 160);
+}
+
+.back_icon {
+  width: 24px;
+  height: 24px;
+  transform: rotate(180deg);
 }
 
 /* hero */
 
 .page_hero {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 28px 32px;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.1);
+}
+
+.hero_title_group {
+  flex: 1;
 }
 
 .page_title {

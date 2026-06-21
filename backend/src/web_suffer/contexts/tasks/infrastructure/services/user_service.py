@@ -24,7 +24,7 @@ class UserService(IUserService):
         if user is None:
             user = UserT.create(id=user_id)
 
-        user.set_exp(user.exp + exp_diff)
-        user.set_money(user.money + money_diff)
+        user.add_exp(exp_diff)
+        user.add_money(money_diff)
 
         await self._user_repository.save(user)

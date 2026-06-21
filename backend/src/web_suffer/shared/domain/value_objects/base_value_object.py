@@ -21,7 +21,20 @@ class BaseValueObject(ABC):
         return self._get_equality_components() == other._get_equality_components()
 
     def __hash__(self) -> int:  # noqa: D105
-        return hash(self._get_equality_components())
+        def make_hashable(obj: object) -> object:
+            if isinstance(obj, (list, set)):
+                # Convert list/set to tuple, recursively handling nested structures
+                return tuple(make_hashable(item) for item in obj)
+            if isinstance(obj, dict):
+                # Convert dict to tuple of sorted items
+                return tuple((make_hashable(k), make_hashable(v)) for k, v in sorted(obj.items()))
+            return obj
+
+        objects = tuple(
+            make_hashable(obj)
+            for obj in self._get_equality_components()
+        )
+        return hash(tuple(objects))
 
     def __ne__(self, other: object) -> bool:  # noqa: D105
         return not self.__eq__(other)

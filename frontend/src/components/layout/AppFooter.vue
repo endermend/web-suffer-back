@@ -33,7 +33,7 @@ footer {
 }
 
 .footer_contents {
-  font-family: bahnshchrift;
+  font-family: bahnsНа chrift;
   color: white;
   width: 1000px;
   margin-bottom: 24px;

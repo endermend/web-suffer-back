@@ -2,12 +2,8 @@
   <div class="card profile_hero">
     <div class="avatar">{{ avatarLetter }}</div>
     <div class="profile_info">
-      <span class="profile_email">{{ userEmail }}</span>
-      <select class="profile_role" :value="authStore.role" @change="handleRoleChange">
-        <option value="member">Участник</option>
-        <option value="moderator">Модератор</option>
-        <option value="admin">Администратор</option>
-      </select>
+      <span class="profile_email">{{ emailLocalPart }}<wbr />{{ emailDomainPart }}</span>
+      <span class="profile_role">{{ authStore.role }}</span>
     </div>
 
     <div
@@ -23,13 +19,9 @@
       <transition name="fade" mode="out-in">
         <span v-if="!isSettingsMenuOpen" class="settings_label">Настройки аккаунта</span>
         <div v-else class="settings_menu">
-          <RouterLink to="/settings?section=email" class="settings_menu_item">
+          <RouterLink to="/settings" class="settings_menu_item">
             <PenIcon class="settings_menu_icon" />
-            <span>Сменить почту</span>
-          </RouterLink>
-          <RouterLink to="/settings?section=password" class="settings_menu_item">
-            <LockIcon class="settings_menu_icon" />
-            <span>Сменить пароль</span>
+            <span>Сменить почту или пароль</span>
           </RouterLink>
         </div>
       </transition>
@@ -40,27 +32,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth_store.ts'
-import router from '@/router/router'
-import type { UserRole } from '@/types/auth.ts'
 import GearIcon from '@/assets/icons/gear.svg'
 import PenIcon from '@/assets/icons/pen.svg'
-import LockIcon from '@/assets/icons/lock.svg'
 
 defineOptions({ name: 'ProfileHero' })
 
+// the failsafe refresh now lives in DefaultLayout so it covers every role
+// (admin included, which has no profile page to do this from)
 const authStore = useAuthStore()
 
 const isSettingsMenuOpen = ref(false)
-
-function handleRoleChange(e: Event): void {
-  const role = (e.target as HTMLSelectElement).value as UserRole
-  authStore.setRole(role)
-  if (role === 'admin' || role === 'moderator') {
-    router.push('/admin/profile')
-  } else {
-    router.push('/profile')
-  }
-}
 
 const userEmail = computed(function () {
   return authStore.userEmail ?? ''
@@ -68,6 +49,16 @@ const userEmail = computed(function () {
 
 const avatarLetter = computed(function () {
   return userEmail.value.charAt(0).toUpperCase() || '?'
+})
+
+// split at "@" so a <wbr> can offer a wrap point there instead of truncating
+const emailLocalPart = computed(function () {
+  return userEmail.value.split('@')[0] ?? ''
+})
+
+const emailDomainPart = computed(function () {
+  const atIndex = userEmail.value.indexOf('@')
+  return atIndex === -1 ? '' : userEmail.value.slice(atIndex)
 })
 </script>
 
@@ -100,18 +91,23 @@ const avatarLetter = computed(function () {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  user-select: none;
 }
 
 .profile_info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-left: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .profile_email {
   font-family: Nagel;
   font-size: 20px;
   color: rgb(65, 65, 65);
+  word-break: break-word;
 }
 
 .profile_role {
@@ -123,12 +119,6 @@ const avatarLetter = computed(function () {
   font-family: Nagel;
   font-size: 13px;
   color: rgb(150, 150, 150);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.profile_role:hover {
-  color: rgb(160, 125, 180);
 }
 
 /* settings trigger */
@@ -177,8 +167,8 @@ const avatarLetter = computed(function () {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: flex-end;
-  height: 48px;
+  /* align-items: flex-end; */
+  height: 64px;
 }
 
 .settings_menu_item {
@@ -189,7 +179,7 @@ const avatarLetter = computed(function () {
   font-size: 13px;
   color: rgb(65, 65, 65);
   text-decoration: none;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   transition: color 0.15s;
 }
 
@@ -219,7 +209,7 @@ const avatarLetter = computed(function () {
 
 @media screen and (max-width: 540px) {
   .profile_email {
-    font-size: 4vw;
+    font-size: 4.5vw;
   }
 
   .avatar {

@@ -23,22 +23,18 @@
           <div class="leaderboard_table">
             <div class="leaderboard_header">
               <span class="col_rank">#</span>
-              <span class="col_name">Почта</span>
+              <span class="col_name_header">Почта</span>
               <span class="col_points">Очки</span>
             </div>
-            <div
-              v-for="(entry, index) in sortedLeaderboard"
-              :key="entry.email"
-              class="leaderboard_row"
-            >
+            <div v-for="(entry, index) in leaderboard" :key="entry.label" class="leaderboard_row">
               <span class="col_rank">
                 <MedalIcon v-if="index === 0" class="rank_gold" />
                 <MedalIcon v-else-if="index === 1" class="rank_silver" />
                 <MedalIcon v-else-if="index === 2" class="rank_bronze" />
                 <span v-else class="rank_plain">{{ index + 1 }}</span>
               </span>
-              <span class="col_name">{{ entry.email }}</span>
-              <span class="col_points">{{ entry.points }}</span>
+              <span class="col_name">{{ entry.label }}</span>
+              <span class="col_points">{{ entry.exp }}</span>
             </div>
           </div>
         </div>
@@ -48,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
@@ -57,12 +53,35 @@ import beachImg from '@/assets/images/beach.jpg'
 import starfishImg from '@/assets/images/starfish.jpg'
 import grissomImg from '@/assets/images/grissom.png'
 import surpriseImg from '@/assets/images/surprise.gif'
-import { useUsersStore } from '@/stores/users_store.ts'
+import hourswith777 from '@/assets/images/2hours.gif'
+import taskService from '@/services/api/task_service.ts'
+import authService from '@/services/api/auth_service.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
 import MedalIcon from '@/assets/icons/medal.svg'
 
 defineOptions({ name: 'DashboardPage' })
 
-const usersStore = useUsersStore()
+const authStore = useAuthStore()
+
+const leaderboard = ref<{ label: string; exp: number }[]>([])
+
+onMounted(async () => {
+  const topUsers = await taskService.getTopUsers(5)
+
+  if (authStore.isAuthenticated) {
+    leaderboard.value = await Promise.all(
+      topUsers.map(async (u) => {
+        const user = await authService.getUser(u.user_id)
+        return { label: user.email, exp: u.exp }
+      }),
+    )
+  } else {
+    // GET /api/auth/user needs a JWT to resolve an email, which a guest doesn't have —
+    // show what GET /api/task/top-users itself already returned instead of making
+    // calls that are guaranteed to fail for every row.
+    leaderboard.value = topUsers.map((u) => ({ label: u.user_id.slice(0, 8), exp: u.exp }))
+  }
+})
 
 const modules = [Pagination, Autoplay]
 
@@ -88,9 +107,12 @@ const slides = ref([
     image: surpriseImg,
     title: 'Ой не то видео простите',
   },
+  {
+    id: 5,
+    image: hourswith777,
+    title: '2 HOURS WITHOUT 777 AND THE WEBSITE IS NOT FINISHED',
+  },
 ])
-
-const sortedLeaderboard = computed(() => usersStore.sortedByPoints)
 </script>
 
 <style scoped>
@@ -223,6 +245,13 @@ main {
   display: flex;
   align-items: center;
   align-content: center;
+}
+
+.col_name_header {
+  word-break: break-all;
+  min-width: 0px;
+  padding: 16px;
+  font-size: 16px;
 }
 
 .col_name {

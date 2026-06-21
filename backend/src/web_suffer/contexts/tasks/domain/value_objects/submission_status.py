@@ -1,15 +1,16 @@
+from dataclasses import dataclass
 from typing import ClassVar
 
 from web_suffer.contexts.tasks.domain import types
 from web_suffer.shared.domain.value_objects.single_value_object import SingleValueObject
 
 
+@dataclass(frozen=True)
 class SubmissionStatus(SingleValueObject):
     """Value object статуса посылки."""
 
     value: types.SubmissionStatus
 
-    AWAIABLE: ClassVar["SubmissionStatus"]
     PENDING: ClassVar["SubmissionStatus"]
     ACCEPTED: ClassVar["SubmissionStatus"]
     REJECTED: ClassVar["SubmissionStatus"]
@@ -27,7 +28,6 @@ class SubmissionStatus(SingleValueObject):
         return self.value == SubmissionStatus.PENDING.value
 
 
-SubmissionStatus.AWAIABLE = SubmissionStatus("available")
 SubmissionStatus.PENDING = SubmissionStatus("pending")
 SubmissionStatus.ACCEPTED = SubmissionStatus("accepted")
 SubmissionStatus.REJECTED = SubmissionStatus("rejected")

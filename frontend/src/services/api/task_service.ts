@@ -1,10 +1,19 @@
 import axios from 'axios'
+import authService from '@/services/api/auth_service.ts'
+import { isExpiredAccessTokenError } from '@/services/api/token_error.ts'
 import type {
   ChangeSubmissionRequest,
+  GetTasksFilters,
+  SubmissionApiResponse,
+  SubmissionOrderBy,
   SubmissionStatus,
+  TaskApiResponse,
+  TaskStatisticsResponse,
+  TopUserApiResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
   UpdateUserExpRequest,
+  UserTaskApiResponse,
 } from '@/types/tasks.ts'
 
 const apiClient = axios.create({
@@ -20,6 +29,29 @@ apiClient.interceptors.request.use((config) => {
   }
   return config
 })
+
+// authService.refresh() shares its in-flight promise with auth_service's own interceptor,
+// so an expired-token error here and one over there at the same time still only refresh once.
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config
+
+    if (isExpiredAccessTokenError(error) && !config._retry) {
+      config._retry = true
+      try {
+        const { access_token } = await authService.refresh()
+        config.headers.Authorization = `Bearer ${access_token}`
+        return apiClient(config)
+      } catch {
+        const { useAuthStore } = await import('@/stores/auth_store.ts')
+        useAuthStore().logout()
+      }
+    }
+
+    return Promise.reject(error)
+  },
+)
 
 class TaskService {
   // creates a task when task_id is omitted, edits it otherwise
@@ -101,6 +133,104 @@ class TaskService {
           case 422:
             throw new Error('Неверные данные начисления')
         }
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getTask(taskId: string): Promise<TaskApiResponse> {
+    try {
+      const response = await apiClient.get<TaskApiResponse>('/api/task/task', {
+        params: { task_id: taskId },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить задание')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getSubmission(submissionId: string): Promise<SubmissionApiResponse> {
+    try {
+      const response = await apiClient.get<SubmissionApiResponse>('/api/task/submission', {
+        params: { submission_id: submissionId },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить сдачу')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getSubmissions(filters?: {
+    userId?: string
+    status?: SubmissionStatus
+    orderBy?: SubmissionOrderBy
+  }): Promise<SubmissionApiResponse[]> {
+    try {
+      const response = await apiClient.get<SubmissionApiResponse[]>('/api/task/submissions', {
+        params: {
+          user_id: filters?.userId,
+          status: filters?.status,
+          order_by: filters?.orderBy,
+        },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить список сдач')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getTasksStatistics(): Promise<TaskStatisticsResponse> {
+    try {
+      const response = await apiClient.get<TaskStatisticsResponse>('/api/task/tasks-statistics')
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить статистику заданий')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  // the actual per-user task list — status is already resolved server-side
+  async getTasks(filters?: GetTasksFilters): Promise<UserTaskApiResponse[]> {
+    try {
+      const response = await apiClient.get<UserTaskApiResponse[]>('/api/task/tasks', {
+        params: {
+          limit: filters?.limit,
+          offset: filters?.offset,
+          deadline_from: filters?.deadlineFrom,
+          deadline_till: filters?.deadlineTill,
+          status: filters?.status,
+          order_by: filters?.orderBy,
+        },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить список заданий')
+      }
+      throw new Error('Ошибка соединения с сервером')
+    }
+  }
+
+  async getTopUsers(limit?: number): Promise<TopUserApiResponse[]> {
+    try {
+      const response = await apiClient.get<TopUserApiResponse[]>('/api/task/top-users', {
+        params: { limit },
+      })
+      return response.data
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error('Не удалось получить таблицу лидеров')
       }
       throw new Error('Ошибка соединения с сервером')
     }

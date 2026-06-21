@@ -41,12 +41,12 @@ class UserT(BaseEntity):
     @BaseEntity.update
     def set_exp(self, exp: int) -> None:
         """Обновление опыта пользователя."""
-        self._money = exp
+        self._exp = exp
 
     @BaseEntity.update
     def add_exp(self, exp: int) -> None:
         """Добавление опыта пользователю."""
-        self._money += exp
+        self._exp += exp
 
     @classmethod
     def create(

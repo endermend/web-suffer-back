@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="main_contents">
+    <div class="main_contents page_enter">
       <div class="page_hero">
         <h1 class="page_title">Пользователи</h1>
         <p class="page_subtitle">Поиск и управление пользователями</p>
@@ -13,23 +13,22 @@
           <div v-for="user in filteredUsers" :key="user.id" class="user_row">
             <div class="user_main">
               <span class="user_email">{{ user.email }}</span>
-              <span class="status_chip" :class="user.banned ? 'chip_banned' : 'chip_active'">
-                {{ user.banned ? 'Забанен' : 'Активен' }}
-              </span>
-              <select
-                class="role_select"
-                :value="user.role"
-                @change="setRole(user, ($event.target as HTMLSelectElement).value as UserRole)"
+              <span
+                class="status_chip"
+                :class="user.status === 'banned' ? 'chip_banned' : 'chip_active'"
               >
-                <option value="member">Участник</option>
+                {{ user.status === 'banned' ? 'Забанен' : 'Активен' }}
+              </span>
+              <select class="role_select" :value="user.role" @change="changeRole(user, $event)">
+                <option value="user">Участник</option>
                 <option value="moderator">Модератор</option>
-                <option value="admin">Администратор</option>
+                <option value="admin">Админ</option>
               </select>
             </div>
 
             <div class="user_actions">
               <button class="action_btn" @click="toggleBan(user)">
-                {{ user.banned ? 'Разбанить' : 'Забанить' }}
+                {{ user.status === 'banned' ? 'Разбанить' : 'Забанить' }}
               </button>
               <button class="action_btn" @click="startEdit(user, 'email')">Сменить почту</button>
               <button class="action_btn" @click="startEdit(user, 'password')">
@@ -43,7 +42,7 @@
             <div v-if="editingUserId === user.id" class="edit_panel">
               <input
                 v-model="editValue"
-                :type="editingField === 'password' ? 'password' : 'email'"
+                :type="editingField === 'password' ? 'text' : 'email'"
                 :placeholder="editingField === 'password' ? 'Новый пароль' : 'Новый email'"
                 class="edit_input"
               />
@@ -64,8 +63,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUsersStore } from '@/stores/users_store.ts'
+import type { ApiUserRole } from '@/types/auth.ts'
 import type { UserManagement } from '@/types/users.ts'
-import type { UserRole } from '@/types/auth.ts'
 
 defineOptions({ name: 'UsersPage' })
 
@@ -84,18 +83,19 @@ const filteredUsers = computed(function () {
 })
 
 function toggleBan(user: UserManagement): void {
-  usersStore.toggleBan(user.id)
+  usersStore.setStatus(user.id, user.status === 'banned' ? 'active' : 'banned')
+}
+
+function changeRole(user: UserManagement, event: Event): void {
+  const role = (event.target as HTMLSelectElement).value as ApiUserRole
+  usersStore.setRole(user.id, role)
 }
 
 function deleteUser(user: UserManagement): void {
   usersStore.deleteUser(user.id)
 }
 
-function setRole(user: UserManagement, role: UserRole): void {
-  usersStore.setUserRole(user.id, role)
-}
-
-const editingUserId = ref<number | null>(null)
+const editingUserId = ref<string | null>(null)
 const editingField = ref<'email' | 'password' | null>(null)
 const editValue = ref('')
 
@@ -114,6 +114,8 @@ function cancelEdit(): void {
 function saveEdit(user: UserManagement): void {
   if (editingField.value === 'email') {
     usersStore.updateEmail(user.id, editValue.value)
+  } else if (editingField.value === 'password') {
+    usersStore.updatePassword(user.id, editValue.value)
   }
   cancelEdit()
 }
@@ -213,25 +215,6 @@ main {
   gap: 10px;
 }
 
-.role_select {
-  appearance: none;
-  border: thin solid rgb(210, 208, 220);
-  border-radius: 10px;
-  padding: 4px 10px;
-  font-family: Nagel;
-  font-size: 12px;
-  color: rgb(65, 65, 65);
-  background-color: white;
-  outline: none;
-  cursor: pointer;
-  margin-left: auto;
-  transition: 0.2s border-color;
-}
-
-.role_select:focus {
-  border-color: rgb(160, 125, 180);
-}
-
 .user_email {
   font-family: Nagel;
   font-size: 15px;
@@ -254,6 +237,25 @@ main {
 .chip_banned {
   background-color: rgba(204, 63, 75, 0.12);
   color: rgb(204, 63, 75);
+}
+
+.role_select {
+  appearance: none;
+  border: thin solid rgb(210, 208, 220);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-family: Nagel;
+  font-size: 12px;
+  color: rgb(65, 65, 65);
+  background-color: white;
+  outline: none;
+  cursor: pointer;
+  margin-left: auto;
+  transition: 0.2s border-color;
+}
+
+.role_select:focus {
+  border-color: rgb(160, 125, 180);
 }
 
 .user_actions {

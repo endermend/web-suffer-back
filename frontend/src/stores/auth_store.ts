@@ -15,6 +15,13 @@ const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
+
+    // Where each role should land right after login/register.
+    landingPath: (state): string => {
+      if (state.role === 'moderator') return '/moderator/tasks'
+      if (state.role === 'admin') return '/admin/users'
+      return '/tasks'
+    },
   },
 
   actions: {
@@ -52,7 +59,7 @@ const useAuthStore = defineStore('auth', {
         const tokens = await authService.login({ email, password })
         this.setAccessToken(tokens)
 
-        await this.fetchUserEmail()
+        await this.fetchUserData()
 
         return { success: true, tokens }
       } catch (error: any) {
@@ -70,14 +77,26 @@ const useAuthStore = defineStore('auth', {
       localStorage.setItem('access_token', tokens.access_token)
     },
 
-    async fetchUserEmail() {
-      try {
-        const data = await authService.getEmail()
-        this.userEmail = data.email
-        localStorage.setItem('user_email', data.email)
-      } catch (error) {
-        console.error('Failed to fetch email:', error)
+    // Doesn't catch its own errors — a confirmed invalid/expired token already
+    // triggers logout() from the axios response interceptor once its own refresh
+    // attempt fails. Swallowing errors here too would mean any transient network
+    // or 5xx blip (e.g. right after login, before the token is even used elsewhere)
+    // silently wipes out a perfectly valid session. Callers (login/register) already
+    // handle a thrown error by surfacing it instead of pretending the call succeeded.
+    async fetchUserData() {
+      const data = await authService.getUser() // this user
+
+      this.userEmail = data.email
+      localStorage.setItem('user_email', data.email)
+
+      let role: UserRole
+      if (data.role === 'admin' || data.role === 'moderator') {
+        role = data.role
+      } else {
+        role = 'member'
       }
+      this.role = role
+      localStorage.setItem('role', role)
     },
 
     async logout() {
@@ -87,12 +106,6 @@ const useAuthStore = defineStore('auth', {
       localStorage.removeItem('access_token')
       localStorage.removeItem('user_email')
       localStorage.removeItem('role')
-    },
-
-    // test-only role switch, triggered by the role dropdown in the profile
-    setRole(role: UserRole) {
-      this.role = role
-      localStorage.setItem('role', this.role)
     },
   },
 })
