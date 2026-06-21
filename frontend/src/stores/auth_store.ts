@@ -108,6 +108,14 @@ const useAuthStore = defineStore('auth', {
       localStorage.setItem('role', role)
     },
 
+    // self-service delete/restore — backend's CHANGE_SELF right now covers both
+    // active and deleted status, so a deleted member can call this again to restore
+    async setOwnStatus(status: 'active' | 'deleted') {
+      await authService.updateUser({ status })
+      this.userStatus = status
+      localStorage.setItem('user_status', status)
+    },
+
     async logout() {
       this.accessToken = null
       this.userEmail = null

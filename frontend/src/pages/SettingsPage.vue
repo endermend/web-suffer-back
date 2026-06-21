@@ -175,12 +175,56 @@
           </div>
         </div>
       </div>
+
+      <!-- account card -->
+      <div class="card settings_card account_card">
+        <div class="card_header">
+          <div>
+            <span class="card_title">Аккаунт</span>
+            <p class="card_subtitle">
+              {{ isDeleted ? 'Аккаунт удалён' : 'Удаление аккаунта' }}
+            </p>
+          </div>
+        </div>
+
+        <p class="muted_text">
+          {{
+            isDeleted
+              ? 'Восстановите аккаунт, чтобы снова отправлять и проверять задания.'
+              : 'Аккаунт можно будет восстановить в любой момент.'
+          }}
+        </p>
+
+        <button v-if="isDeleted" type="button" class="primary_btn" @click="handleRestore">
+          Восстановить аккаунт
+        </button>
+
+        <template v-else-if="!isConfirmingDelete">
+          <button type="button" class="danger_btn" @click="isConfirmingDelete = true">
+            Удалить аккаунт
+          </button>
+        </template>
+
+        <div v-else class="confirm_row">
+          <span class="confirm_text">Точно удалить?</span>
+          <button type="button" class="danger_btn" @click="handleDelete">Да, удалить</button>
+          <button type="button" class="action_btn" @click="isConfirmingDelete = false">
+            Отмена
+          </button>
+        </div>
+
+        <div class="general_error_area">
+          <transition name="fade">
+            <div v-if="accountError" class="general_error">{{ accountError }}</div>
+          </transition>
+        </div>
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, onMounted } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store.ts'
 import authService from '@/services/api/auth_service.ts'
@@ -393,6 +437,33 @@ async function handlePasswordSave(): Promise<void> {
     triggerPasswordShake('form')
   }
 }
+
+// --- account delete/restore ---
+
+const isDeleted = computed(() => authStore.userStatus === 'deleted')
+const isConfirmingDelete = ref(false)
+const accountError = ref('')
+
+async function handleDelete(): Promise<void> {
+  accountError.value = ''
+
+  try {
+    await authStore.setOwnStatus('deleted')
+    isConfirmingDelete.value = false
+  } catch (error: any) {
+    accountError.value = error.message
+  }
+}
+
+async function handleRestore(): Promise<void> {
+  accountError.value = ''
+
+  try {
+    await authStore.setOwnStatus('active')
+  } catch (error: any) {
+    accountError.value = error.message
+  }
+}
 </script>
 
 <style scoped>
@@ -588,6 +659,70 @@ button {
   background-color: rgb(160, 125, 180);
   border: thin solid rgb(160, 125, 180);
   color: white;
+}
+
+.danger_btn {
+  align-self: flex-start;
+  background-color: white;
+  border: thin solid rgb(204, 63, 75);
+  color: rgb(204, 63, 75);
+  font-size: 16px;
+  margin-top: 0.6rem;
+  padding: 10px 20px;
+  border-radius: 16px;
+  transition:
+    0.2s background-color,
+    color;
+  font-family: Nagel;
+  cursor: pointer;
+}
+
+.danger_btn:hover {
+  background-color: rgb(204, 63, 75);
+  color: white;
+}
+
+.action_btn {
+  align-self: flex-start;
+  background-color: white;
+  border: thin solid black;
+  font-size: 16px;
+  margin-top: 0.6rem;
+  padding: 10px 20px;
+  border-radius: 16px;
+  transition: 0.2s background-color;
+  font-family: Nagel;
+  cursor: pointer;
+}
+
+.action_btn:hover {
+  background-color: rgb(244, 243, 250);
+}
+
+.confirm_row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 0.6rem;
+}
+
+.confirm_row .danger_btn,
+.confirm_row .action_btn {
+  margin-top: 0;
+}
+
+.confirm_text {
+  font-family: Nagel;
+  font-size: 14px;
+  color: rgb(65, 65, 65);
+}
+
+.muted_text {
+  font-family: Nagel;
+  font-size: 13px;
+  color: rgb(150, 150, 150);
+  margin: 0 0 4px;
 }
 
 /* general error / success */

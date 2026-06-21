@@ -23,6 +23,12 @@
         <div class="empty_state">Задание не найдено</div>
       </div>
 
+      <div v-else-if="isDeletedAccount" class="card">
+        <div class="deleted_note">
+          Восстановите аккаунт, чтобы создавать или редактировать задания
+        </div>
+      </div>
+
       <div v-else class="card">
         <form class="create_form" @submit.prevent="handleSubmit" novalidate>
           <div class="form_field">
@@ -57,6 +63,7 @@
 import { reactive, computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks_store.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
 import { toDatetimeLocalInput } from '@/utils/tasks.ts'
 import BackArrowIcon from '@/assets/icons/backarrow.svg'
 
@@ -65,10 +72,14 @@ defineOptions({ name: 'CreateTaskPage' })
 const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
 
 const taskId = route.params.id as string | undefined
 const isEditMode = computed(() => !!taskId)
 const task = computed(() => (taskId ? tasksStore.myTasks.find((t) => t.id === taskId) : undefined))
+const isDeletedAccount = computed(
+  () => authStore.role === 'moderator' && authStore.userStatus === 'deleted',
+)
 
 const form = reactive({
   title: '',
@@ -280,6 +291,17 @@ main {
   font-size: 13px;
   color: rgb(204, 63, 75);
   margin: 0;
+}
+
+/* deleted account note */
+
+.deleted_note {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: rgba(204, 63, 75, 0.08);
+  font-family: Nagel;
+  font-size: 14px;
+  color: rgb(204, 63, 75);
 }
 
 /* states */
