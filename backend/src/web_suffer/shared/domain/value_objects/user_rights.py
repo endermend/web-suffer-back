@@ -13,6 +13,10 @@ class UserRights:
         statuses=UserRight.ALL,
     )
 
+    DELETE_ACCOUNT: Final = UserRight(
+        roles=UserRight.ALL,
+        statuses={UserStatus.ACTIVE},
+    )
     RESTORE_ACCOUNT: Final = UserRight(
         roles=UserRight.ALL,
         statuses={UserStatus.DELETED},

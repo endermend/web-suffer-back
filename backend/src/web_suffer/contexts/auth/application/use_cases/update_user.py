@@ -15,6 +15,7 @@ from web_suffer.contexts.auth.domain.value_objects.token import Token
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.value_objects.user_id import UserID
 from web_suffer.shared.domain.value_objects.user_rights import UserRights
+from web_suffer.shared.domain.value_objects.user_status import UserStatus
 
 logger = structlog.stdlib.get_logger()
 
@@ -35,7 +36,7 @@ class UpdateUserUseCase:
         self._password_hasher = password_hasher
         self._mapper = mapper
 
-    async def execute(self, input_dto: UpdateUserDTO) -> None:
+    async def execute(self, input_dto: UpdateUserDTO) -> None:  # noqa: C901, PLR0912
         """
         Меняет пароль пользователя по access_token.
 
@@ -65,7 +66,7 @@ class UpdateUserUseCase:
 
         change_user = user
         no_user_id = input_dto.user_id is None
-        change_self = (no_user_id or (not no_user_id and input_dto.user_id == user.id.value)) and UserRights.CHANGE_SELF.is_satisfied_by(
+        change_self = (no_user_id or input_dto.user_id == user.id.value) and UserRights.CHANGE_SELF.is_satisfied_by(
             role=user.role,
             status=user.status,
         )
@@ -83,6 +84,26 @@ class UpdateUserUseCase:
                 raise ValueError
             change_user = input_user
 
+            if (input_dto.status is not None or input_dto.role is not None) and not UserRights.CHANGE_RESTRICTED_USER.is_satisfied_by(
+                role=user.role,
+                status=user.status,
+            ):
+                raise InsufficientPermissionsError
+
+        elif change_self:
+            if input_dto.role is not None:
+                raise InsufficientPermissionsError
+            if input_dto.status is not None:
+                status = UserStatus.from_str(input_dto.status)
+                if (status == UserStatus.DELETED and not UserRights.DELETE_ACCOUNT.is_satisfied_by(
+                    role=user.role,
+                    status=user.status,
+                )) or (status == UserStatus.ACTIVE and not UserRights.RESTORE_ACCOUNT.is_satisfied_by(
+                    role=user.role,
+                    status=user.status,
+                )) or status == UserStatus.BANNED:
+                    raise InsufficientPermissionsError
+
         if input_dto.email is not None:
             user_email = await self._user_repo.get_user_by_email(email=UserEmail(input_dto.email))
             if user_email is not None and user_email != change_user:
@@ -91,12 +112,6 @@ class UpdateUserUseCase:
         if input_dto.new_password:
             password_hash = self._password_hasher.hash_password(password=input_dto.new_password)
             change_user.set_password_hash(PasswordHash(password_hash))
-
-        if (input_dto.status is not None or input_dto.role is not None) and not UserRights.CHANGE_RESTRICTED_USER.is_satisfied_by(
-            role=user.role,
-            status=user.status,
-        ):
-            raise InsufficientPermissionsError
 
         self._mapper.update_from_dto(user=change_user, update_dto=input_dto)
 
