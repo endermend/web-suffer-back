@@ -540,6 +540,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
   padding: 24px;
@@ -742,6 +743,7 @@ button {
   font-size: 14px;
   font-family: Nagel;
   padding: 10px 12px;
+  border: none;
   border-radius: 12px;
 }
 
@@ -753,6 +755,7 @@ button {
   font-size: 14px;
   font-family: Nagel;
   padding: 10px 12px;
+  border: none;
   border-radius: 12px;
 }
 

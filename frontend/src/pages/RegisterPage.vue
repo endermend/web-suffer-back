@@ -266,6 +266,7 @@ button {
   padding: 24px;
   margin-top: 200px;
   margin-bottom: 40px;
+  border: none;
   border-radius: 16px;
   font-family: Nagel;
   box-shadow: 0px 0px 30px 0px rgb(0, 0, 0, 0.2);
@@ -395,6 +396,7 @@ button {
   font-size: 14px;
   font-family: Nagel;
   padding: 10px 12px;
+  border: none;
   border-radius: 12px;
 }
 

@@ -66,7 +66,7 @@ const isDesktop = breakpoints.greater('desktop')
 const isTablet = breakpoints.between('tablet', 'desktop')
 const columnCount = computed(() => (isDesktop.value ? 3 : isTablet.value ? 2 : 1))
 
-// Round-robin distribution — task i goes to column i % columnCount, no height balancing.
+// Round-robin distribution
 const columns = computed(() => {
   const cols: UserTask[][] = Array.from({ length: columnCount.value }, () => [])
   availableTasks.value.forEach((task, index) => {
@@ -104,6 +104,7 @@ main {
   gap: 16px;
   padding: 28px 32px;
   background-color: white;
+  border: none;
   border-radius: 16px;
   margin-top: 32px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
@@ -150,6 +151,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -173,6 +175,7 @@ main {
   flex-direction: column;
   gap: 10px;
   padding: 16px 18px;
+  border: none;
   border-radius: 12px;
   background-color: white;
   cursor: pointer;

@@ -62,7 +62,6 @@ defineOptions({ name: 'DashboardPage' })
 const leaderboard = ref<{ label: string; exp: number }[]>([])
 
 onMounted(async () => {
-  // /api/task/top-users now returns the email directly, so no per-row lookup is needed
   const topUsers = await taskService.getTopUsers(5)
   leaderboard.value = topUsers.map((u) => ({ label: u.user_email, exp: u.exp }))
 })
@@ -123,6 +122,7 @@ main {
   height: 600px;
   margin-block: 30px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
+  border: none;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -130,6 +130,7 @@ main {
 .swiper_carousel {
   height: 100%;
   width: 100%;
+  border: none;
   border-radius: 16px;
   z-index: 0;
 }
@@ -177,6 +178,7 @@ main {
 
 .leaderboard_card {
   background: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -199,6 +201,7 @@ main {
   grid-template-columns: 64px 1fr 50px;
   padding: 10px 16px;
   background: rgb(244, 243, 250);
+  border: none;
   border-radius: 8px;
   margin-bottom: 4px;
   font-family: Nagel;

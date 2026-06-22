@@ -6,12 +6,8 @@ import type { Submission, UserTask } from '@/types/tasks.ts'
 
 const useTasksStore = defineStore('tasks', {
   state: () => ({
-    // GET /api/task/tasks — current user's tasks, status already resolved server-side.
     myTasks: [] as UserTask[],
-    // GET /api/task/submissions?user_id=self — needed for content/file/comment on a
-    // specific submission (the task list alone only carries the resolved status).
     mySubmissions: [] as Submission[],
-    // GET /api/task/submissions?status=pending, across every user — moderator's queue.
     pendingReview: [] as Submission[],
     loading: false,
   }),
@@ -44,8 +40,6 @@ const useTasksStore = defineStore('tasks', {
       }
     },
 
-    // The submissions endpoint doesn't return a timestamp, so `submitted_at` stays empty —
-    // there's nothing to sort/display by on this side besides what `myTasks` already has.
     async fetchMySubmissions() {
       this.loading = true
       try {
@@ -66,8 +60,6 @@ const useTasksStore = defineStore('tasks', {
       }
     },
 
-    // Moderator queue — resolves each submitter's email via auth/user since
-    // the submissions endpoint only gives a user_id.
     async fetchPendingReview() {
       this.loading = true
       try {
@@ -92,7 +84,6 @@ const useTasksStore = defineStore('tasks', {
       }
     },
 
-    // task_id omitted creates a new task, present edits the matching one in place.
     async saveTask(data: {
       task_id?: string
       title: string

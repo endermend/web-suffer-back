@@ -4,10 +4,9 @@ import type { ApiUserStatus, AuthCredentials, AuthToken, UserRole } from '@/type
 
 const useAuthStore = defineStore('auth', {
   state: () => ({
-    // refresh token lives in an httpOnly cookie (sent automatically via withCredentials), never in JS-accessible storage
+    // never in JS-accessible storage
     accessToken: localStorage.getItem('access_token') || null,
     userEmail: localStorage.getItem('user_email') || null,
-    // TODO: replace with role from API once roles exist on the backend
     role: (localStorage.getItem('role') as UserRole) || 'member',
     userStatus: (localStorage.getItem('user_status') as ApiUserStatus) || 'active',
     loading: false,
@@ -30,8 +29,6 @@ const useAuthStore = defineStore('auth', {
     async register({ email, password }: AuthCredentials) {
       this.loading = true
       this.error = null
-      // a fresh session always starts as a plain member, even if a role was
-      // left over in localStorage from a previous session's dev role-switcher
       this.role = 'member'
       localStorage.setItem('role', this.role)
 
@@ -51,8 +48,6 @@ const useAuthStore = defineStore('auth', {
     async login({ email, password }: AuthCredentials) {
       this.loading = true
       this.error = null
-      // a fresh session always starts as a plain member, even if a role was
-      // left over in localStorage from a previous session's dev role-switcher
       this.role = 'member'
       localStorage.setItem('role', this.role)
 
@@ -76,19 +71,11 @@ const useAuthStore = defineStore('auth', {
       }
     },
 
-    // save access token to localStorage — auth_service's apiClient reads it from there
-    // on every request, so there's no separate header to keep in sync here
     setAccessToken(tokens: AuthToken) {
       this.accessToken = tokens.access_token
       localStorage.setItem('access_token', tokens.access_token)
     },
 
-    // Doesn't catch its own errors — a confirmed invalid/expired token already
-    // triggers logout() from the axios response interceptor once its own refresh
-    // attempt fails. Swallowing errors here too would mean any transient network
-    // or 5xx blip (e.g. right after login, before the token is even used elsewhere)
-    // silently wipes out a perfectly valid session. Callers (login/register) already
-    // handle a thrown error by surfacing it instead of pretending the call succeeded.
     async fetchUserData() {
       const data = await authService.getUser() // this user
 
@@ -108,8 +95,7 @@ const useAuthStore = defineStore('auth', {
       localStorage.setItem('role', role)
     },
 
-    // self-service delete/restore — backend's CHANGE_SELF right now covers both
-    // active and deleted status, so a deleted member can call this again to restore
+    // self-service delete/restore
     async setOwnStatus(status: 'active' | 'deleted') {
       await authService.updateUser({ status })
       this.userStatus = status

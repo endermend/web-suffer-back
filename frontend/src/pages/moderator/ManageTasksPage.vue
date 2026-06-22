@@ -73,8 +73,7 @@ onMounted(() => {
 // A moderator never submits, so every task they fetch shows up here regardless of status.
 const availableTasks = computed(() => tasksStore.myTasks)
 
-// The submissions endpoint doesn't include the task title, so each pending row is
-// cross-referenced against the task list fetched above.
+// doesn't include the task title
 const pendingSubmissions = computed(() =>
   tasksStore.pendingSubmissions.map((submission) => ({
     submission,
@@ -127,6 +126,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -221,6 +221,7 @@ main {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
 }

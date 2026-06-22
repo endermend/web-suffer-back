@@ -172,7 +172,6 @@ const authStore = useAuthStore()
 const notificationsStore = useNotificationsStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const userEmail = computed(() => authStore.userEmail)
-// admin has no profile page — clicking the email takes them to their landing page instead
 const profileLink = computed(() => {
   if (authStore.role === 'moderator') return '/moderator/profile'
   return '/profile'
@@ -290,6 +289,7 @@ header {
 /* logout confirmation */
 
 .logout_confirm_panel {
+  border: none;
   border-radius: 8px;
   position: fixed;
   width: 180px;
@@ -338,6 +338,7 @@ header {
   flex-direction: column;
   background-color: white;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.2);
+  border: none;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -451,6 +452,7 @@ header {
   padding-block: 8px;
   padding-inline: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
+  border: none;
   border-radius: 24px;
   background-color: white;
   cursor: pointer;

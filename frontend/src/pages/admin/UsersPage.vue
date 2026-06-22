@@ -13,11 +13,8 @@
           <div v-for="user in filteredUsers" :key="user.id" class="user_row">
             <div class="user_main">
               <span class="user_email">{{ user.email }}</span>
-              <span
-                class="status_chip"
-                :class="user.status === 'banned' ? 'chip_banned' : 'chip_active'"
-              >
-                {{ user.status === 'banned' ? 'Забанен' : 'Активен' }}
+              <span class="status_chip" :class="statusChipClass(user.status)">
+                {{ statusLabel(user.status) }}
               </span>
               <select class="role_select" :value="user.role" @change="changeRole(user, $event)">
                 <option value="user">Участник</option>
@@ -28,7 +25,7 @@
 
             <div v-if="user.role !== 'admin'" class="user_actions">
               <button class="action_btn" @click="toggleBan(user)">
-                {{ user.status === 'banned' ? 'Разбанить' : 'Забанить' }}
+                {{ banActionLabel(user.status) }}
               </button>
               <button class="action_btn" @click="startEdit(user, 'email')">Сменить почту</button>
               <button class="action_btn" @click="startEdit(user, 'password')">
@@ -60,12 +57,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUsersStore } from '@/stores/users_store.ts'
-import type { ApiUserRole } from '@/types/auth.ts'
+import { useAuthStore } from '@/stores/auth_store.ts'
+import type { ApiUserRole, ApiUserStatus } from '@/types/auth.ts'
 import type { UserManagement } from '@/types/users.ts'
 
 defineOptions({ name: 'UsersPage' })
 
 const usersStore = useUsersStore()
+const authStore = useAuthStore()
 
 onMounted(function () {
   usersStore.fetchUsers()
@@ -75,12 +74,34 @@ const searchQuery = ref('')
 
 const filteredUsers = computed(function () {
   return usersStore.users.filter(function (user) {
-    return user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return (
+      user.email !== authStore.userEmail &&
+      user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
   })
 })
 
+// a deleted user can't be banned/unbanned directly
 function toggleBan(user: UserManagement): void {
-  usersStore.setStatus(user.id, user.status === 'banned' ? 'active' : 'banned')
+  usersStore.setStatus(user.id, user.status === 'active' ? 'banned' : 'active')
+}
+
+function banActionLabel(status: ApiUserStatus): string {
+  if (status === 'deleted') return 'Восстановить'
+  if (status === 'banned') return 'Разбанить'
+  return 'Забанить'
+}
+
+function statusLabel(status: ApiUserStatus): string {
+  if (status === 'banned') return 'Забанен'
+  if (status === 'deleted') return 'Удалён'
+  return 'Активен'
+}
+
+function statusChipClass(status: ApiUserStatus): string {
+  if (status === 'banned') return 'chip_banned'
+  if (status === 'deleted') return 'chip_deleted'
+  return 'chip_active'
 }
 
 function changeRole(user: UserManagement, event: Event): void {
@@ -158,6 +179,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -198,6 +220,7 @@ main {
   flex-direction: column;
   gap: 10px;
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
 }
@@ -217,6 +240,7 @@ main {
 .status_chip {
   display: inline-block;
   padding: 3px 10px;
+  border: none;
   border-radius: 999px;
   font-family: Nagel;
   font-size: 12px;
@@ -230,6 +254,11 @@ main {
 .chip_banned {
   background-color: rgba(204, 63, 75, 0.12);
   color: rgb(204, 63, 75);
+}
+
+.chip_deleted {
+  background-color: rgba(150, 150, 150, 0.12);
+  color: rgb(150, 150, 150);
 }
 
 .role_select {

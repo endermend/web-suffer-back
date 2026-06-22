@@ -156,6 +156,7 @@ main {
   gap: 16px;
   padding: 28px 32px;
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
 }
@@ -180,6 +181,7 @@ main {
 .points_pill {
   flex-shrink: 0;
   padding: 8px 16px;
+  border: none;
   border-radius: 999px;
   background-color: rgb(160, 125, 180);
   font-family: Nagel;
@@ -191,6 +193,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -244,6 +247,7 @@ main {
 .file_item {
   display: block;
   padding: 10px 14px;
+  border: none;
   border-radius: 10px;
   background-color: rgb(244, 243, 250);
   font-family: Nagel;

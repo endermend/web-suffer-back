@@ -24,6 +24,7 @@ const router = useRouter()
   padding: 24px;
   margin-top: 200px;
   margin-bottom: 40px;
+  border: none;
   border-radius: 16px;
   font-family: Nagel;
   box-shadow: 0px 0px 30px 0px rgb(0, 0, 0, 0.2);

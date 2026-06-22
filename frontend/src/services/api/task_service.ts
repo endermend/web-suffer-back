@@ -54,7 +54,6 @@ apiClient.interceptors.response.use(
 )
 
 class TaskService {
-  // creates a task when task_id is omitted, edits it otherwise
   async updateTask(data: UpdateTaskRequest): Promise<UpdateTaskResponse> {
     try {
       const response = await apiClient.post<UpdateTaskResponse>('/api/task/update-task', data)
@@ -72,7 +71,6 @@ class TaskService {
     }
   }
 
-  // response body is empty per the spec — only the status code tells us it worked
   async createSubmission(taskId: string, content: string, file: File | null): Promise<void> {
     try {
       const formData = new FormData()
@@ -200,7 +198,7 @@ class TaskService {
     }
   }
 
-  // the actual per-user task list — status is already resolved server-side
+  // per-user task list
   async getTasks(filters?: GetTasksFilters): Promise<UserTaskApiResponse[]> {
     try {
       const response = await apiClient.get<UserTaskApiResponse[]>('/api/task/tasks', {

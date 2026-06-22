@@ -16,10 +16,7 @@ defineOptions({ name: 'DefaultLayout' })
 const authStore = useAuthStore()
 const notificationsStore = useNotificationsStore()
 
-// Failsafe role/email refresh for every authenticated role (admin included —
-// it has no profile page to do this from) on every full mount, e.g. a page
-// reload. Best-effort: a failure here shouldn't break the page, the store
-// already has whatever it loaded from localStorage at startup.
+// Failsafe role/email refresh for every authenticated role
 onMounted(() => {
   if (authStore.isAuthenticated) {
     authStore.fetchUserData().catch((error) => console.error('Failed to refresh user data:', error))

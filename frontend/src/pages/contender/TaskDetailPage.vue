@@ -223,6 +223,7 @@ main {
   gap: 16px;
   padding: 28px 32px;
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.1);
 }
@@ -241,6 +242,7 @@ main {
 .points_pill {
   flex-shrink: 0;
   padding: 8px 16px;
+  border: none;
   border-radius: 999px;
   background-color: rgb(160, 125, 180);
   font-family: Nagel;
@@ -252,6 +254,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgb(0, 0, 0, 0.1);
   padding: 24px;
@@ -313,6 +316,7 @@ main {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
+  border: none;
   border-radius: 10px;
   background-color: rgb(244, 243, 250);
 }
@@ -404,6 +408,7 @@ main {
 .status_chip {
   display: inline-block;
   padding: 4px 10px;
+  border: none;
   border-radius: 999px;
   font-family: Nagel;
   font-size: 12px;
@@ -430,6 +435,7 @@ main {
 
 .rejected_note {
   padding: 14px 18px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(204, 63, 75, 0.08);
   font-family: Nagel;
@@ -441,6 +447,7 @@ main {
 
 .deleted_note {
   padding: 14px 18px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(204, 63, 75, 0.08);
   font-family: Nagel;

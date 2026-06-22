@@ -37,8 +37,6 @@ import PenIcon from '@/assets/icons/pen.svg'
 
 defineOptions({ name: 'ProfileHero' })
 
-// the failsafe refresh now lives in DefaultLayout so it covers every role
-// (admin included, which has no profile page to do this from)
 const authStore = useAuthStore()
 
 const isSettingsMenuOpen = ref(false)
@@ -64,6 +62,7 @@ const emailDomainPart = computed(function () {
 <style scoped>
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -81,6 +80,7 @@ const emailDomainPart = computed(function () {
 .avatar {
   width: 64px;
   height: 64px;
+  border: none;
   border-radius: 50%;
   background-color: rgb(160, 125, 180);
   color: white;

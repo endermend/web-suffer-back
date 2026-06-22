@@ -103,6 +103,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding-block: 24px;
@@ -111,6 +112,7 @@ main {
 
 .card_assignments {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding-block: 24px;
@@ -127,6 +129,7 @@ main {
 
 .stat_card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 20px 24px;
@@ -184,6 +187,7 @@ main {
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
 }
@@ -207,6 +211,7 @@ main {
 
 .points_badge {
   padding: 8px 14px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(160, 125, 180);
   font-family: Nagel;

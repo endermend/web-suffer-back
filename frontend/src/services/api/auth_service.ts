@@ -105,8 +105,7 @@ class AuthService {
     }
   }
 
-  // Goes through the same dedup as the response interceptor — calling this directly
-  // while a 401-triggered refresh is already in flight reuses that one request.
+  // 401 костыль
   async refresh(): Promise<AuthToken> {
     const access_token = await refreshAccessToken()
     return { access_token }
@@ -136,7 +135,6 @@ class AuthService {
     }
   }
 
-  // omitting user_id returns the currently authenticated user's own data (incl. their id)
   async getUser(userId?: string): Promise<UserResponse> {
     try {
       const response = await apiClient.get<UserResponse>('/api/auth/user', {
@@ -151,7 +149,6 @@ class AuthService {
     }
   }
 
-  // omitting user_id targets the currently authenticated user
   async updateUser(params: UpdateUserParams): Promise<void> {
     try {
       await apiClient.post('/api/auth/update-user', null, { params })

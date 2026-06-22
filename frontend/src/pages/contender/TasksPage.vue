@@ -11,7 +11,6 @@
 
       <!-- main grid -->
       <div class="tasks_grid">
-        <!-- top row: the two anchor cards keep a fixed wide/narrow split -->
         <div class="grid_top">
           <!-- active assignments -->
           <div class="card">
@@ -248,8 +247,6 @@ defineOptions({ name: 'TasksPage' })
 const router = useRouter()
 const tasksStore = useTasksStore()
 
-// an available task past its deadline was never acted on and can no longer be —
-// it's effectively gone, so it's filtered out here rather than left to show as actionable
 const myTasks = computed(() =>
   tasksStore.myTasks.filter((t) => t.status !== 'available' || !isExpired(t.deadline)),
 )
@@ -261,10 +258,6 @@ const statusFilter = ref('')
 const currentPage = ref(1)
 const PAGE_SIZE = 10
 
-// <input type="date"> gives a bare "YYYY-MM-DD" string, which `new Date()` parses as
-// UTC midnight rather than local midnight — a day boundary computed that way silently
-// drifts by the local UTC offset. Parsing the numbers by hand and building the Date from
-// local components keeps "until/from this day" meaning the full Vladivostok-local day.
 function parseDateBoundary(dateStr: string, endOfDay: boolean): Date {
   const [year, month, day] = dateStr.split('-').map(Number)
   return endOfDay
@@ -382,6 +375,7 @@ main {
   align-items: center;
   padding: 28px 32px;
   background-color: white;
+  border: none;
   border-radius: 16px;
   margin-top: 32px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
@@ -415,9 +409,7 @@ main {
   gap: 24px;
 }
 
-/* Grid's default align-items: stretch makes the left card match the height
-   of the right column (pending + rejected stacked), so it grows down to the
-   bottom of "Отклонённые" instead of leaving empty space below itself. */
+/* Grid's default align-items */
 .grid_bottom {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -443,6 +435,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -452,6 +445,7 @@ main {
   display: flex;
   flex-direction: column;
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -493,6 +487,7 @@ main {
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
   cursor: pointer;
@@ -572,6 +567,7 @@ main {
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(244, 243, 250);
 }
@@ -595,6 +591,7 @@ main {
 
 .points_badge {
   padding: 8px 14px;
+  border: none;
   border-radius: 12px;
   background-color: rgb(160, 125, 180);
   font-family: Nagel;
@@ -614,6 +611,7 @@ main {
 .progress_circle {
   width: 120px;
   height: 120px;
+  border: none;
   border-radius: 999px;
   display: flex;
   align-items: center;
@@ -639,6 +637,7 @@ main {
 
 .progress_bar {
   height: 8px;
+  border: none;
   border-radius: 999px;
   background-color: rgb(230, 228, 240);
   overflow: hidden;
@@ -646,6 +645,7 @@ main {
 
 .progress_fill {
   height: 100%;
+  border: none;
   border-radius: inherit;
   background-color: rgb(160, 125, 180);
   transition: 0.4s width;
@@ -665,6 +665,7 @@ main {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(202, 138, 4, 0.08);
 }
@@ -675,6 +676,7 @@ main {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(204, 63, 75, 0.08);
   cursor: pointer;
@@ -703,6 +705,7 @@ main {
 
 .ok_state {
   padding: 14px 16px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(22, 163, 74, 0.08);
   font-family: Nagel;
@@ -716,6 +719,7 @@ main {
 .status_chip {
   display: inline-block;
   padding: 4px 10px;
+  border: none;
   border-radius: 999px;
   font-family: Nagel;
   font-size: 12px;

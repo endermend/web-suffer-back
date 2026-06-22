@@ -86,15 +86,13 @@ const form = reactive({
   description: '',
   deadline: '',
   exp: 10,
-  // not shown in the form — preserved from the existing task on edit, defaults to 0 on create
+  // not shown in the form
   money: 0,
 })
 
 const submitError = ref('')
 
-// Mirrors TaskDetailPage's submit-button gating: stay disabled (gray) until every
-// required field actually holds a usable value, instead of relying on native HTML5
-// validation popups (the form has novalidate so those never show).
+// Mirrors TaskDetailPage's submit-button gating
 const isFormValid = computed(() => {
   const exp = Number(form.exp)
   return (
@@ -183,6 +181,7 @@ main {
   gap: 16px;
   padding: 28px 32px;
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
 }
@@ -209,6 +208,7 @@ main {
 
 .card {
   background-color: white;
+  border: none;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -297,6 +297,7 @@ main {
 
 .deleted_note {
   padding: 14px 18px;
+  border: none;
   border-radius: 12px;
   background-color: rgba(204, 63, 75, 0.08);
   font-family: Nagel;

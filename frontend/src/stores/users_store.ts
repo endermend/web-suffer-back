@@ -10,8 +10,6 @@ const useUsersStore = defineStore('users', {
   }),
 
   actions: {
-    // GET /api/auth/users only returns ids — full profile (email/role/status) per id
-    // comes from GET /api/auth/user.
     async fetchUsers() {
       this.loading = true
 

@@ -11,7 +11,7 @@ let nextId = 0
 let pollHandle: ReturnType<typeof setInterval> | null = null
 
 // Diff snapshots from the previous poll. Kept as module-level state rather than
-// store state since nothing in the UI reads them — only the notifications they produce.
+// store state since nothing in the UI reads them, only the notifications they produce.
 let myEmail: string | null = null
 let prevSubmissions: Map<string, { status: string; taskId: string }> | null = null
 let prevRank: number | null = null
@@ -80,9 +80,7 @@ const useNotificationsStore = defineStore('notifications', {
           }
         }
         prevSubmissions = current
-      } catch {
-        // best-effort background polling — a failed check just waits for the next tick
-      }
+      } catch {}
     },
 
     async checkLeaderboard() {
@@ -91,7 +89,6 @@ const useNotificationsStore = defineStore('notifications', {
           const me = await authService.getUser()
           myEmail = me.email
         }
-        // /api/task/top-users now returns the email directly, so no per-row lookup is needed
         const topUsers = await taskService.getTopUsers(20)
         const sorted = [...topUsers].sort((a, b) => b.exp - a.exp)
         const myIndex = sorted.findIndex((u) => u.user_email === myEmail)
@@ -105,9 +102,7 @@ const useNotificationsStore = defineStore('notifications', {
 
         prevRank = myIndex
         prevAboveEmail = aboveEmail
-      } catch {
-        // same as above — best-effort, retried on the next tick
-      }
+      } catch {}
     },
   },
 })
