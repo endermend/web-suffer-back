@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from datetime import datetime
 from typing import Protocol
 
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
@@ -28,6 +29,7 @@ class ISubmissionRepository(Protocol):
         self,
         user_id: UserID | None,
         status: SubmissionStatus | None = None,
+        updated_after: datetime | None = None,
         order_by: SubmissionOrderBy | None = None,
     ) -> list[Submission]:
         """

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -60,4 +61,5 @@ class SubmissionRangesDTO:
     access_token: str
     user_id: UUID | None
     status: SubmissionStatus | None
+    updated_after: datetime | None
     order_by: SubmissionOrderBy | None

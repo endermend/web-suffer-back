@@ -40,6 +40,7 @@ class GetSubmissionsUseCase:
         subms = await self._subm_repo.get_list(
             user_id=filter_user_id,
             status=self._mapper.from_status_dto(input_dto.status) if input_dto.status is not None else None,
+            updated_after=input_dto.updated_after,
             order_by=input_dto.order_by,
         )
         return [self._mapper.to_subm_dto(subm=subm) for subm in subms]

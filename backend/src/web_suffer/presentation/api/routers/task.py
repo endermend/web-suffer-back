@@ -206,6 +206,7 @@ async def submissions(
     use_case: FromDishka[GetSubmissionsUseCase],
     user_id: Annotated[uuid.UUID | None, Query(description="ID отправителя")] = None,
     status: Annotated[SubmissionStatus | None, Query(description="Статус отправления")] = None,
+    updated_after: Annotated[datetime | None, Query(description="Фильтр отправлений после")] = None,
     order_by: Annotated[SubmissionOrderBy | None, Query(description="Призрак сортировки")] = None,
 ) -> list[SubmissionResponce]:
     """
@@ -221,6 +222,7 @@ async def submissions(
             access_token=access_token,
             user_id=user_id,
             status=status,
+            updated_after=updated_after,
             order_by=order_by,
         ),
     )

@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import override
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
@@ -55,6 +56,7 @@ class SubmissionRepository(ISubmissionRepository):
         self,
         user_id: UserID | None,
         status: SubmissionStatus | None = None,
+        updated_after: datetime | None = None,
         order_by: SubmissionOrderBy | None = None,
     ) -> list[Submission]:
         """
@@ -71,9 +73,13 @@ class SubmissionRepository(ISubmissionRepository):
             stmt = stmt.where(SubmissionORMModel.user_id == user_id.value)
         if status:
             stmt = stmt.where(SubmissionORMModel.status == status.value)
+        if updated_after:
+            stmt = stmt.where(SubmissionORMModel.updated_at >= updated_after)
 
         if order_by == "created_at":
             stmt = stmt.order_by(SubmissionORMModel.created_at)
+        elif order_by == "updated_at":
+            stmt = stmt.order_by(desc(SubmissionORMModel.updated_at))
         elif order_by == "status":
             stmt = stmt.order_by(SubmissionORMModel.status)
         elif order_by == "task_title":
