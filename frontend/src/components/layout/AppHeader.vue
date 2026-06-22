@@ -16,8 +16,11 @@
           </template>
 
           <template v-else>
-            <div ref="bellIconRef" class="all_icon" @click="toggleNotifications">
+            <div ref="bellIconRef" class="all_icon bell_icon" @click="toggleNotifications">
               <BellIcon />
+              <span v-if="notificationsStore.toasts.length" class="notification_badge">
+                {{ notificationsStore.toasts.length }}
+              </span>
             </div>
 
             <div ref="logoutBtnRef" @click="toggleLogoutConfirm">
@@ -55,15 +58,19 @@
       <div v-if="notificationsStore.toasts.length === 0" class="notifications_empty">
         Нет уведомлений
       </div>
-      <transition-group v-else name="notification" tag="div" class="notifications_list">
+      <div v-else class="notifications_list">
         <div
           v-for="notification in notificationsStore.toasts"
           :key="notification.id"
           class="notification_item"
+          :class="{
+            notification_accepted: notification.type === 'accepted',
+            notification_rejected: notification.type === 'rejected',
+          }"
         >
           {{ notification.message }}
         </div>
-      </transition-group>
+      </div>
     </div>
 
     <!-- lower header -->
@@ -363,15 +370,12 @@ header {
   border-bottom: thin solid rgb(230, 230, 230);
 }
 
-.notification-enter-active,
-.notification-leave-active {
-  transition: 0.3s all;
+.notification_accepted {
+  background-color: rgba(22, 163, 74, 0.12);
 }
 
-.notification-enter-from,
-.notification-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
+.notification_rejected {
+  background-color: rgba(204, 63, 75, 0.12);
 }
 
 /* upper header */
@@ -442,6 +446,30 @@ header {
 
 .all_icon:hover {
   transform: scale(1.1);
+}
+
+.bell_icon {
+  position: relative;
+}
+
+.notification_badge {
+  position: absolute;
+  top: 2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border: none;
+  border-radius: 50%;
+  background-color: white;
+  color: black;
+  font-family: Nagel;
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.3);
 }
 
 .logout_text {
