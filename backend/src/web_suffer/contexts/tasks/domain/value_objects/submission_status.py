@@ -9,7 +9,7 @@ from web_suffer.shared.domain.value_objects.single_value_object import SingleVal
 class SubmissionStatus(SingleValueObject):
     """Value object статуса посылки."""
 
-    value: types.SubmissionStatus
+    value: types.SubmissionStatusType
 
     PENDING: ClassVar["SubmissionStatus"]
     ACCEPTED: ClassVar["SubmissionStatus"]

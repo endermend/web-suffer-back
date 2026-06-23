@@ -1,8 +1,10 @@
 import structlog
 
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, UpdateTaskDTO
+from web_suffer.contexts.tasks.application.exceptions import UpdateForbidenError
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.entities.task import Task
+from web_suffer.contexts.tasks.domain.repository.submission_repository import ISubmissionRepository
 from web_suffer.contexts.tasks.domain.repository.task_repository import ITaskRepository
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
@@ -18,11 +20,13 @@ class UpdateTaskUseCase:
     def __init__(
         self,
         task_repo: ITaskRepository,
+        subm_repo: ISubmissionRepository,
         mapper: ITaskDTOMapper,
         auth_service: IAuthService,
     ) -> None:
         """Инициализация use case."""
         self._task_repo = task_repo
+        self._subm_repo = subm_repo
         self._mapper = mapper
         self._auth_service = auth_service
 
@@ -37,6 +41,7 @@ class UpdateTaskUseCase:
 
         Raises:
             InsufficientPermissionsError: Недостаточно прав для создания/изменения задания.
+            UpdateForbidenError: Обновление задания недоступно.
 
         """
         user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
@@ -46,6 +51,9 @@ class UpdateTaskUseCase:
             raise InsufficientPermissionsError(error)
 
         task_id = TaskID(input_dto.task_id) if input_dto.task_id else None
+        if task_id and self._subm_repo.check_pending(task_id):
+            raise UpdateForbidenError
+
         task = Task.create(
             id=task_id,
             title=input_dto.title,

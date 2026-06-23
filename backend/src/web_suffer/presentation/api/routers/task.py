@@ -27,7 +27,7 @@ from web_suffer.contexts.tasks.application.use_cases.get_top_users import GetTop
 from web_suffer.contexts.tasks.application.use_cases.get_user_by_id import GetUserByIDUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_task import UpdateTaskUseCase
 from web_suffer.contexts.tasks.application.use_cases.update_user import UpdateUserUseCase
-from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus, TaskOrderBy, TaskStatusFilter
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderByType, SubmissionStatusType, TaskOrderByType, TaskStatusFilterType
 from web_suffer.infrastructure.constants import UPLOAD_DIR
 from web_suffer.presentation.api.routers.utils import CredentialsType, OptionalCredentialsType
 from web_suffer.presentation.api.schemas.task.change_submission import ChangeSubmissionRequest
@@ -205,9 +205,9 @@ async def submissions(
     credentials: CredentialsType,
     use_case: FromDishka[GetSubmissionsUseCase],
     user_id: Annotated[uuid.UUID | None, Query(description="ID отправителя")] = None,
-    status: Annotated[SubmissionStatus | None, Query(description="Статус отправления")] = None,
+    status: Annotated[SubmissionStatusType | None, Query(description="Статус отправления")] = None,
     updated_after: Annotated[datetime | None, Query(description="Фильтр отправлений после")] = None,
-    order_by: Annotated[SubmissionOrderBy | None, Query(description="Призрак сортировки")] = None,
+    order_by: Annotated[SubmissionOrderByType | None, Query(description="Призрак сортировки")] = None,
 ) -> list[SubmissionResponce]:
     """
     Эндпоинт получения отправлений по фильтру.
@@ -316,8 +316,8 @@ async def tasks(
     offset: Annotated[int, Query(description="Отступ от начала")] = 0,
     deadline_from: Annotated[datetime | None, Query(description="Дедлайн от")] = None,
     deadline_till: Annotated[datetime | None, Query(description="Дедлайн до")] = None,
-    status: Annotated[TaskStatusFilter | None, Query(description="Статус задания")] = None,
-    order_by: Annotated[TaskOrderBy | None, Query(description="Порядок сортировки")] = None,
+    status: Annotated[TaskStatusFilterType | None, Query(description="Статус задания")] = None,
+    order_by: Annotated[TaskOrderByType | None, Query(description="Порядок сортировки")] = None,
 ) -> list[UserTaskResponce]:
     """
     Эндпоинт получения списка заданий.

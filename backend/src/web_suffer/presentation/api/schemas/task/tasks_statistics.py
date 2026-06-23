@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from web_suffer.contexts.tasks.domain.types import TaskStatus
+from web_suffer.contexts.tasks.domain.types import TaskStatusType
 
 
 class TaskStatisticsResponce(BaseModel):
@@ -14,4 +14,4 @@ class TaskStatisticsResponce(BaseModel):
 
     task_all: int
 
-    task_status: dict[TaskStatus, int] | None
+    task_status: dict[TaskStatusType, int] | None

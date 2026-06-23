@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from web_suffer.contexts.tasks.domain.types import SubmissionStatus
+from web_suffer.contexts.tasks.domain.types import SubmissionStatusType
 
 
 class ChangeSubmissionRequest(BaseModel):
@@ -14,5 +14,5 @@ class ChangeSubmissionRequest(BaseModel):
     """
 
     submission_id: UUID
-    status: SubmissionStatus
+    status: SubmissionStatusType
     comment: str | None = None

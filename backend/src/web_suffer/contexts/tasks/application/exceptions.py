@@ -11,3 +11,7 @@ class InvalidSubmissionError(ApplicationError):
 
 class ExpiredTaskError(ApplicationError):
     """Дедлайн задания уже прошел."""
+
+
+class UpdateForbidenError(ApplicationError):
+    """Задание находится на проверке."""

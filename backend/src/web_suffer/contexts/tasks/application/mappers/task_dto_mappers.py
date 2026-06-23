@@ -4,13 +4,12 @@ from typing import Protocol
 from web_suffer.contexts.tasks.application.dtos.submission_dto import SubmissionDTO, SubmissionIDDTO
 from web_suffer.contexts.tasks.application.dtos.task_dto import TaskDTO, TaskIDDTO, UsersTaskDTO
 from web_suffer.contexts.tasks.application.dtos.usert_dto import UserTDTO
-from web_suffer.contexts.tasks.domain import types
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
 from web_suffer.contexts.tasks.domain.entities.task import Task
 from web_suffer.contexts.tasks.domain.entities.user import UserT
-from web_suffer.contexts.tasks.domain.types import TaskStatus
-from web_suffer.contexts.tasks.domain.value_objects import submission_status
+from web_suffer.contexts.tasks.domain.types import SubmissionStatusType, TaskStatusType
 from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
+from web_suffer.contexts.tasks.domain.value_objects.submission_status import SubmissionStatus
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 
 
@@ -96,7 +95,7 @@ class ITaskDTOMapper(Protocol):
 
     @staticmethod
     @abstractmethod
-    def to_user_task_dto(task: Task, status: TaskStatus) -> UsersTaskDTO:
+    def to_user_task_dto(task: Task, status: TaskStatusType) -> UsersTaskDTO:
         """
         Domain Entity -> DTO.
 
@@ -107,7 +106,7 @@ class ITaskDTOMapper(Protocol):
 
     @staticmethod
     @abstractmethod
-    def from_status_dto(status: types.SubmissionStatus) -> submission_status.SubmissionStatus:
+    def from_status_dto(status: SubmissionStatusType) -> SubmissionStatus:
         """
         Strong type -> Domain value object.
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from web_suffer.contexts.tasks.domain.types import TaskOrderBy, TaskStatus, TaskStatusFilter
+from web_suffer.contexts.tasks.domain.types import TaskOrderByType, TaskStatusFilterType, TaskStatusType
 
 
 @dataclass(slots=True, frozen=True)
@@ -31,8 +31,8 @@ class UsersTasksRangeDTO:
     access_token: str
     deadline_from: datetime | None
     deadline_till: datetime | None
-    status: TaskStatusFilter | None
-    order_by: TaskOrderBy | None
+    status: TaskStatusFilterType | None
+    order_by: TaskOrderByType | None
     limit: int
     offset: int
 
@@ -47,7 +47,7 @@ class UsersTaskDTO:
     deadline: datetime
     exp: int
     money: int
-    status: TaskStatus
+    status: TaskStatusType
 
 
 @dataclass(slots=True, frozen=True)
@@ -56,7 +56,7 @@ class TaskStatisticsDTO:
 
     tasks_all: int
 
-    tasks_status: dict[TaskStatus, int] | None
+    tasks_status: dict[TaskStatusType, int] | None
 
 
 @dataclass(slots=True, frozen=True)

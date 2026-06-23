@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from uuid import UUID
 
-from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy, SubmissionStatus
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderByType, SubmissionStatusType
 
 
 @dataclass(slots=True, frozen=True)
@@ -15,7 +15,7 @@ class SubmissionDTO:
     user_id: UUID
     content: str
     file: Path | None
-    status: SubmissionStatus
+    status: SubmissionStatusType
     comment: str
 
 
@@ -50,7 +50,7 @@ class ChangeSubmissionDTO:
 
     access_token: str
     submission_id: UUID
-    status: SubmissionStatus
+    status: SubmissionStatusType
     comment: str
 
 
@@ -60,6 +60,6 @@ class SubmissionRangesDTO:
 
     access_token: str
     user_id: UUID | None
-    status: SubmissionStatus | None
+    status: SubmissionStatusType | None
     updated_after: datetime | None
-    order_by: SubmissionOrderBy | None
+    order_by: SubmissionOrderByType | None

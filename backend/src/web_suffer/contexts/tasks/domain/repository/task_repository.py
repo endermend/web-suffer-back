@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Protocol
 
 from web_suffer.contexts.tasks.domain.entities.task import Task
-from web_suffer.contexts.tasks.domain.types import TaskOrderBy, TaskStatus, TaskStatusFilter
+from web_suffer.contexts.tasks.domain.types import TaskOrderByType, TaskStatusFilterType, TaskStatusType
 from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.shared.domain.value_objects.user_id import UserID
 
@@ -45,11 +45,11 @@ class ITaskRepository(Protocol):
         user_id: UserID,
         deadline_from: datetime | None = None,
         deadline_till: datetime | None = None,
-        status: TaskStatusFilter | None = None,
-        order_by: TaskOrderBy | None = None,
+        status: TaskStatusFilterType | None = None,
+        order_by: TaskOrderByType | None = None,
         limit: int | None = None,
         offset: int | None = None,
-    ) -> list[tuple[Task, TaskStatus]]:
+    ) -> list[tuple[Task, TaskStatusType]]:
         """
         Получение Tasks.
 

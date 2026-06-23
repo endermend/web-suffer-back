@@ -45,4 +45,4 @@ class DBProvider(Provider):
 
         """
         async with session_maker() as session:
-            yield session
+            yield session  # noqa: ASYNC119

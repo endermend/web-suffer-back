@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from web_suffer.contexts.tasks.domain.types import TaskStatus
+from web_suffer.contexts.tasks.domain.types import TaskStatusType
 
 
 class UserTaskResponce(BaseModel):
@@ -26,4 +26,4 @@ class UserTaskResponce(BaseModel):
     deadline: datetime
     exp: int
     money: int
-    status: TaskStatus
+    status: TaskStatusType

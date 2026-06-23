@@ -1,14 +1,15 @@
 from datetime import datetime
 from typing import override
 
-from sqlalchemy import desc, select
+from sqlalchemy import and_, desc, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from web_suffer.contexts.tasks.domain.entities.submission import Submission
 from web_suffer.contexts.tasks.domain.repository.submission_repository import ISubmissionRepository
-from web_suffer.contexts.tasks.domain.types import SubmissionOrderBy
+from web_suffer.contexts.tasks.domain.types import SubmissionOrderByType
 from web_suffer.contexts.tasks.domain.value_objects.submission_id import SubmissionID
 from web_suffer.contexts.tasks.domain.value_objects.submission_status import SubmissionStatus
+from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.contexts.tasks.infrastructure.mappers.submission_orm_mapper import SubmissionORMMapper
 from web_suffer.contexts.tasks.infrastructure.persistence.models.submission_model import SubmissionORMModel
 from web_suffer.contexts.tasks.infrastructure.persistence.models.task_model import TaskORMModel
@@ -57,7 +58,7 @@ class SubmissionRepository(ISubmissionRepository):
         user_id: UserID | None,
         status: SubmissionStatus | None = None,
         updated_after: datetime | None = None,
-        order_by: SubmissionOrderBy | None = None,
+        order_by: SubmissionOrderByType | None = None,
     ) -> list[Submission]:
         """
         Получение Submission.
@@ -90,3 +91,24 @@ class SubmissionRepository(ISubmissionRepository):
         result = await self._session.execute(stmt)
         submissions_orm = result.scalars()
         return [self._mapper.to_domain(orm=submission_orm) for submission_orm in submissions_orm]
+
+    async def check_pending(
+        self,
+        task_id: TaskID,
+    ) -> bool:
+        """
+        Проверка на наличие отправлений ожидающих проверку.
+
+        Returns:
+            True, если у задания есть непроверенное отправление.
+
+        """  # noqa: RUF002
+        stmt = exists().where(
+            and_(
+                SubmissionORMModel.task_id == task_id.value,
+                SubmissionORMModel.status == SubmissionStatus.PENDING.value,
+            ),
+        ).select()
+
+        has_pending = await self._session.execute(stmt)
+        return has_pending.scalar() is not None

@@ -11,7 +11,7 @@ from web_suffer.shared.application.dtos.access_token_dto import PublicAccessToke
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
 
 if TYPE_CHECKING:
-    from web_suffer.contexts.tasks.domain.types import TaskStatus
+    from web_suffer.contexts.tasks.domain.types import TaskStatusType
 
 logger = structlog.stdlib.get_logger()
 
@@ -44,7 +44,7 @@ class GetTasksStatisticsUseCase:
                 deadline_from=now,
             ),
         )
-        tasks_status: dict[TaskStatus, int] | None = None
+        tasks_status: dict[TaskStatusType, int] | None = None
         if input_dto.access_token is not None:
             user_id = await self._auth_service.get_user_id_by_token(input_dto.access_token)
             tasks = await self._task_repo.get_list(
