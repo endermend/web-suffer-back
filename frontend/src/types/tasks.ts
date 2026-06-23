@@ -75,7 +75,7 @@ export interface SubmissionApiResponse {
   comment: string
 }
 
-export type SubmissionOrderBy = 'status' | 'created_at' | 'task_title'
+export type SubmissionOrderBy = 'status' | 'created_at' | 'task_title' | 'updated_at'
 
 export interface TaskStatisticsResponse {
   task_all: number

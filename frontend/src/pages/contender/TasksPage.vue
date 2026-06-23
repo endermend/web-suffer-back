@@ -55,11 +55,13 @@
                 <span class="progress_inner">{{ animatedProgress }}%</span>
               </div>
             </div>
-            <p class="progress_info">
-              Правильно выполнено {{ completedCount }} из {{ totalCount }} заданий
-            </p>
-            <div class="progress_bar">
-              <div class="progress_fill" :style="{ width: animatedProgress + '%' }"></div>
+            <div>
+              <p class="progress_info">
+                Правильно выполнено {{ completedCount }} из {{ totalCount }} заданий
+              </p>
+              <div class="progress_bar">
+                <div class="progress_fill" :style="{ width: animatedProgress + '%' }"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -444,6 +446,7 @@ main {
 .card_progress {
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   background-color: white;
   border: none;
   border-radius: 16px;

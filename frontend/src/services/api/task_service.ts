@@ -167,6 +167,7 @@ class TaskService {
   async getSubmissions(filters?: {
     userId?: string
     status?: SubmissionStatus
+    updatedAfter?: string
     orderBy?: SubmissionOrderBy
   }): Promise<SubmissionApiResponse[]> {
     try {
@@ -174,6 +175,7 @@ class TaskService {
         params: {
           user_id: filters?.userId,
           status: filters?.status,
+          updated_after: filters?.updatedAfter,
           order_by: filters?.orderBy,
         },
       })
