@@ -1,5 +1,5 @@
 
-from collections.abc import AsyncIterable
+from collections.abc import AsyncGenerator
 
 from dishka import (
     Provider,
@@ -36,7 +36,7 @@ class DBProvider(Provider):
     @staticmethod
     async def get_session(
         session_maker: async_sessionmaker[AsyncSession],
-    ) -> AsyncIterable[AsyncSession]:
+    ) -> AsyncGenerator[AsyncSession]:
         """
         Провайдер сессии.
 
