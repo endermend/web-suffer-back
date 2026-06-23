@@ -4,6 +4,7 @@ from web_suffer.contexts.tasks.application.dtos.task_dto import TaskIDDTO, Updat
 from web_suffer.contexts.tasks.application.mappers.task_dto_mappers import ITaskDTOMapper
 from web_suffer.contexts.tasks.domain.entities.task import Task
 from web_suffer.contexts.tasks.domain.repository.task_repository import ITaskRepository
+from web_suffer.contexts.tasks.domain.value_objects.task_id import TaskID
 from web_suffer.shared.domain.exceptions import InsufficientPermissionsError
 from web_suffer.shared.domain.interfaces.auth_service import IAuthService
 from web_suffer.shared.domain.value_objects.user_rights import UserRights
@@ -44,7 +45,9 @@ class UpdateTaskUseCase:
             logger.warning("task.create.failed", reason="not_enought_permission")
             raise InsufficientPermissionsError(error)
 
+        task_id = TaskID(input_dto.task_id) if input_dto.task_id else None
         task = Task.create(
+            id=task_id,
             title=input_dto.title,
             description=input_dto.description,
             deadline=input_dto.deadline,
