@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Protocol
 
 from web_suffer.contexts.tasks.application.dtos.submission_dto import SubmissionDTO, SubmissionIDDTO
@@ -17,6 +18,7 @@ class ITaskDTOMapper(Protocol):
     """Mapper между Domain Entity и DTO."""
 
     @staticmethod
+    @abstractmethod
     def to_task_dto(task: Task) -> TaskDTO:
         """
         Domain Entity -> DTO.
@@ -27,6 +29,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_subm_dto(subm: Submission) -> SubmissionDTO:
         """
         Domain Entity -> DTO.
@@ -37,6 +40,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_user_dto(user: UserT) -> UserTDTO:
         """
         Domain Entity -> DTO.
@@ -47,6 +51,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def from_task_id_dto(task_id: TaskIDDTO) -> TaskID:
         """
         DTO -> Domain value object.
@@ -57,6 +62,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_task_id_dto(task: TaskID) -> TaskIDDTO:
         """
         Domain value object -> DTO.
@@ -67,6 +73,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def from_subm_id_dto(subm_id: SubmissionIDDTO) -> SubmissionID:
         """
         DTO -> Domain value object.
@@ -77,6 +84,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_subm_id_dto(subm: SubmissionID) -> SubmissionIDDTO:
         """
         Domain value object -> DTO.
@@ -87,6 +95,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_user_task_dto(task: Task, status: TaskStatus) -> UsersTaskDTO:
         """
         Domain Entity -> DTO.
@@ -97,6 +106,7 @@ class ITaskDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def from_status_dto(status: types.SubmissionStatus) -> submission_status.SubmissionStatus:
         """
         Strong type -> Domain value object.

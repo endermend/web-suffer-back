@@ -1,4 +1,5 @@
-from collections.abc import AsyncIterable
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from dishka import (
     Provider,
@@ -33,9 +34,10 @@ class DBProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     @staticmethod
+    @asynccontextmanager
     async def get_session(
         session_maker: async_sessionmaker[AsyncSession],
-    ) -> AsyncIterable[AsyncSession]:
+    ) -> AsyncIterator[AsyncSession]:
         """
         Провайдер сессии.
 

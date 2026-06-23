@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Protocol
 
 from web_suffer.contexts.auth.application.dtos.token_dto import (
@@ -21,6 +22,7 @@ class IAuthDTOMapper(Protocol):
     """Mapper между Domain Entity и DTO."""
 
     @staticmethod
+    @abstractmethod
     def to_user_dto(user: User) -> UserDTO:
         """
         Domain Entity -> DTO.
@@ -31,6 +33,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_login_dto(user: User) -> LoginDTO:
         """
         Domain Entity -> Login DTO.
@@ -41,6 +44,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def create_from_dto(
         create_dto: CredentialsDTO,
     ) -> User:
@@ -53,6 +57,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def update_from_dto(
         user: User,
         update_dto: UpdateUserDTO,
@@ -60,6 +65,7 @@ class IAuthDTOMapper(Protocol):
         """Обновляет Domain Entity из DTO."""
 
     @staticmethod
+    @abstractmethod
     def to_access_dto(
         token_pair: TokenPair,
     ) -> AccessTokenDTO:
@@ -72,6 +78,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_refresh_dto(
         token_pair: TokenPair,
     ) -> RefreshTokenDTO:
@@ -84,6 +91,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_token_dto(
         token_pair: TokenPair,
     ) -> TokensDTO:
@@ -96,6 +104,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def from_userid_dto(
         user_id: UserIDDTO,
     ) -> UserID:
@@ -108,6 +117,7 @@ class IAuthDTOMapper(Protocol):
         """
 
     @staticmethod
+    @abstractmethod
     def to_userid_dto(
         user_id: UserID,
     ) -> UserIDDTO:

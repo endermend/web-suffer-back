@@ -6,7 +6,7 @@ from web_suffer.infrastructure.log_config import setup_logging
 
 def main() -> None:
     """Запуск FastAPI приложения в помощью uvicorn."""
-    config = Config()  # ty:ignore[missing-argument]
+    config = Config()  # pyright: ignore[reportCallIssue] # ty:ignore[missing-argument]
     setup_logging(env=config.APP.ENV)
 
     uvicorn.run(

@@ -326,7 +326,7 @@ async def tasks(
         list[UserTaskResponce]
 
     """
-    access_token = credentials.credentials if credentials is not None else None
+    access_token = credentials.credentials
     tasks = await use_case.execute(
         input_dto=UsersTasksRangeDTO(
             access_token=access_token,
@@ -372,7 +372,7 @@ async def user(
         UserResponce
 
     """  # noqa: RUF002
-    access_token = credentials.credentials if credentials is not None else None
+    access_token = credentials.credentials
     user = await use_case.execute(
         input_dto=UserTIDDTO(
             access_token=access_token,

@@ -1,14 +1,11 @@
 import json
-from typing import TYPE_CHECKING, cast, override
+from typing import cast, override
 
 from redis.asyncio.client import Redis
 
 from web_suffer.contexts.auth.domain.repositories import ITokenRepository
 from web_suffer.contexts.auth.domain.value_objects.token import Token
 from web_suffer.shared.domain.value_objects import UserID
-
-if TYPE_CHECKING:
-    from collections.abc import Awaitable
 
 
 class RedisTokenRepository(ITokenRepository):
@@ -38,10 +35,7 @@ class RedisTokenRepository(ITokenRepository):
                 time=ttl_seconds,
                 value=token_data,
             )
-            await cast(
-                "Awaitable[int]",
-                pipe.sadd(f"refresh_sessions:{user_id.value}", refresh_token.value),
-            )
+            await pipe.sadd(f"refresh_sessions:{user_id.value}", refresh_token.value)
             await pipe.execute()
 
     @override
@@ -74,11 +68,8 @@ class RedisTokenRepository(ITokenRepository):
 
         async with self._redis.pipeline(transaction=True) as pipe:
             await pipe.delete(f"refresh:{refresh_token.value}")
-            await cast(
-                "Awaitable[int]",
-                pipe.srem(
-                    f"refresh_sessions:{user_id.value}",
-                    refresh_token.value,
-                ),
+            await pipe.srem(
+                f"refresh_sessions:{user_id.value}",
+                refresh_token.value,
             )
             await pipe.execute()

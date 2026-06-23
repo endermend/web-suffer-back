@@ -24,13 +24,13 @@ def create_app() -> FastAPI:
         FastAPI
 
     """
-    config = Config()  # ty:ignore[missing-argument]
+    config = Config()  # pyright: ignore[reportCallIssue] # ty:ignore[missing-argument]
     container = make_container_di(config=config)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncGenerator[None,]:
         await _run_seeders(container)
-        yield
+        yield  # noqa: RUF075
         await container.close()
 
     app = FastAPI(lifespan=lifespan)
